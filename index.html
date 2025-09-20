@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SetupGuru.Shop - Coming Soon</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            margin-bottom: 30px;
+        }
+        
+        .logo h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        .logo span {
+            color: #fdbb2d;
+        }
+        
+        .logo p {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+        
+        .main-heading {
+            font-size: 4rem;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .time-unit {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 100px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .time-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        }
+        
+        .time-label {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fdbb2d;
+        }
+        
+        .message {
+            margin: 30px 0;
+            font-size: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        .notify-form {
+            margin: 30px 0;
+        }
+        
+        .notify-form input {
+            padding: 15px 20px;
+            width: 300px;
+            border: none;
+            border-radius: 50px 0 0 50px;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .notify-form button {
+            background: #fdbb2d;
+            color: #1a2a6c;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1rem;
+            border-radius: 0 50px 50px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            margin-left: -5px;
+        }
+        
+        .notify-form button:hover {
+            background: #ffcc44;
+        }
+        
+        .social-icons {
+            margin-top: 40px;
+        }
+        
+        .social-icons h3 {
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .social-icons a {
+            display: inline-block;
+            color: white;
+            font-size: 2.5rem;
+            margin: 0 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .social-icons a:hover {
+            color: #fdbb2d;
+            transform: translateY(-5px);
+        }
+        
+        .instagram-handle {
+            margin-top: 15px;
+            font-size: 1.2rem;
+            color: #fdbb2d;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-heading {
+                font-size: 3rem;
+            }
+            
+            .logo h1 {
+                font-size: 2.5rem;
+            }
+            
+            .time-value {
+                font-size: 2.5rem;
+            }
+            
+            .time-unit {
+                min-width: 80px;
+                padding: 15px;
+            }
+            
+            .message {
+                font-size: 1.2rem;
+            }
+            
+            .notify-form input {
+                width: 100%;
+                border-radius: 50px;
+                margin-bottom: 10px;
+            }
+            
+            .notify-form button {
+                width: 100%;
+                border-radius: 50px;
+                margin-left: 0;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .main-heading {
+                font-size: 2.5rem;
+            }
+            
+            .logo h1 {
+                font-size: 2rem;
+            }
+            
+            .countdown {
+                gap: 10px;
+            }
+            
+            .time-unit {
+                min-width: 70px;
+                padding: 10px;
+            }
+            
+            .time-value {
+                font-size: 2rem;
+            }
+            
+            .time-label {
+                font-size: 0.8rem;
+            }
+            
+            .message {
+                font-size: 1rem;
+            }
+            
+            .social-icons a {
+                font-size: 2rem;
+                margin: 0 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>Setup<span>Guru</span></h1>
+            <p>Premium Tech Setup Solutions</p>
+        </div>
+        
+        <h1 class="main-heading">Coming Soon</h1>
+        
+        <div class="countdown">
+            <div class="time-unit">
+                <div id="days" class="time-value">00</div>
+                <div class="time-label">Days</div>
+            </div>
+            
+            <div class="time-unit">
+                <div id="hours" class="time-value">00</div>
+                <div class="time-label">Hours</div>
+            </div>
+            
+            <div class="time-unit">
+                <div id="minutes" class="time-value">00</div>
+                <div class="time-label">Minutes</div>
+            </div>
+            
+            <div class="time-unit">
+                <div id="seconds" class="time-value">00</div>
+                <div class="time-label">Seconds</div>
+            </div>
+        </div>
+        
+        <div class="message">
+            <p>We'r working hard to bring you the best tech setup solutions. Our website is launching on <strong>September 23, 2023</strong>!</p>
+            <p>Stay tuned for the big reveal.</p>
+        </div>
+        
+        <div class="notify-form">
+            <input type="email" placeholder="Enter your email for updates">
+            <button>Notify Me</button>
+        </div>
+        
+        <div class="social-icons">
+            <h3>Follow us on social media</h3>
+            <a href="https://instagram.com/setupguru.shop" target="_blank" aria-label="Instagram">
+                <i class="fab fa-instagram"></i>
+            </a>
+            <a href="#" aria-label="Facebook">
+                <i class="fab fa-facebook"></i>
+            </a>
+            <a href="#" aria-label="Twitter">
+                <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" aria-label="YouTube">
+                <i class="fab fa-youtube"></i>
+            </a>
+            <div class="instagram-handle">
+                @setupguru.shop
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set the launch date (September 23, 2023)
+        const launchDate = new Date('September 23, 2023 00:00:00').getTime();
+        
+        // Update countdown every second
+        const countdown = setInterval(function() {
+            const now = new Date().getTime();
+            const timeRemaining = launchDate - now;
+            
+            // Calculate days, hours, minutes, seconds
+            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+            
+            // Display the results
+            document.getElementById('days').textContent = days.toString().padStart(2, '0');
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+            
+            // If countdown is over
+            if (timeRemaining < 0) {
+                clearInterval(countdown);
+                document.querySelector('.countdown').innerHTML = '<div class="message"><h2>We\'re Live Now!</h2><p>Our website has been launched. Thank you for your patience.</p></div>';
+            }
+        }, 1000);
+        
+        // Notify button functionality
+        document.querySelector('button').addEventListener('click', function() {
+            const email = document.querySelector('input').value;
+            if (email) {
+                alert('Thank you! We will notify you at ' + email + ' when our website is live.');
+                document.querySelector('input').value = '';
+            } else {
+                alert('Please enter your email address.');
+            }
+        });
+    </script>
+</body>
+</html>
