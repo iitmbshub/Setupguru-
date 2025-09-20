@@ -241,10 +241,24 @@
                 margin: 0 10px;
             }
         }
+
+        .construction-banner {
+            background: #fdbb2d;
+            color: #1a2a6c;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="construction-banner">
+            <i class="fas fa-tools"></i> Website Under Construction - Launching Soon!
+        </div>
+        
         <div class="logo">
             <h1>Setup<span>Guru</span></h1>
             <p>Premium Tech Setup Solutions</p>
@@ -275,7 +289,7 @@
         </div>
         
         <div class="message">
-            <p>We'r working hard to bring you the best tech setup solutions. Our website is launching on <strong>September 23, 2023</strong>!</p>
+            <p>We're working hard to bring you the best tech setup solutions. Our website is launching on <strong>September 23, 2025</strong>!</p>
             <p>Stay tuned for the big reveal.</p>
         </div>
         
@@ -305,13 +319,20 @@
     </div>
 
     <script>
-        // Set the launch date (September 23, 2023)
-        const launchDate = new Date('September 23, 2023 00:00:00').getTime();
+        // Set the launch date (September 23, 2025)
+        const launchDate = new Date('September 23, 2025 00:00:00').getTime();
         
         // Update countdown every second
         const countdown = setInterval(function() {
             const now = new Date().getTime();
             const timeRemaining = launchDate - now;
+            
+            // If countdown is over
+            if (timeRemaining < 0) {
+                clearInterval(countdown);
+                document.querySelector('.countdown').innerHTML = '<div class="message"><h2>We\'re Live Now!</h2><p>Our website has been launched. Thank you for your patience.</p></div>';
+                return;
+            }
             
             // Calculate days, hours, minutes, seconds
             const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
@@ -325,11 +346,6 @@
             document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
             document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
             
-            // If countdown is over
-            if (timeRemaining < 0) {
-                clearInterval(countdown);
-                document.querySelector('.countdown').innerHTML = '<div class="message"><h2>We\'re Live Now!</h2><p>Our website has been launched. Thank you for your patience.</p></div>';
-            }
         }, 1000);
         
         // Notify button functionality
