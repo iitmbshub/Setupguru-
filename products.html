@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SetupGuru.shop - Product List</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        :root {
+            --primary-color: #2E1A5F; /* Dark Violet */
+            --secondary-color: #C49B46; /* Gold */
+            --background-color: #fdfdff;
+            --text-color: #333;
+            --card-bg: #ffffff;
+            --shadow-color: rgba(46, 26, 95, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            background-image: radial-gradient(var(--primary-color) 0.5px, transparent 0.5px);
+            background-size: 20px 20px;
+        }
+        
+        header {
+            background: var(--primary-color);
+            color: white;
+            padding: 2.5rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            border-bottom: 4px solid var(--secondary-color);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2.5rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .search-container {
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        #search-bar {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        #search-bar:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px var(--shadow-color);
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .category-header {
+            grid-column: 1 / -1;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--primary-color);
+            color: var(--primary-color);
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #eee;
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px var(--shadow-color);
+        }
+        
+        .card-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .product-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+        
+        .copy-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            margin-top: 1rem;
+            width: 100%;
+        }
+        
+        .copy-btn:hover {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .copy-btn:active {
+            transform: scale(0.97);
+        }
+
+        .copy-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: bottom 0.5s ease;
+            z-index: 1000;
+            font-weight: 600;
+        }
+        
+        .toast.show {
+            bottom: 30px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2.5rem;
+            margin-top: 4rem;
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            h1 { font-size: 2.2rem; }
+            .container { padding: 0 1rem; }
+        }
+        
+        @media (max-width: 480px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 { font-size: 1.8rem; }
+            .subtitle { font-size: 1rem; }
+            #search-bar { padding: 0.8rem 1.2rem; font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SetupGuru.shop</h1>
+        <p class="subtitle">A-Z Product List for Home & Study Setups</p>
+    </header>
+    
+    <div class="container">
+        <div class="search-container">
+            <input type="text" id="search-bar" placeholder="🔍 Search for products...">
+        </div>
+        
+        <div class="products-grid" id="products-container">
+            </div>
+    </div>
+    
+    <div class="toast" id="toast">Item name copied to clipboard!</div>
+    
+    <footer>
+        <p>&copy; 2025 SetupGuru.shop - All rights reserved</p>
+    </footer>
+
+    <script>
+        const products = {
+            "A": ["Adjustable Laptop Stand", "Audio Splitter / Headphone Hub"],
+            "B": ["Blue Light Blocking Glasses", "Bluetooth Keyboard & Mouse Combo", "Bookends / Desk Book Organizer"],
+            "C": ["Cable Organizer Clips", "Clip-on LED Desk Lamp", "Compact Desk Drawer Organizer"],
+            "D": ["Desk Mat (Leather / Felt)", "Desk Organizer Tray", "Desktop Pen Holder", "Desktop Cable Management Box"],
+            "E": ["Ergonomic Chair Cushion", "Ergonomic Foot Rest", "External USB Hub"],
+            "F": ["Foldable Laptop Table", "File Holder / Document Rack", "Flexible Mobile Phone Holder"],
+            "G": ["Gaming Mouse (Ergonomic)", "Gel Wrist Rest (Keyboard / Mouse)"],
+            "H": ["Headphone Stand / Hanger", "Highlighter Pen Set", "HDMI Cable Organizer"],
+            "I": ["Index Card Holder", "Indoor Plant Pot for Desk (Small)"],
+            "J": ["Journal / Planner Notebook", "Juice Bottle / Water Bottle with Time Marker"],
+            "K": ["Keyboard Wrist Rest", "Keychain Organizer (Desk / Office Use)"],
+            "L": ["LED Strip Lights for Desk", "Laptop Cooling Pad", "Laptop Riser Stand"],
+            "M": ["Mouse Pad (Ergonomic / Gaming)", "Mini Whiteboard / Memo Board", "Magnetic Cable Ties"],
+            "N": ["Notebook / Study Planner", "Noise Cancelling Earplugs", "Notebook Stand"],
+            "O": ["Organizer Box for Office Supplies", "Office Supply Kit (Stapler, Pins, Clips)"],
+            "P": ["Phone Stand / Holder", "Post-it Notes / Sticky Notes Set", "Pen Holder with Multiple Compartments"],
+            "Q": ["Quick Charge USB Hub", "Quadruple Charging Dock (Phones/Tablets)"],
+            "R": ["Reading Lamp with Adjustable Brightness", "Roller Cable Management Clips"],
+            "S": ["Stationery Set (Pens, Pencils, Erasers)", "Smart Desk Lamp (Touch Control / Wireless Charging)", "Smartphone Tripod / Mini Tripod Stand"],
+            "T": ["Tablet Stand / Holder", "Timer / Desk Clock", "Thermos / Coffee Mug for Desk"],
+            "U": ["USB Fan (Desk Mini Fan)", "USB Desk Lamp", "USB Multiport Hub"],
+            "V": ["Vertical Laptop Stand", "Voice Control Desk Gadget (Optional, Smart Assistant)"],
+            "W": ["Whiteboard / Memo Board for Desk", "Wireless Mouse", "Wireless Charger Stand"],
+            "X": ["X-Shaped Laptop Stand (Adjustable)"],
+            "Y": ["Yoga Ball Chair / Mini Exercise Ball (Desk Use)", "Yellow LED Desk Light (Optional Decorative)"],
+            "Z": ["Zipper Pouch for Stationery / Cables", "Zoom Call Accessories (Tripod + Ring Light Combo)"]
+        };
+        
+        const productsContainer = document.getElementById('products-container');
+        const toast = document.getElementById('toast');
+        const searchBar = document.getElementById('search-bar');
+        
+        function createProductCard(item) {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            
+            const cardContent = document.createElement('div');
+            cardContent.className = 'card-content';
+            
+            const productName = document.createElement('h3');
+            productName.className = 'product-name';
+            productName.textContent = item;
+            
+            const copyButton = document.createElement('button');
+            copyButton.className = 'copy-btn';
+            copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M384 336H192c-8.8 0-16-7.2-16-16V64c0-8.8 7.2-16 16-16l140.1 0L400 115.9V320c0 8.8-7.2 16-16 16zM192 384H384c35.3 0 64-28.7 64-64V115.9c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1H192c-35.3 0-64 28.7-64 64V320c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64V448c0 35.3 28.7 64 64 64H256c35.3 0 64-28.7 64-64V416H272v32c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V192c0-8.8 7.2-16 16-16H96V128H64z"/></svg><span>Copy Item Name</span>`;
+            
+            copyButton.addEventListener('click', () => {
+                copyToClipboard(item);
+            });
+            
+            cardContent.appendChild(productName);
+            cardContent.appendChild(copyButton);
+            card.appendChild(cardContent);
+            
+            return card;
+        }
+
+        function renderProducts(filter = '') {
+            productsContainer.innerHTML = '';
+            const lowerCaseFilter = filter.toLowerCase();
+            let animationDelay = 0;
+
+            for (const [category, items] of Object.entries(products)) {
+                const filteredItems = items.filter(item => item.toLowerCase().includes(lowerCaseFilter));
+
+                if (filteredItems.length > 0) {
+                    const categoryHeader = document.createElement('h2');
+                    categoryHeader.className = 'category-header';
+                    categoryHeader.id = category;
+                    categoryHeader.textContent = category;
+                    productsContainer.appendChild(categoryHeader);
+
+                    filteredItems.forEach(item => {
+                        const card = createProductCard(item);
+                        card.style.animationDelay = `${animationDelay}s`;
+                        productsContainer.appendChild(card);
+                        animationDelay += 0.05;
+                    });
+                }
+            }
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                alert('Failed to copy text.');
+            });
+        }
+
+        searchBar.addEventListener('input', (e) => {
+            renderProducts(e.target.value);
+        });
+        
+        document.addEventListener('DOMContentLoaded', () => renderProducts());
+    </script>
+</body>
+</html>
+
