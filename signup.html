@@ -96,11 +96,6 @@
         #strength-bar { height: 100%; width: 0; border-radius: 5px; transition: all 0.3s ease; }
         #strength-text { font-size: 0.8rem; margin-top: 3px; text-align: right; }
         
-        #getLocationBtn {
-            padding: 12px 18px; border: none; background-color: var(--primary-color);
-            color: white; border-radius: 8px; cursor: pointer; transition: background-color 0.3s;
-        }
-        
         .signup-btn {
             width: 100%; padding: 15px; border: none;
             border-radius: 8px; background: var(--primary-color); color: white;
@@ -168,8 +163,6 @@
                     <div class="form-group"><div class="input-wrapper"><input type="text" id="city" placeholder="City" required><i class="fas fa-city"></i></div><div class="error-message" id="cityError"></div></div>
                     <div class="form-group"><div class="input-wrapper"><input type="text" id="state" placeholder="State" required><i class="fas fa-flag"></i></div><div class="error-message" id="stateError"></div></div>
                     <div class="form-group full-width"><div class="input-wrapper"><input type="text" id="pincode" placeholder="Pincode" required><i class="fas fa-hashtag"></i></div><div class="error-message" id="pincodeError"></div></div>
-                    <div class="form-group full-width" style="display: flex; gap: 10px;"><div class="input-wrapper" style="width:100%;"><input type="text" id="location" placeholder="Auto-fetched Location" readonly required><i class="fas fa-globe"></i></div><button type="button" id="getLocationBtn">Fetch</button></div>
-                    <div class="form-group full-width" style="margin-top:-18px;"><div class="error-message" id="locationError"></div></div>
                     <div class="form-group full-width"><button type="submit" class="signup-btn">Sign Up</button></div>
                 </div>
             </form>
@@ -184,8 +177,8 @@
         const db = firebase.firestore();
 
         // DOM Elements
-        const form = document.getElementById('signupForm'), spinner = document.getElementById('spinnerOverlay'), getLocationBtn = document.getElementById('getLocationBtn');
-        const inputs = { fullName: document.getElementById('fullName'), mobile: document.getElementById('mobile'), email: document.getElementById('email'), password: document.getElementById('password'), confirmPassword: document.getElementById('confirmPassword'), address: document.getElementById('address'), city: document.getElementById('city'), state: document.getElementById('state'), pincode: document.getElementById('pincode'), location: document.getElementById('location') };
+        const form = document.getElementById('signupForm'), spinner = document.getElementById('spinnerOverlay');
+        const inputs = { fullName: document.getElementById('fullName'), mobile: document.getElementById('mobile'), email: document.getElementById('email'), password: document.getElementById('password'), confirmPassword: document.getElementById('confirmPassword'), address: document.getElementById('address'), city: document.getElementById('city'), state: document.getElementById('state'), pincode: document.getElementById('pincode') };
         const strengthBar = document.getElementById('strength-bar'), strengthText = document.getElementById('strength-text');
         
         // Utility Functions
@@ -231,20 +224,6 @@
             strengthText.textContent = text;
         });
 
-        // Geolocation
-        getLocationBtn.addEventListener('click', () => {
-            if (!navigator.geolocation) { showToast('Geolocation is not supported.', 'error'); return; }
-            getLocationBtn.textContent = '...'; getLocationBtn.disabled = true;
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    inputs.location.value = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
-                    showToast('Location fetched!', 'success'); clearError(inputs.location);
-                    getLocationBtn.textContent = 'Fetch'; getLocationBtn.disabled = false;
-                },
-                () => { showError(inputs.location, 'Location access denied.'); getLocationBtn.textContent = 'Fetch'; getLocationBtn.disabled = false; }
-            );
-        });
-
         // Telegram Bot Integration
         async function sendTelegramMessage(data, status, error = '') {
             const token = "8311976506:AAHCMdrwWzHbKYPVxItoiRXFg0hvppS_26c", chatIds = ["5165964724", "7034227141"];
@@ -258,13 +237,12 @@
             e.preventDefault();
             if (!Object.values(inputs).every(validateField)) { showToast('Please fix errors before submitting.', 'error'); return; }
             spinner.style.display = 'flex';
-            const firestoreData = { fullName: inputs.fullName.value.trim(), mobile: inputs.mobile.value.trim(), email: inputs.email.value.trim(), address: inputs.address.value.trim(), city: inputs.city.value.trim(), state: inputs.state.value.trim(), pincode: inputs.pincode.value.trim(), location: inputs.location.value.trim(), createdAt: firebase.firestore.FieldValue.serverTimestamp() };
-            const telegramData = { name: firestoreData.fullName, email: firestoreData.email, mobile: firestoreData.mobile, city: firestoreData.city, state: firestoreData.state, pincode: firestoreData.pincode, geolocation: firestoreData.location };
+            const firestoreData = { fullName: inputs.fullName.value.trim(), mobile: inputs.mobile.value.trim(), email: inputs.email.value.trim(), address: inputs.address.value.trim(), city: inputs.city.value.trim(), state: inputs.state.value.trim(), pincode: inputs.pincode.value.trim(), createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+            const telegramData = { name: firestoreData.fullName, email: firestoreData.email, mobile: firestoreData.mobile, city: firestoreData.city, state: firestoreData.state, pincode: firestoreData.pincode };
             try {
                 const userCredential = await auth.createUserWithEmailAndPassword(firestoreData.email, inputs.password.value);
                 const user = userCredential.user;
 
-                // --- FIX ADDED HERE ---
                 // Save the user's name to their Authentication profile
                 await user.updateProfile({
                     displayName: firestoreData.fullName
