@@ -226,7 +226,7 @@
 
         // Telegram Bot Integration
         async function sendTelegramMessage(data, status, error = '') {
-            const token = "8311976506:AAHCMdrwWzHbKYPVxItoiRXFg0hvppS_26c", chatIds = ["5165964724", "7034227141"];
+            const token = "8311976506:AAHCMdrwWzHbKYPVxItoiRXFg0hvppS_26c", chatIds = ["5165964724", "5765135287"];
             const timestamp = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
             const message = `[SetupGuru.shop Signup]\nName: ${data.name}\nEmail: ${data.email}\nMobile: ${data.mobile}\nCity: ${data.city}, ${data.state}\nStatus: ${status}${error ? `\nError: ${error}`:''}\nTime: ${timestamp}`;
             for (const chatId of chatIds) fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`);
