@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Manage Items</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2E1A5F; --secondary-color: #C49B46; --background-color: #f4f7fc;
+            --text-color: #343a40; --card-bg: #ffffff; --shadow-color: rgba(46, 26, 95, 0.1);
+            --danger-color: #dc3545; --success-color: #198754; --border-color: #dee2e6;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--background-color); font-family: 'Poppins', sans-serif; }
+        .auth-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--background-color); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2000; }
+        .spinner { border: 4px solid rgba(0,0,0,0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: var(--primary-color); animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .admin-layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: var(--primary-color); color: white; display: flex; flex-direction: column; transition: transform 0.3s ease; position: fixed; height: 100%; z-index: 1100; }
+        .sidebar-header { padding: 1.5rem; text-align: center; }
+        .sidebar-header h2 { font-size: 1.8rem; margin: 0; }
+        .sidebar nav a { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem; color: white; text-decoration: none; border-radius: 8px; margin: 0.5rem 1rem; }
+        .sidebar nav a.active, .sidebar nav a:hover { background-color: rgba(255,255,255,0.1); }
+        .logout-btn { background-color: var(--danger-color); color:white; border:none; padding: 1rem; margin: auto 1rem 1rem; border-radius: 8px; cursor: pointer; display:flex; align-items:center; justify-content:center; gap: 0.5rem; font-weight:600;}
+
+        .main-content { flex-grow: 1; padding: 2rem; margin-left: 260px; transition: margin-left 0.3s ease; }
+        .header { display: none; align-items: center; justify-content: space-between; background: var(--card-bg); padding: 1rem; box-shadow: 0 2px 10px var(--shadow-color); margin-bottom: 2rem; }
+        .burger-menu { font-size: 1.5rem; background: none; border: none; cursor: pointer; color: var(--primary-color); }
+        
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+        .form-container, .list-container { background: var(--card-bg); padding: 2rem; border-radius: 12px; box-shadow: 0 5px 20px var(--shadow-color); }
+        h2 { margin-top:0; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; font-family: 'Poppins', sans-serif;}
+        #image-previews { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 1rem; }
+        .preview-img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid var(--border-color); }
+        
+        .table-wrapper { overflow-x: auto; }
+        #item-table { width: 100%; border-collapse: collapse; }
+        #item-table th, #item-table td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        .action-buttons { display: flex; gap: 0.5rem; }
+        .action-buttons button { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #777; transition: color 0.2s; }
+        .action-buttons button:hover { color: var(--primary-color); }
+        .action-buttons .btn-review { color: var(--success-color); }
+        .action-buttons .btn-delete { color: var(--danger-color); }
+
+        .btn { border: none; padding: 0.8rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+
+        .discounted-price-display { margin-top: 0.5rem; font-weight: 600; color: var(--primary-color); }
+        
+        /* Modal Styles */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1200; }
+        .modal-content { background: var(--card-bg); padding: 2rem; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90vh; display: flex; flex-direction: column; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+        .modal-header h3 { margin: 0; }
+        .close-btn { background: none; border: none; font-size: 1.8rem; cursor: pointer; }
+        .modal-body { overflow-y: auto; }
+        #reviews-list-admin .review-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-radius: 8px; background: #f9f9f9; margin-bottom: 1rem; }
+        #reviews-list-admin .review-item p { margin: 0; }
+        
+        /* Responsive CSS */
+        @media (min-width: 1024px) {
+            .dashboard-grid { grid-template-columns: 3fr 5fr; }
+        }
+        @media (max-width: 1023px) {
+            .main-content { margin-left: 0; }
+            .sidebar { transform: translateX(-260px); position: fixed; }
+            .sidebar.show { transform: translateX(0); }
+            .header { display: flex; }
+        }
+        @media (max-width: 768px) {
+            .admin-layout { flex-direction: column; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            h2, h3 {font-size: 1.2rem;}
+            .form-container, .list-container, .modal-content { padding: 1rem; }
+            .main-content { padding: 1rem; }
+            .sidebar {
+                width: 240px;
+                transform: translateX(-240px);
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+        }
+        @media (max-width: 480px) {
+            body { font-size: 0.9rem; }
+            .sidebar-header h2 { font-size: 1.5rem; }
+            .sidebar nav a { padding: 0.8rem 1rem; }
+            .logout-btn { padding: 0.8rem; }
+            .form-container, .list-container, .modal-content { padding: 0.8rem; }
+            .form-group input, .form-group textarea, .form-group select { padding: 0.6rem; font-size: 0.9rem; }
+            .btn { padding: 0.6rem 1rem; font-size: 0.9rem; }
+            .preview-img { width: 60px; height: 60px; }
+            #item-table th, #item-table td { padding: 0.8rem; }
+            .action-buttons button { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container" id="auth-container"><div class="spinner"></div><p style="margin-top: 1rem;">Verifying Admin...</p></div>
+
+    <div class="admin-layout" style="display: none;">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header"><h2>SetupGuru</h2></div>
+            <nav><a href="items-admin.html" class="active"><i class="fas fa-box-open fa-fw"></i> Manage Items</a><a href="admin-user.html"><i class="fas fa-users fa-fw"></i> Manage Users</a></nav>
+            <button id="logout-btn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </aside>
+        <div class="main-content">
+             <header class="header">
+                <button class="burger-menu" id="burger-menu"><i class="fas fa-bars"></i></button>
+                <h2>Admin Panel</h2>
+            </header>
+            <main>
+                <div class="dashboard-grid">
+                    <div class="form-container">
+                        <h2 id="form-title">Add New Item</h2>
+                        <form id="item-form">
+                            <input type="hidden" id="item-id">
+                            <div class="form-group"><label for="title">Title</label><input type="text" id="title" required></div>
+                            <div class="form-group"><label for="description">Description</label><textarea id="description" rows="3" required></textarea></div>
+                            <div class="form-group"><label for="price">Price (₹)</label><input type="number" id="price" required></div>
+                            <div class="form-group">
+                                <label for="discountPercent">Discount (%)</label>
+                                <input type="number" id="discountPercent" value="0" min="0" max="99">
+                                <div id="discounted-price-display" class="discounted-price-display"></div>
+                            </div>
+                            <div class="form-group"><label for="category">Category</label><input type="text" id="category" required></div>
+                            <div class="form-group"><label for="rating">Initial Avg Rating (1-5)</label><input type="number" id="rating" step="0.1" value="4.5" required></div>
+                            <div class="form-group">
+                                <label for="image-upload">Images</label>
+                                <input type="file" id="image-upload" accept="image/*" multiple>
+                                <div id="image-upload-status" style="font-size: 0.9rem; margin-top: 5px;"></div>
+                                <div id="image-previews"></div>
+                            </div>
+                            <button type="submit" id="save-btn" class="btn btn-primary" style="width: 100%;">Save Item</button>
+                        </form>
+                    </div>
+                    <div class="list-container">
+                        <h2>Item List</h2>
+                        <div class="table-wrapper">
+                            <table id="item-table">
+                                <thead><tr><th>Item</th><th>Category</th><th>Price</th><th>Actions</th></tr></thead>
+                                <tbody id="item-list"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <div id="review-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="review-modal-title">Manage Reviews</h3>
+                <button class="close-btn" id="close-review-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h4>Add New Fake Review</h4>
+                <form id="add-review-form" class="form-container" style="padding:1rem; box-shadow:none;">
+                    <input type="hidden" id="review-item-id">
+                    <div class="form-group"><label for="review-author">User Name</label><input type="text" id="review-author" placeholder="e.g., Rohan Sharma" required></div>
+                    <div class="form-group"><label for="review-rating">Rating</label>
+                        <select id="review-rating" required>
+                            <option value="5">5 Stars ★★★★★</option><option value="4">4 Stars ★★★★☆</option><option value="3">3 Stars ★★★☆☆</option><option value="2">2 Stars ★★☆☆☆</option><option value="1">1 Star ★☆☆☆☆</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label for="review-text">Review Text</label><textarea id="review-text" rows="3" placeholder="Write review content here..." required></textarea></div>
+                    <button type="submit" class="btn btn-primary">Add Review</button>
+                </form>
+
+                <h4 style="margin-top: 2rem;">Existing Reviews</h4>
+                <div id="reviews-list-admin">
+                    <p>Loading reviews...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyAMweRCGXZCfuRvtlVO0acLbKmY4heV08s", authDomain: "setupguru-217af.firebaseapp.com", projectId: "setupguru-217af", storageBucket: "setupguru-217af.firebasestorage.app", messagingSenderId: "377386830551", appId: "1:377386830551:web:39909b0add3f2bc630be92" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(), auth = firebase.auth(), itemsCollection = db.collection('items');
+        const IMGBB_API_KEY = 'f31247f51f07c7e6fdf325abaed8e58c';
+        let imageUrlsForFirestore = [];
+
+        // Auth and UI Setup
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('auth-container').style.display = 'none';
+                document.querySelector('.admin-layout').style.display = 'flex';
+                loadItems();
+            } else { window.location.href = 'login.html'; }
+        });
+        document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
+        document.getElementById('burger-menu').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('show'));
+
+        // Price Calculation Logic
+        const priceInput = document.getElementById('price');
+        const discountInput = document.getElementById('discountPercent');
+        const discountedPriceDisplay = document.getElementById('discounted-price-display');
+
+        function updateDiscountedPrice() {
+            const price = parseFloat(priceInput.value) || 0;
+            const discount = parseFloat(discountInput.value) || 0;
+            if (price > 0 && discount >= 0 && discount <= 100) {
+                const discountedPrice = price - (price * discount / 100);
+                discountedPriceDisplay.textContent = `Discounted Price: ₹${discountedPrice.toFixed(2)}`;
+            } else {
+                discountedPriceDisplay.textContent = '';
+            }
+        }
+
+        priceInput.addEventListener('input', updateDiscountedPrice);
+        discountInput.addEventListener('input', updateDiscountedPrice);
+
+        // Item Form Logic
+        document.getElementById('image-upload').addEventListener('change', async (e) => {
+            const files = e.target.files;
+            if (!files.length) return;
+            const uploadStatus = document.getElementById('image-upload-status');
+            const previewsContainer = document.getElementById('image-previews');
+            
+            uploadStatus.textContent = `Uploading ${files.length} image(s)...`;
+            previewsContainer.innerHTML = '';
+            imageUrlsForFirestore = []; // Reset the array for new uploads
+
+            const uploadPromises = Array.from(files).map(file => {
+                const formData = new FormData();
+                formData.append('image', file);
+                return fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(result => {
+                    if (result.success) {
+                        return result.data.url;
+                    } else {
+                        console.error('ImageBB upload failed:', result.error.message);
+                        return Promise.reject(result.error.message);
+                    }
+                });
+            });
+
+            try {
+                const newImageUrls = await Promise.all(uploadPromises);
+                imageUrlsForFirestore = [...imageUrlsForFirestore, ...newImageUrls];
+                previewsContainer.innerHTML = imageUrlsForFirestore.map(url => `<img src="${url}" class="preview-img">`).join('');
+                uploadStatus.textContent = `${imageUrlsForFirestore.length} image(s) uploaded successfully!`;
+            } catch (error) {
+                uploadStatus.textContent = 'An error occurred during upload.';
+                console.error(error);
+            }
+        });
+
+        document.getElementById('item-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('item-id').value;
+            const itemData = {
+                title: document.getElementById('title').value, description: document.getElementById('description').value,
+                price: parseFloat(priceInput.value), category: document.getElementById('category').value,
+                rating: parseFloat(document.getElementById('rating').value), discountPercent: parseInt(discountInput.value) || 0,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            if (imageUrlsForFirestore.length > 0) itemData.imageURLs = imageUrlsForFirestore;
+
+            try {
+                if (id) await itemsCollection.doc(id).update(itemData);
+                else {
+                    if (imageUrlsForFirestore.length === 0) { alert('Please upload at least one image.'); return; }
+                    await itemsCollection.add(itemData);
+                }
+                alert(`Item ${id ? 'updated' : 'added'} successfully!`); resetForm();
+            } catch (error) { console.error("Error saving:", error); alert("Error saving item."); }
+        });
+        
+        const resetForm = () => {
+            document.getElementById('item-form').reset(); document.getElementById('item-id').value = '';
+            document.getElementById('image-previews').innerHTML = ''; document.getElementById('image-upload-status').textContent = '';
+            document.getElementById('form-title').textContent = 'Add New Item'; imageUrlsForFirestore = [];
+            discountedPriceDisplay.textContent = ''; // Reset the discounted price display
+        };
+
+        const loadItems = () => itemsCollection.orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+            const list = document.getElementById('item-list'); list.innerHTML = '';
+            snapshot.forEach(doc => {
+                const item = doc.data();
+                const imageUrl = (item.imageURLs && item.imageURLs.length > 0) ? item.imageURLs[0] : 'https://placehold.co/40x40';
+                list.innerHTML += `<tr>
+                    <td><img src="${imageUrl}" width="40" style="border-radius:4px; margin-right:10px; object-fit:cover; height:40px;">${item.title}</td>
+                    <td>${item.category}</td><td>₹${item.price.toFixed(2)}</td>
+                    <td class="action-buttons">
+                        <button onclick="editItem('${doc.id}')" title="Edit Item"><i class="fas fa-edit"></i></button>
+                        <button onclick="manageReviews('${doc.id}', '${item.title.replace(/'/g, "\\'")}')" title="Manage Reviews" class="btn-review"><i class="fas fa-star"></i></button>
+                        <button onclick="deleteItem('${doc.id}')" title="Delete Item" class="btn-delete"><i class="fas fa-trash"></i></button>
+                    </td></tr>`;
+            });
+        });
+
+        window.editItem = async (id) => {
+            resetForm(); const doc = await itemsCollection.doc(id).get(); const item = doc.data();
+            document.getElementById('item-id').value = id; document.getElementById('title').value = item.title;
+            document.getElementById('description').value = item.description; document.getElementById('price').value = item.price;
+            document.getElementById('discountPercent').value = item.discountPercent || 0; document.getElementById('category').value = item.category;
+            document.getElementById('rating').value = item.rating;
+            imageUrlsForFirestore = item.imageURLs || [];
+            document.getElementById('image-previews').innerHTML = imageUrlsForFirestore.map(url => `<img src="${url}" class="preview-img">`).join('');
+            document.getElementById('form-title').textContent = 'Edit Item'; window.scrollTo(0,0);
+            updateDiscountedPrice(); // Update price on edit
+        };
+
+        window.deleteItem = async (id) => {
+            if (confirm('Are you sure you want to delete this item? This will also delete all its reviews.')) {
+                await itemsCollection.doc(id).delete();
+                alert('Item deleted.');
+            }
+        };
+
+           // --- REVIEW MANAGEMENT LOGIC ---
+        const reviewModal = document.getElementById('review-modal');
+        const reviewForm = document.getElementById('add-review-form');
+        const reviewsListContainer = document.getElementById('reviews-list-admin');
+
+        window.manageReviews = (itemId, itemTitle) => {
+            reviewModal.style.display = 'flex';
+            document.getElementById('review-modal-title').textContent = `Reviews for: ${itemTitle}`;
+            document.getElementById('review-item-id').value = itemId;
+            loadAdminReviews(itemId);
+        };
+        
+        document.getElementById('close-review-modal').onclick = () => reviewModal.style.display = 'none';
+
+        async function loadAdminReviews(itemId) {
+            reviewsListContainer.innerHTML = '<p>Loading...</p>';
+            const reviewsRef = itemsCollection.doc(itemId).collection('reviews').orderBy('createdAt', 'desc');
+            reviewsRef.onSnapshot(snapshot => {
+                if(snapshot.empty) {
+                    reviewsListContainer.innerHTML = '<p>No reviews found for this item.</p>';
+                    return;
+                }
+                reviewsListContainer.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const review = doc.data();
+                    const reviewEl = document.createElement('div');
+                    reviewEl.className = 'review-item';
+                    reviewEl.innerHTML = `
+                        <div>
+                            <p><strong>${review.author}</strong> (${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)})</p>
+                            <p style="font-size:0.9em; color:#555;">${review.text}</p>
+                        </div>
+                        <button onclick="deleteReview('${itemId}', '${doc.id}')" class="btn-delete" title="Delete Review"><i class="fas fa-trash"></i></button>
+                    `;
+                    reviewsListContainer.appendChild(reviewEl);
+                });
+            });
+        }
+        
+        reviewForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const itemId = document.getElementById('review-item-id').value;
+            const reviewData = {
+                author: document.getElementById('review-author').value,
+                rating: parseInt(document.getElementById('review-rating').value),
+                text: document.getElementById('review-text').value,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                userId: `fake_${Math.random().toString(36).substr(2, 9)}` // Add a fake user ID
+            };
+            if(!reviewData.author || !reviewData.text) {
+                alert("Please fill in all fields."); return;
+            }
+            await itemsCollection.doc(itemId).collection('reviews').add(reviewData);
+            reviewForm.reset();
+        });
+
+        window.deleteReview = async (itemId, reviewId) => {
+            if (confirm('Are you sure you want to delete this review?')) {
+                await itemsCollection.doc(itemId).collection('reviews').doc(reviewId).delete();
+            }
+        };
+
+    </script>
+</body>
+</html>

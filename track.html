@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order - SetupGuru</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #2E1A5F;
+            --secondary-color: #C49B46;
+            --background-color: #f4f7fc;
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --light-text: #6c757d;
+            --border-color: #e9ecef;
+            --success-color: #2ecc71;
+            --status-confirmed: #3498db;
+            --status-shipped: #f39c12;
+            --status-delivered: #2ecc71;
+            --status-cancelled: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: var(--card-bg);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .header a {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.8rem;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            flex-grow: 1;
+        }
+
+        .track-card {
+            background-color: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .track-card h1 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+        
+        .input-group input {
+            flex-grow: 1;
+            max-width: 400px;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .track-btn {
+            padding: 12px 25px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .track-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        #track-results {
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .order-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .order-details-header h2 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .order-details-header span {
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            color: white;
+            text-transform: capitalize;
+        }
+
+        .status-confirmed { background-color: var(--status-confirmed); }
+        .status-shipped-out-for-delivery { background-color: var(--status-shipped); }
+        .status-delivered { background-color: var(--status-delivered); }
+        .status-cancelled { background-color: var(--status-cancelled); }
+
+        .status-timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .status-timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background-color: var(--border-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            color: var(--light-text);
+        }
+
+        .timeline-item.active {
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .timeline-item .icon {
+            position: absolute;
+            left: -32px;
+            top: 0;
+            font-size: 1.2rem;
+            color: var(--border-color);
+            background-color: var(--card-bg);
+            border-radius: 50%;
+            padding: 4px;
+        }
+
+        .timeline-item.active .icon {
+            color: var(--success-color);
+        }
+        
+        .timeline-note {
+            background-color: var(--background-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 10px;
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .timeline-note p {
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+
+        #not-found-message {
+            color: var(--error-color);
+            font-weight: 600;
+            margin-top: 2rem;
+        }
+
+        .previous-orders {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        .previous-orders h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        .order-history-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .order-history-btn {
+            padding: 8px 15px;
+            background-color: var(--light-text);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .order-history-btn:hover {
+            background-color: var(--primary-color);
+        }
+        
+        @media (max-width: 600px) {
+            .input-group {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .track-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="index.html">SetupGuru</a>
+    </header>
+
+    <div class="container">
+        <div class="track-card">
+            <h1>Track Your Order</h1>
+            <div class="input-group">
+                <input type="text" id="orderIdInput" placeholder="Enter your Order ID">
+                <button id="trackBtn" class="track-btn">Track Order</button>
+            </div>
+            
+            <div id="track-results" style="display: none;">
+                <div class="order-details-header">
+                    <h2>Order <span id="displayedOrderId"></span></h2>
+                    <span id="orderStatusSpan" class="order-status"></span>
+                </div>
+
+                <div class="status-timeline">
+                    <div class="timeline-item" id="confirmedStatus">
+                        <i class="fas fa-check-circle icon"></i>
+                        Order Confirmed
+                    </div>
+                    <div class="timeline-item" id="shippedStatus">
+                        <i class="fas fa-truck icon"></i>
+                        Shipped Out for Delivery
+                    </div>
+                    <div class="timeline-item" id="deliveredStatus">
+                        <i class="fas fa-box-open icon"></i>
+                        Delivered
+                    </div>
+                </div>
+                
+                <div id="noteSection" style="display: none;">
+                    <div class="timeline-note">
+                        <h4>Admin Note:</h4>
+                        <p id="adminNote"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <p id="not-found-message" style="display: none;"></p>
+
+            <div class="previous-orders">
+                <h4>Previous Order IDs</h4>
+                <div id="orderHistoryButtons" class="order-history-buttons">
+                    <p id="no-history-message" style="color: var(--light-text);">No recent orders found. Please enter an ID to start tracking.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getFirestore, doc, getDoc, collection, query, where, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMweRCGXZCfuRvtlVO0acLbKmY4heV08s",
+            authDomain: "setupguru-217af.firebaseapp.com",
+            projectId: "setupguru-217af",
+            storageBucket: "setupguru-217af.firebasestorage.app",
+            messagingSenderId: "377386830551",
+            appId: "1:377386830551:web:39909b0add3f2bc630be92"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        const orderIdInput = document.getElementById('orderIdInput');
+        const trackBtn = document.getElementById('trackBtn');
+        const trackResultsDiv = document.getElementById('track-results');
+        const notFoundMessage = document.getElementById('not-found-message');
+        const displayedOrderId = document.getElementById('displayedOrderId');
+        const orderStatusSpan = document.getElementById('orderStatusSpan');
+        const confirmedStatus = document.getElementById('confirmedStatus');
+        const shippedStatus = document.getElementById('shippedStatus');
+        const deliveredStatus = document.getElementById('deliveredStatus');
+        const noteSection = document.getElementById('noteSection');
+        const adminNote = document.getElementById('adminNote');
+        const orderHistoryButtonsDiv = document.getElementById('orderHistoryButtons');
+        const noHistoryMessage = document.getElementById('no-history-message');
+
+        // Initial setup and event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPreviousOrderIds();
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderIdFromUrl = urlParams.get('orderId');
+            
+            if (orderIdFromUrl) {
+                orderIdInput.value = orderIdFromUrl;
+                trackOrder();
+            } else {
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        fetchLastOrder(user.uid);
+                    }
+                });
+            }
+        });
+
+        trackBtn.addEventListener('click', trackOrder);
+        orderIdInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                trackOrder();
+            }
+        });
+
+        // Add event listener to previous order buttons
+        orderHistoryButtonsDiv.addEventListener('click', (e) => {
+            if (e.target.classList.contains('order-history-btn')) {
+                const orderId = e.target.dataset.orderId;
+                orderIdInput.value = orderId;
+                trackOrder();
+            }
+        });
+
+        // --- Core Functions ---
+
+        async function fetchLastOrder(userId) {
+            try {
+                const ordersRef = collection(db, 'orders');
+                const q = query(ordersRef, where('userId', '==', userId), orderBy('createdAt', 'desc'), limit(1));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    const lastOrder = querySnapshot.docs[0].data();
+                    // Add this order ID to history
+                    saveOrderIdToHistory(lastOrder.orderId);
+                    // Fill the input and track automatically
+                    orderIdInput.value = lastOrder.orderId;
+                    trackOrder();
+                } else {
+                    displayNotFound('No previous orders found for this user. Please enter your order ID manually.');
+                }
+            } catch (error) {
+                console.error("Error fetching last order:", error);
+            }
+        }
+
+        async function trackOrder() {
+            const orderId = orderIdInput.value.trim().toUpperCase();
+
+            if (!orderId) {
+                displayNotFound('Please enter a valid Order ID.');
+                return;
+            }
+
+            try {
+                trackBtn.textContent = 'Tracking...';
+                const orderDocRef = doc(db, 'orders', orderId);
+                const orderDoc = await getDoc(orderDocRef);
+
+                if (orderDoc.exists()) {
+                    const orderData = orderDoc.data();
+                    displayOrderDetails(orderData);
+                    saveOrderIdToHistory(orderId); // Save to history on successful track
+                } else {
+                    displayNotFound('Order not found. Please check your Order ID.');
+                }
+            } catch (error) {
+                console.error("Error fetching order:", error);
+                displayNotFound('An error occurred. Please try again later.');
+            } finally {
+                trackBtn.textContent = 'Track Order';
+            }
+        }
+        
+        // --- History Management Functions ---
+
+        function loadPreviousOrderIds() {
+            try {
+                const history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
+                renderHistoryButtons(history);
+            } catch (e) {
+                console.error("Error loading order history:", e);
+                // In case of corrupted data, clear it.
+                localStorage.removeItem('orderHistory');
+            }
+        }
+
+        function saveOrderIdToHistory(orderId) {
+            let history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
+            // Add to the beginning of the array if not already present
+            if (!history.includes(orderId)) {
+                history.unshift(orderId);
+                // Keep only the last 5 IDs
+                if (history.length > 5) {
+                    history = history.slice(0, 5);
+                }
+                localStorage.setItem('orderHistory', JSON.stringify(history));
+                renderHistoryButtons(history);
+            }
+        }
+
+        function renderHistoryButtons(history) {
+            orderHistoryButtonsDiv.innerHTML = '';
+            if (history.length > 0) {
+                history.forEach(id => {
+                    const btn = document.createElement('button');
+                    btn.className = 'order-history-btn';
+                    btn.textContent = id;
+                    btn.dataset.orderId = id;
+                    orderHistoryButtonsDiv.appendChild(btn);
+                });
+            } else {
+                orderHistoryButtonsDiv.appendChild(noHistoryMessage);
+            }
+        }
+
+        // --- UI Display Functions ---
+
+        function displayOrderDetails(orderData) {
+            notFoundMessage.style.display = 'none';
+            trackResultsDiv.style.display = 'block';
+
+            const status = orderData.status || 'Confirmed';
+            displayedOrderId.textContent = `#${orderData.orderId}`;
+            orderStatusSpan.textContent = status;
+            orderStatusSpan.className = `order-status status-${status.toLowerCase().replace(/\s/g, '-')}`;
+
+            confirmedStatus.classList.remove('active');
+            shippedStatus.classList.remove('active');
+            deliveredStatus.classList.remove('active');
+
+            if (status === 'Confirmed' || status === 'Shipped Out for Delivery' || status === 'Delivered') {
+                confirmedStatus.classList.add('active');
+            }
+            if (status === 'Shipped Out for Delivery' || status === 'Delivered') {
+                shippedStatus.classList.add('active');
+            }
+            if (status === 'Delivered') {
+                deliveredStatus.classList.add('active');
+            }
+
+            if (orderData.trackingNote && orderData.trackingNote.trim() !== '') {
+                noteSection.style.display = 'block';
+                adminNote.textContent = orderData.trackingNote;
+            } else {
+                noteSection.style.display = 'none';
+            }
+        }
+
+        function displayNotFound(message) {
+            trackResultsDiv.style.display = 'none';
+            notFoundMessage.style.display = 'block';
+            notFoundMessage.textContent = message;
+        }
+    </script>
+</body>
+</html>

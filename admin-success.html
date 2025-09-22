@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SetupGuru</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #2E1A5F;
+            --secondary-color: #C49B46;
+            --background-color: #f4f7fc;
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --light-text: #6c757d;
+            --border-color: #e9ecef;
+            --status-confirmed: #3498db;
+            --status-shipped-out-for-delivery: #f39c12;
+            --status-delivered: #2ecc71;
+            --status-cancelled: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .order-list {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .order-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .order-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .order-card-header h3 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .order-status {
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            color: white;
+            text-transform: capitalize;
+        }
+
+        .status-confirmed { background-color: var(--status-confirmed); }
+        .status-shipped-out-for-delivery { background-color: var(--status-shipped-out-for-delivery); }
+        .status-delivered { background-color: var(--status-delivered); }
+        .status-cancelled { background-color: var(--status-cancelled); }
+
+        .card-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-box h4 {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box p {
+            font-size: 0.95rem;
+            color: var(--light-text);
+        }
+        
+        .info-box p strong {
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .items-list-section ul {
+            list-style: none;
+        }
+
+        .items-list-section li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .items-list-section li:last-child {
+            border-bottom: none;
+        }
+
+        .summary-section {
+            text-align: right;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .summary-section p {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .summary-section p strong {
+            color: var(--primary-color);
+        }
+        
+        .action-buttons-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+        
+        .action-btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .status-btn-group .action-btn { background-color: #7f8c8d; }
+        .status-btn-group .action-btn.active { transform: scale(1.05); }
+        .status-btn-group .confirmed-btn.active { background-color: var(--status-confirmed); }
+        .status-btn-group .shipped-btn.active { background-color: var(--status-shipped-out-for-delivery); }
+        .status-btn-group .delivered-btn.active { background-color: var(--status-delivered); }
+        .status-btn-group .cancelled-btn.active { background-color: var(--status-cancelled); }
+
+        .communication-btn-group .whatsapp-btn { background-color: #25D366; }
+        .communication-btn-group .email-btn { background-color: #3498db; }
+        .communication-btn-group .message-btn { background-color: #34495e; }
+        .communication-btn-group .call-btn { background-color: #27ae60; }
+
+        .status-update-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .tracking-note-group {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .tracking-note-group input {
+            flex-grow: 1;
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .tracking-note-group button {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .tracking-note-group button:hover {
+            transform: translateY(-2px);
+        }
+
+        .loading-text {
+            text-align: center;
+            font-size: 1.5rem;
+            color: var(--light-text);
+            margin-top: 5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.5rem; }
+            .container { padding: 1rem; }
+            .order-card { padding: 1rem; }
+            .order-card-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+            .order-card-header h3 { font-size: 1.2rem; }
+            .card-section { grid-template-columns: 1fr; }
+            .action-buttons-group { justify-content: center; }
+            .action-btn { font-size: 0.8rem; padding: 0.5rem 1rem; }
+            .tracking-note-group { flex-direction: column; gap: 0.5rem; }
+            .tracking-note-group button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Admin Dashboard</h1>
+            <button id="logoutBtn" class="action-btn" style="background-color: white; color: var(--primary-color);">Logout</button>
+        </div>
+        <div id="orderList" class="order-list">
+            <p class="loading-text">Loading orders... Please wait.</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMweRCGXZCfuRvtlVO0acLbKmY4heV08s",
+            authDomain: "setupguru-217af.firebaseapp.com",
+            projectId: "setupguru-217af",
+            storageBucket: "setupguru-217af.firebasestorage.app",
+            messagingSenderId: "377386830551",
+            appId: "1:377386830551:web:39909b0add3f2bc630be92"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        const orderListElement = document.getElementById('orderList');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const ADMIN_EMAIL = 'raojatin@gmail.com';
+
+        onAuthStateChanged(auth, (user) => {
+            if (user && user.email === ADMIN_EMAIL) {
+                fetchOrders();
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth).then(() => {
+                window.location.href = 'login.html';
+            }).catch((error) => {
+                console.error("Logout error:", error);
+            });
+        });
+
+        async function fetchOrders() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "orders"));
+                const orders = [];
+                querySnapshot.forEach((doc) => {
+                    orders.push({ id: doc.id, ...doc.data() });
+                });
+                
+                orders.sort((a, b) => {
+                    const dateA = a.createdAt ? a.createdAt.toDate() : new Date(0);
+                    const dateB = b.createdAt ? b.createdAt.toDate() : new Date(0);
+                    return dateB - dateA;
+                });
+
+                renderOrders(orders);
+            } catch (error) {
+                console.error("Error fetching orders:", error);
+                orderListElement.innerHTML = `<p class="loading-text" style="color: #e74c3c;">Error loading orders. Please try again.</p>`;
+            }
+        }
+
+        function renderOrders(orders) {
+            if (orders.length === 0) {
+                orderListElement.innerHTML = `<p class="loading-text">No orders found.</p>`;
+                return;
+            }
+            orderListElement.innerHTML = orders.map(order => createOrderCard(order)).join('');
+            attachEventListeners();
+        }
+
+        function createOrderCard(order) {
+            const statusClass = `status-${(order.status || 'Confirmed').toLowerCase().replace(/\s/g, '-')}`;
+            const itemsHtml = (order.items || []).map(item => `
+                <li>
+                    <span>${item.title} (x${item.quantity})</span>
+                    <strong>₹${Math.floor(item.price * (1 - (item.discountPercent || 0) / 100) * item.quantity)}</strong>
+                </li>
+            `).join('');
+
+            const grandTotal = order.grandTotal || 0;
+            const deliveryCharge = 19;
+            const subtotal = grandTotal - deliveryCharge;
+            
+            const userPhone = order.shippingDetails?.mobile || '';
+            const userEmail = order.shippingDetails?.email || '';
+            const userLocation = order.shippingDetails?.location || '';
+
+            const message = encodeURIComponent(`Hello, ${order.shippingDetails?.fullName || ''}
+We are from Setupguru.shop. Your order has been confirmed. Here are your order details:
+${(order.items || []).map(item => `- ${item.title} (x${item.quantity}) - ₹${Math.floor(item.price * (1 - (item.discountPercent || 0) / 100) * item.quantity)}`).join('\n')}
+Grand Total: ₹${grandTotal}
+Here is your order ID: ${order.orderId || ''}
+You can track your order by this link: https://setupguru.shop/track.html?orderId=${order.orderId || ''}
+Thank you
+Team Setupguru.shop`);
+
+            return `
+                <div class="order-card" data-order-id="${order.orderId || ''}">
+                    <div class="order-card-header">
+                        <h3>Order ID: <span style="color: var(--secondary-color);">${order.orderId || 'N/A'}</span></h3>
+                        <div class="order-status ${statusClass}">${order.status || 'Confirmed'}</div>
+                    </div>
+                    <div class="card-section">
+                        <div class="info-box">
+                            <h4>User Information</h4>
+                            <p><strong>Name:</strong> ${order.shippingDetails?.fullName || 'N/A'}</p>
+                            <p><strong>Mobile:</strong> ${userPhone || 'N/A'}</p>
+                            <p><strong>Email:</strong> ${userEmail || 'N/A'}</p>
+                            <p><strong>Address:</strong> ${order.shippingDetails?.address || 'N/A'}, ${order.shippingDetails?.city || ''}, ${order.shippingDetails?.state || ''} - ${order.shippingDetails?.pincode || ''}</p>
+                            <p><strong>Live Location:</strong> <a href="https://google.com/maps?q=${userLocation}" target="_blank">${userLocation || 'N/A'}</a></p>
+                        </div>
+                        <div class="info-box items-list-section">
+                            <h4>Order Details</h4>
+                            <ul>${itemsHtml}</ul>
+                            <div class="summary-section">
+                                <p><strong>Subtotal:</strong> ₹${subtotal}</p>
+                                <p><strong>Delivery Charge:</strong> ₹${deliveryCharge}</p>
+                                <p><strong>Grand Total:</strong> ₹${grandTotal}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="status-update-section">
+                        <h4>Update Order Status</h4>
+                        <div class="action-buttons-group status-btn-group">
+                            <button class="action-btn confirmed-btn ${order.status === 'Confirmed' ? 'active' : ''}" data-status="Confirmed"><i class="fas fa-check"></i> Confirmed</button>
+                            <button class="action-btn shipped-btn ${order.status === 'Shipped Out for Delivery' ? 'active' : ''}" data-status="Shipped Out for Delivery"><i class="fas fa-truck"></i> Shipped</button>
+                            <button class="action-btn delivered-btn ${order.status === 'Delivered' ? 'active' : ''}" data-status="Delivered"><i class="fas fa-box-open"></i> Delivered</button>
+                            <button class="action-btn cancelled-btn ${order.status === 'Cancelled' ? 'active' : ''}" data-status="Cancelled"><i class="fas fa-times-circle"></i> Cancelled</button>
+                        </div>
+                        <div class="tracking-note-group">
+                            <input type="text" placeholder="Add tracking note..." value="${order.trackingNote || ''}" data-order-id="${order.orderId || ''}" class="note-input">
+                            <button class="save-note-btn"><i class="fas fa-save"></i> Save Note</button>
+                        </div>
+                    </div>
+                    
+                    <div class="communication-section">
+                        <h4>Contact Customer</h4>
+                        <div class="action-buttons-group communication-btn-group">
+                            <a href="https://wa.me/${userPhone}?text=${message}" target="_blank" class="action-btn whatsapp-btn"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                            <a href="mailto:${userEmail}?subject=Your SetupGuru Order Confirmation&body=${message}" class="action-btn email-btn"><i class="fas fa-envelope"></i> Email</a>
+                            <a href="sms:${userPhone}?body=${message}" class="action-btn message-btn"><i class="fas fa-sms"></i> SMS</a>
+                            <a href="tel:${userPhone}" class="action-btn call-btn"><i class="fas fa-phone"></i> Call</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function attachEventListeners() {
+            document.querySelectorAll('.order-card').forEach(card => {
+                const orderId = card.dataset.orderId;
+                const statusButtons = card.querySelectorAll('.status-btn-group .action-btn');
+                const saveNoteBtn = card.querySelector('.save-note-btn');
+                const noteInput = card.querySelector('.note-input');
+
+                statusButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const newStatus = btn.dataset.status;
+                        updateOrderStatus(orderId, newStatus, btn);
+                    });
+                });
+
+                if (saveNoteBtn) {
+                    saveNoteBtn.addEventListener('click', () => {
+                        const newNote = noteInput.value;
+                        updateOrderNote(orderId, newNote);
+                    });
+                }
+            });
+        }
+
+        async function updateOrderStatus(orderId, newStatus, buttonElement) {
+            try {
+                const orderRef = doc(db, "orders", orderId);
+                await updateDoc(orderRef, { status: newStatus });
+                
+                const card = buttonElement.closest('.order-card');
+                const statusSpan = card.querySelector('.order-status');
+                
+                card.querySelectorAll('.status-btn-group .action-btn').forEach(btn => btn.classList.remove('active'));
+                
+                buttonElement.classList.add('active');
+
+                statusSpan.textContent = newStatus;
+                statusSpan.className = `order-status status-${newStatus.toLowerCase().replace(/\s/g, '-')}`;
+
+                alert(`Status for Order ${orderId} updated to: ${newStatus}`);
+            } catch (e) {
+                console.error("Error updating document: ", e);
+                alert("Failed to update status. Please try again.");
+            }
+        }
+
+        async function updateOrderNote(orderId, newNote) {
+            try {
+                const orderRef = doc(db, "orders", orderId);
+                await updateDoc(orderRef, { trackingNote: newNote });
+                alert(`Tracking note for Order ${orderId} saved successfully.`);
+            } catch (e) {
+                console.error("Error updating document: ", e);
+                alert("Failed to save note. Please try again.");
+            }
+        }
+    </script>
+</body>
+</html>

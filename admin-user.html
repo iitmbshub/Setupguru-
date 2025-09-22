@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | SetupGuru.shop</title>
+    <meta name="description" content="SetupGuru.shop admin dashboard - Manage users and monitor registrations.">
+    <meta name="keywords" content="SetupGuru.shop admin, admin dashboard, user management">
+    <meta name="author" content="SetupGuru.shop Team">
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        
+        /* --- Theming and Variables --- */
+        :root {
+            --primary-color-light: #2E1A5F; --secondary-color-light: #C49B46;
+            --background-light: #f4f7fc; --card-bg-light: #FFFFFF;
+            --text-primary-light: #1a1a2e; --text-secondary-light: #5a5a78;
+            --border-color-light: #e0e5ec;
+            
+            --primary-color-dark: #8a78e8; --secondary-color-dark: #C49B46;
+            --background-dark: #12121c; --card-bg-dark: #1a1a2e;
+            --text-primary-dark: #f0f2f5; --text-secondary-dark: #a9a9c4;
+            --border-color-dark: #2a2a4a;
+        }
+
+        [data-theme='light'] {
+            --primary-color: var(--primary-color-light); --secondary-color: var(--secondary-color-light);
+            --background: var(--background-light); --card-bg: var(--card-bg-light);
+            --text-primary: var(--text-primary-light); --text-secondary: var(--text-secondary-light);
+            --border-color: var(--border-color-light);
+        }
+
+        [data-theme='dark'] {
+            --primary-color: var(--primary-color-dark); --secondary-color: var(--secondary-color-dark);
+            --background: var(--background-dark); --card-bg: var(--card-bg-dark);
+            --text-primary: var(--text-primary-dark); --text-secondary: var(--text-secondary-dark);
+            --border-color: var(--border-color-dark);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--background); color: var(--text-primary); transition: background-color 0.3s, color 0.3s; }
+        
+        /* --- Header --- */
+        .header { display: flex; align-items: center; justify-content: space-between; padding: 15px 30px; background-color: var(--card-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; transition: background-color 0.3s; }
+        .header-title { display: flex; align-items: center; gap: 15px; }
+        .header-title img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--primary-color); }
+        .header-title h1 { font-size: 1.5rem; color: var(--text-primary); }
+        .theme-toggle { display: flex; align-items: center; cursor: pointer; background: var(--border-color); border-radius: 30px; padding: 5px; }
+        .theme-toggle i { font-size: 1rem; color: var(--text-secondary); padding: 5px; }
+        #theme-icon { transition: transform 0.3s ease; }
+
+        /* --- Main Content --- */
+        .main-content { padding: 30px; }
+
+        /* Statistics Section */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background-color: var(--card-bg); padding: 25px; border-radius: 12px; display: flex; align-items: center; gap: 20px; transition: all 0.3s; border-left: 5px solid var(--primary-color); }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .stat-card .icon { font-size: 2rem; color: var(--primary-color); }
+        .stat-card h3 { font-size: 2.2rem; color: var(--text-primary); }
+        .stat-card p { font-size: 1rem; color: var(--text-secondary); }
+
+        /* Controls Section */
+        .controls { display: grid; grid-template-columns: 2fr 1fr auto; gap: 20px; margin-bottom: 30px; background-color: var(--card-bg); padding: 20px; border-radius: 12px; }
+        .search-bar { position: relative; }
+        .search-bar i { position: absolute; left: 15px; top: 14px; color: var(--text-secondary); }
+        .controls input, .controls select { width: 100%; padding: 12px 15px 12px 40px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 1rem; background-color: var(--background); color: var(--text-primary); }
+        .controls select { padding-left: 15px; }
+        .view-toggle { display: flex; gap: 5px; }
+        .view-toggle button { width: 45px; height: 45px; font-size: 1.2rem; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--background); color: var(--text-secondary); cursor: pointer; }
+        .view-toggle button.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+        
+        /* User Display Area */
+        #user-display-area.grid-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 25px; }
+        #user-display-area.list-view { display: flex; flex-direction: column; gap: 15px; }
+
+        .user-card { background-color: var(--card-bg); border-radius: 12px; box-shadow: none; border: 1px solid var(--border-color); transition: all 0.3s ease; }
+        .user-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.05); border-color: var(--primary-color); }
+        
+        /* Grid View Card Style */
+        .grid-view .card-header { padding: 20px; border-bottom: 1px solid var(--border-color); text-align: center; }
+        .grid-view .card-header h3 { color: var(--text-primary); margin: 0 0 5px 0; }
+        .grid-view .card-header p { color: var(--text-secondary); margin: 0; font-size: 0.9rem; }
+        .grid-view .card-body { padding: 20px; }
+        .grid-view .card-body p { margin: 0 0 12px 0; display: flex; align-items: center; gap: 10px; font-size: 0.95rem; }
+        .grid-view .card-body i { color: var(--secondary-color); width: 20px; text-align: center; }
+        .grid-view .card-actions { padding: 15px 20px; background-color: transparent; display: flex; justify-content: space-around; border-top: 1px solid var(--border-color); }
+        
+        /* List View Card Style */
+        .list-view .user-card { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; align-items: center; padding: 15px 20px; }
+        .list-view .user-info h3 { font-size: 1rem; margin: 0; }
+        .list-view .user-info p { font-size: 0.85rem; color: var(--text-secondary); margin: 0; }
+        .list-view .card-actions { display: flex; justify-content: flex-end; gap: 10px; }
+        .list-view .card-header, .list-view .card-body { display: none; } /* Hide grid elements */
+        
+        .copy-icon { cursor: pointer; margin-left: auto; color: var(--text-secondary); }
+        .copy-icon:hover { color: var(--primary-color); }
+        
+        .action-btn { padding: 8px 10px; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; transition: all 0.2s; text-decoration: none; color: white; background-color: var(--text-secondary); }
+        .email-btn { background-color: #3498db; }
+        .whatsapp-btn { background-color: #25D366; }
+        .call-btn { background-color: #f39c12; }
+        .delete-btn { background-color: #e74c3c; }
+        .action-btn:hover { opacity: 0.85; }
+
+        /* Other styles */
+        .status-message { grid-column: 1 / -1; text-align: center; font-size: 1.2rem; color: var(--text-secondary); padding: 40px; }
+        .toast { position: fixed; bottom: 20px; right: 20px; padding: 15px 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); color: white; z-index: 1001; opacity: 0; transform: translateY(120%); transition: all 0.5s; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background-color: #2ecc71; }
+        .toast.info { background-color: #3498db; }
+        .toast.error { background-color: #e74c3c; }
+        
+        /* Responsive */
+        @media (max-width: 900px) { .controls { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) {
+            .list-view .user-card { grid-template-columns: 1fr; gap: 15px; }
+            .list-view .card-actions { justify-content: flex-start; }
+            .main-content { padding: 20px; }
+        }
+
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-title">
+            <img src="https://i.ibb.co/hRBZFSS3/1758331953202.jpg" alt="Logo">
+            <h1>Admin Dashboard</h1>
+        </div>
+        <div class="theme-toggle" id="theme-toggle" title="Toggle Theme">
+            <i class="fas fa-sun" id="theme-icon"></i>
+        </div>
+    </header>
+    
+    <main class="main-content">
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="icon"><i class="fas fa-users"></i></div>
+                <div class="info">
+                    <h3 id="total-users-stat">0</h3><p>Total Users</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="icon"><i class="fas fa-user-clock"></i></div>
+                <div class="info">
+                    <h3 id="new-users-stat">0</h3><p>New Users (24h)</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="controls">
+            <div class="search-bar"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Search by name, email, or city..."></div>
+            <div class="state-filter">
+                <select id="stateFilter">
+                    <option value="">Filter by State</option>
+                </select>
+            </div>
+            <div class="view-toggle">
+                <button id="grid-view-btn" class="active" title="Grid View"><i class="fas fa-th-large"></i></button>
+                <button id="list-view-btn" title="List View"><i class="fas fa-bars"></i></button>
+            </div>
+        </section>
+
+        <div id="user-display-area" class="grid-view">
+            <p class="status-message">Loading users...</p>
+        </div>
+    </main>
+    <div id="toastContainer"></div>
+
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyAMweRCGXZCfuRvtlVO0acLbKmY4heV08s", authDomain: "setupguru-217af.firebaseapp.com", projectId: "setupguru-217af", storageBucket: "setupguru-217af.firebasestorage.app", messagingSenderId: "377386830551", appId: "1:377386830551:web:377386830551:web:39909b0add3f2bc630be92" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let allUsers = [];
+        const userDisplayArea = document.getElementById('user-display-area');
+        
+        // --- Theme Toggle Logic ---
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        themeIcon.className = currentTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+        themeToggle.addEventListener('click', () => {
+            let newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            themeIcon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+        });
+
+        // --- View Toggle Logic ---
+        const gridViewBtn = document.getElementById('grid-view-btn'), listViewBtn = document.getElementById('list-view-btn');
+        let currentView = localStorage.getItem('view') || 'grid';
+        function setView(view) {
+            userDisplayArea.className = view === 'grid' ? 'grid-view' : 'list-view';
+            gridViewBtn.classList.toggle('active', view === 'grid');
+            listViewBtn.classList.toggle('active', view === 'list');
+            localStorage.setItem('view', view);
+            currentView = view;
+            applyFiltersAndSort();
+        }
+        gridViewBtn.addEventListener('click', () => setView('grid'));
+        listViewBtn.addEventListener('click', () => setView('list'));
+
+        // --- Data Fetching and Rendering ---
+        function getUserCardHTML(user) {
+            const commonActions = `
+                <a href="#" class="action-btn email-btn" data-action="email" title="Email"><i class="fas fa-envelope"></i></a>
+                <a href="#" class="action-btn whatsapp-btn" data-action="whatsapp" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                <a href="#" class="action-btn call-btn" data-action="call" title="Call"><i class="fas fa-phone"></i></a>
+                <button class="action-btn delete-btn" data-action="delete" title="Delete"><i class="fas fa-trash"></i></button>`;
+
+            if (currentView === 'grid') {
+                return `<div class="user-card" data-user-id="${user.id}">
+                    <div class="card-header"><h3>${user.fullName}</h3><p>${user.email} <i class="fas fa-copy copy-icon" data-copy="${user.email}" title="Copy Email"></i></p></div>
+                    <div class="card-body">
+                        <p><i class="fas fa-mobile-alt"></i> ${user.mobile} <i class="fas fa-copy copy-icon" data-copy="${user.mobile}" title="Copy Mobile"></i></p>
+                        <p><i class="fas fa-map-marker-alt"></i> ${user.address}</p>
+                        <p><i class="fas fa-city"></i> ${user.city}, ${user.state} - ${user.pincode}</p>
+                    </div>
+                    <div class="card-actions">${commonActions}</div>
+                </div>`;
+            } else { // List View
+                return `<div class="user-card" data-user-id="${user.id}">
+                    <div class="user-info"><h3>${user.fullName}</h3><p>${user.email}</p></div>
+                    <div class="user-contact"><p>${user.mobile}</p></div>
+                    <div class="user-location"><p>${user.city}, ${user.state}</p></div>
+                    <div class="card-actions">${commonActions}</div>
+                </div>`;
+            }
+        }
+        const renderUsers = (users) => userDisplayArea.innerHTML = users.length > 0 ? users.map(getUserCardHTML).join('') : '<p class="status-message">No users found.</p>';
+
+        const fetchUsers = async () => {
+            try {
+                const snapshot = await db.collection('users').orderBy('createdAt', 'desc').get();
+                allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                applyFiltersAndSort(); calculateStats(); populateStateFilter();
+            } catch (error) { userDisplayArea.innerHTML = `<p class="status-message">Error: ${error.message}.</p>`; }
+        };
+
+        // --- New Features Logic ---
+        function calculateStats() {
+            const now = new Date(), twentyFourHoursAgo = now.getTime() - (24 * 60 * 60 * 1000);
+            const newUsers = allUsers.filter(u => u.createdAt && u.createdAt.toDate().getTime() > twentyFourHoursAgo).length;
+            document.getElementById('total-users-stat').textContent = allUsers.length;
+            document.getElementById('new-users-stat').textContent = newUsers;
+        }
+        function populateStateFilter() {
+            const stateFilter = document.getElementById('stateFilter');
+            const states = [...new Set(allUsers.map(u => u.state).filter(Boolean))].sort();
+            stateFilter.innerHTML = '<option value="">Filter by State</option>'; // Reset
+            states.forEach(state => {
+                const option = document.createElement('option');
+                option.value = state; option.textContent = state; stateFilter.appendChild(option);
+            });
+        }
+        
+        // --- Filtering, Sorting & Event Handling ---
+        const searchInput = document.getElementById('searchInput'), stateFilter = document.getElementById('stateFilter');
+        function applyFiltersAndSort() {
+            const searchTerm = searchInput.value.toLowerCase(), selectedState = stateFilter.value;
+            let processedUsers = [...allUsers].filter(u =>
+                (u.fullName.toLowerCase().includes(searchTerm) || u.email.toLowerCase().includes(searchTerm) || u.city.toLowerCase().includes(searchTerm)) &&
+                (selectedState ? u.state === selectedState : true)
+            );
+            renderUsers(processedUsers);
+        };
+        searchInput.addEventListener('input', applyFiltersAndSort);
+        stateFilter.addEventListener('change', applyFiltersAndSort);
+        
+        userDisplayArea.addEventListener('click', (e) => {
+            const target = e.target;
+            const actionBtn = target.closest('.action-btn'), copyBtn = target.closest('.copy-icon');
+            if (!actionBtn && !copyBtn) return;
+            
+            e.preventDefault();
+            const card = target.closest('.user-card');
+            const user = allUsers.find(u => u.id === card.dataset.userId);
+            if (!user) return;
+
+            if (copyBtn) {
+                const textToCopy = copyBtn.dataset.copy;
+                navigator.clipboard.writeText(textToCopy).then(() => showToast(`Copied: ${textToCopy}`, 'success'));
+                return;
+            }
+
+            const action = actionBtn.dataset.action;
+            if (action === 'email') {
+                const subject = encodeURIComponent("Welcome to SetupGuru.shop 🎉");
+                const body = encodeURIComponent(`Hello ${user.fullName},\n\nYour account has been created successfully at SetupGuru.shop ✅.\nIf you face any issue, contact our support team at 📞 9499473347.\n\nHappy Shopping!\n- SetupGuru.shop Team`);
+                window.location.href = `mailto:${user.email}?subject=${subject}&body=${body}`;
+                showToast('Welcome email sent 📧', 'info');
+            }
+            if (action === 'whatsapp') {
+                const message = encodeURIComponent(`Hello ${user.fullName}, welcome to SetupGuru.shop 🎉\nYour account has been created successfully. Start shopping now!\nFor support, call us at 9499473347.`);
+                window.open(`https://wa.me/91${user.mobile}?text=${message}`, '_blank');
+                showToast('WhatsApp message opened ✅', 'info');
+            }
+            if (action === 'call') {
+                window.location.href = `tel:${user.mobile}`;
+                showToast('Call initiated 📞', 'info');
+            }
+            if (action === 'delete') {
+                if (confirm(`Are you sure you want to delete user: ${user.fullName}?`)) {
+                    db.collection('users').doc(user.id).delete()
+                        .then(() => { showToast('User deleted ❌', 'success'); fetchUsers(); })
+                        .catch(err => showToast(`Error: ${err.message}`, 'error'));
+                }
+            }
+        });
+        
+        const showToast = (message, type = 'info') => {
+            const toastContainer = document.getElementById('toastContainer') || document.body;
+            const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.textContent = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 500); }, 3000);
+        };
+        
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => { setView(currentView); fetchUsers(); });
+    </script>
+</body>
+</html>

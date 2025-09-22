@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment - SetupGuru</title>
+    
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #2E1A5F; --secondary-color: #C49B46; --background-color: #f4f7fc;
+            --text-color: #212529; --card-bg: #ffffff; --shadow-color: rgba(46, 26, 95, 0.08);
+            --success-color: #2ecc71; --error-color: #e74c3c;
+        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--background-color); font-family: 'Poppins', sans-serif; color: var(--text-color); }
+        
+        /* --- HEADER --- */
+        .header { background: var(--card-bg); padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px var(--shadow-color); width: 100%; position: sticky; top: 0; z-index: 1000;}
+        .back-btn { background: none; border: none; font-size: 1.5rem; color: var(--text-color); cursor: pointer; }
+        .logo-text { font-size: 1.8rem; font-weight: 700; color: var(--primary-color); text-decoration: none; position: absolute; left: 50%; transform: translateX(-50%); }
+        .user-info { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        #user-name { font-weight: 600; color: var(--primary-color); text-transform: uppercase; }
+        .profile-avatar { width: 45px; height: 45px; border-radius: 50%; background-image: url('https://i.ibb.co/zT8W3ZhL/pngtree-user-profile-avatar-png-image-10211467.png'); background-size: cover; background-position: center; border: 2px solid var(--secondary-color); }
+
+        /* --- LOADER --- */
+        #loader-container { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 5rem 0; gap: 1rem; }
+        .spinner { width: 50px; height: 50px; border: 5px solid var(--border-color); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* --- MAIN CONTENT --- */
+        .payment-container { padding: 2rem; animation: fadeIn 0.8s ease-out; }
+        .payment-layout { display: grid; grid-template-columns: 1.7fr 1fr; gap: 2.5rem; max-width: 1000px; margin: auto; }
+        
+        .payment-details, .payment-summary { background: var(--card-bg); border-radius: 15px; box-shadow: 0 8px 25px var(--shadow-color); padding: 2.5rem; }
+        h1, h2 { color: var(--primary-color); margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; }
+        
+        /* --- Details Sections (Shipping, Items) --- */
+        .review-section { margin-bottom: 2rem; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .section-header h3 { font-size: 1.2rem; color: var(--text-color); }
+        .section-header a { font-size: 0.9rem; color: var(--primary-color); font-weight: 600; }
+        .address-box, .items-box { font-size: 1rem; color: #555; line-height: 1.6; }
+        .items-box .item { display: flex; justify-content: space-between; padding: 8px 0; }
+
+        .security-info { display: flex; align-items: center; gap: 15px; background-color: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 2rem; }
+        .security-info .icon { font-size: 1.5rem; color: var(--success-color); }
+        
+        /* --- Summary Section --- */
+        .payment-summary { position: sticky; top: 120px; text-align: center; }
+        .payment-summary .logo { width: 70px; margin-bottom: 1rem; }
+        .amount-display .amount-value { font-size: 3.5rem; font-weight: 700; color: var(--primary-color); margin-bottom: 1.5rem; }
+        .order-breakdown li { display: flex; justify-content: space-between; padding: 0.8rem 0; font-size: 1.1rem; border-bottom: 1px solid #eee; }
+        .order-breakdown li.total { font-weight: bold; font-size: 1.3rem; border-top: 2px solid #333; }
+        
+        .pay-btn {
+            width: 100%; padding: 1rem; border: none; background: var(--secondary-color); color: var(--primary-color); font-size: 1.2rem; font-weight: 700;
+            border-radius: 8px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 1.5rem;
+        }
+        .pay-btn .fa-spinner { display: none; }
+        .pay-btn.processing { background-color: #a08242; cursor: not-allowed; }
+        .pay-btn.processing .btn-text { display: none; }
+        .pay-btn.processing .fa-spinner { display: inline-block; animation: spin 1s linear infinite; }
+
+        .status-message.error { color: var(--error-color); font-weight: 500; margin-top: 1rem; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 900px) { .payment-layout { grid-template-columns: 1fr; } .payment-summary { position: static; margin-top: 2rem; } }
+        @media (max-width: 600px) { .logo-text { display: none; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <button class="back-btn" onclick="window.location.href='checkout.html'"><i class="fas fa-arrow-left"></i></button>
+        <a href="index.html" class="logo-text">SetupGuru</a>
+        <a href="profile.html" class="user-info">
+            <span id="user-name">Guest</span><div class="profile-avatar"></div>
+        </a>
+    </header>
+
+    <main class="payment-container">
+        <div id="loader-container"><div class="spinner"></div><p>Loading Secure Payment...</p></div>
+
+        <div class="payment-layout" id="paymentLayout" style="display:none;">
+            <div class="payment-details">
+                <h1>Final Confirmation</h1>
+                <div class="review-section">
+                    <div class="section-header"><h3>Shipping To</h3><a href="checkout.html">Change</a></div>
+                    <div class="address-box" id="shippingAddressBox"></div>
+                </div>
+                 <div class="review-section">
+                    <div class="section-header"><h3>Items in Order</h3></div>
+                    <div class="items-box" id="itemsReviewBox"></div>
+                </div>
+                <div class="security-info">
+                    <div class="icon"><i class="fas fa-lock"></i></div>
+                    <p><b>100% Secure Payment:</b> All transactions are secured with 256-bit SSL encryption and processed by Razorpay.</p>
+                </div>
+            </div>
+            <div class="payment-summary">
+                <h2>Summary</h2>
+                <ul class="order-breakdown">
+                    <li><span>Subtotal</span><span id="subtotalValue">₹0</span></li>
+                    <li><span>Delivery Fee</span><span>₹19</span></li>
+                    <li class="total"><span>Grand Total</span><span id="amountValue">₹0</span></li>
+                </ul>
+                <button class="pay-btn" id="payBtn">
+                    <i class="fas fa-shield-alt"></i>
+                    <span class="btn-text">Pay Securely</span>
+                    <i class="fas fa-spinner"></i>
+                </button>
+                <div class="status-message" id="statusMessage"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyAMweRCGXZCfuRvtlVO0acLbKmY4heV08s", authDomain: "setupguru-217af.firebaseapp.com", projectId: "setupguru-217af", storageBucket: "setupguru-217af.firebasestorage.app", messagingSenderId: "377386830551", appId: "1:377386830551:web:39909b0addf2bc630be92" };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        const loader = document.getElementById('loader-container');
+        const paymentLayout = document.getElementById('paymentLayout');
+        const payBtn = document.getElementById('payBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        const userNameDisplay = document.getElementById('user-name');
+
+        let paymentData = {}; 
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                initializePayment(user);
+            } else {
+                loader.innerHTML = '<h1>Authentication Error. Please <a href="login.html">log in</a>.</h1>';
+            }
+        });
+
+        async function initializePayment(user) {
+            const shippingDetails = JSON.parse(localStorage.getItem('pendingOrderDetails'));
+            const cartItems = JSON.parse(localStorage.getItem('cartItems'));
+
+            if (!shippingDetails || !cartItems || cartItems.length === 0) {
+                loader.innerHTML = '<h1>Error: Order details not found.</h1><p>Please go back to your <a href="cart.html">cart</a> and try again.</p>';
+                return;
+            }
+            
+            // --- Populate UI ---
+            userNameDisplay.textContent = shippingDetails.fullName.split(' ')[0] || 'USER';
+            
+            document.getElementById('shippingAddressBox').innerHTML = `
+                <b>${shippingDetails.fullName}</b><br>
+                ${shippingDetails.address}, ${shippingDetails.city}<br>
+                ${shippingDetails.state} - ${shippingDetails.pincode}<br>
+                Phone: ${shippingDetails.mobile}
+            `;
+
+            document.getElementById('itemsReviewBox').innerHTML = cartItems.map(item => `
+                <div class="item"><span>${item.title} (x${item.quantity})</span> <strong>₹${Math.floor(item.price * (1-(item.discountPercent||0)/100) * item.quantity)}</strong></div>
+            `).join('');
+
+            const deliveryFee = 19;
+            const subtotal = cartItems.reduce((total, item) => total + (item.price * (1 - (item.discountPercent || 0) / 100) * item.quantity), 0);
+            const grandTotal = Math.floor(subtotal + deliveryFee);
+
+            document.getElementById('subtotalValue').textContent = `₹${Math.floor(subtotal)}`;
+            document.getElementById('amountValue').textContent = `₹${grandTotal}`;
+
+            paymentData = {
+                totalAmount: grandTotal,
+                user: { name: shippingDetails.fullName, email: shippingDetails.email, contact: shippingDetails.mobile }
+            };
+            
+            loader.style.display = 'none';
+            paymentLayout.style.display = 'grid';
+        }
+
+        payBtn.addEventListener('click', () => {
+            statusMessage.textContent = '';
+            payBtn.classList.add('processing');
+            payBtn.disabled = true;
+
+            const options = {
+                "key": "rzp_test_RKZP5o0K6VbR63",
+                "amount": paymentData.totalAmount * 100,
+                "currency": "INR",
+                "name": "SetupGuru.shop",
+                "description": "Order Payment",
+                "image": "https://i.ibb.co/hRBZFSS3/1758331953202.jpg",
+                "handler": function (response){
+                    // --- THE MOST IMPORTANT FIX ---
+                    // Save the transaction ID before redirecting
+                    localStorage.setItem('transactionId', response.razorpay_payment_id);
+                    window.location.href = 'success.html';
+                },
+                "prefill": paymentData.user,
+                "theme": { "color": "#2E1A5F" },
+                "modal": {
+                    "ondismiss": function(){
+                        statusMessage.textContent = 'Payment cancelled. Please try again.';
+                        statusMessage.classList.add('error');
+                        payBtn.classList.remove('processing');
+                        payBtn.disabled = false;
+                    }
+                }
+            };
+
+            const rzp1 = new Razorpay(options);
+            rzp1.on('payment.failed', function (response){
+                statusMessage.textContent = `Payment failed: ${response.error.description}.`;
+                statusMessage.classList.add('error');
+                payBtn.classList.remove('processing');
+                payBtn.disabled = false;
+            });
+            rzp1.open();
+        });
+    </script>
+</body>
+</html>

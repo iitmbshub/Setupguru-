@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed! - SetupGuru</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #2E1A5F; --secondary-color: #C49B46; --background-color: #f4f7fc;
+            --text-color: #212529; --card-bg: #ffffff; --success-color: #2ecc71;
+            --border-color: #e9ecef; --light-text: #6c757d;
+        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--background-color); font-family: 'Poppins', sans-serif; color: var(--text-color); overflow-x: hidden; }
+
+        /* --- 1000x BETTER ANIMATION --- */
+        #animation-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--primary-color);
+            z-index: 3000; display: flex; justify-content: center; align-items: center;
+            opacity: 1; transition: opacity 0.5s ease-out;
+        }
+        .animation-sequence { display: flex; flex-direction: column; align-items: center; }
+        .stage { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.4s forwards; }
+        .stage.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        
+        .stage-icon { font-size: 4rem; color: var(--secondary-color); margin-bottom: 1.5rem; position: relative; }
+        .stage-icon .scanner { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: white; box-shadow: 0 0 10px white; animation: scan 1.5s infinite; }
+        @keyframes scan { 0% { top: 0; } 50% { top: 100%; } 100% { top: 0; } }
+        .stage-icon .fa-check { color: var(--success-color); animation: popIn 0.5s forwards; }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+        
+        .stage-text { color: white; font-size: 1.2rem; font-weight: 500; }
+        #confetti-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+
+        /* --- Main Content --- */
+        #main-content { visibility: hidden; opacity: 0; transition: opacity 0.5s 0.3s; }
+        .main-header { background-color: var(--card-bg); padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem; border-bottom: 1px solid var(--border-color); }
+        .header-icon { width: 50px; height: 50px; border-radius: 50%; background: var(--success-color); color: white; font-size: 1.5rem; display: flex; justify-content: center; align-items: center; }
+        .main-header h1 { font-size: 1.8rem; color: var(--primary-color); }
+        .success-container { max-width: 800px; margin: 2rem auto; padding: 0 2rem 2rem 2rem; }
+        #receipt-content { background-color: var(--card-bg); padding: 2rem; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.05); }
+        #receipt-content h2 { color: var(--primary-color); padding-bottom: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); }
+        .receipt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+        .detail-box strong { font-weight: 600; color: var(--text-color); display: block; margin-bottom: 0.5rem; }
+        .detail-box p { font-size: 0.95rem; color: var(--light-text); line-height: 1.6; }
+        .items-list li { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--border-color); }
+        .grand-total { text-align: right; font-size: 1.5rem; font-weight: 700; margin-top: 1rem; color: var(--primary-color); }
+        .action-buttons { margin-top: 2rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+        .action-btn { padding: 0.8rem 1.5rem; border: 2px solid; border-radius: 8px; font-size: 1rem; font-weight: 600; text-decoration: none; transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.8rem; }
+        .btn-primary { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .btn-secondary { background-color: transparent; color: var(--primary-color); border-color: var(--primary-color); }
+        .btn-danger { background-color: transparent; color: #e74c3c; border-color: #e74c3c; }
+
+        @media (max-width: 768px) {
+            .main-header h1 { font-size: 1.5rem; }
+            .success-container { padding: 0 1rem 1rem 1rem; }
+            #receipt-content { padding: 1.5rem; }
+            .receipt-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .action-buttons { flex-direction: column; align-items: stretch; }
+            .action-btn { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <audio id="successSound" src="done.mp3" preload="auto"></audio>
+    
+    <div id="animation-overlay">
+        <canvas id="confetti-canvas"></canvas>
+        <div class="animation-sequence">
+            <div id="stage1" class="stage">
+                <div class="stage-icon"><i class="fas fa-credit-card"></i><div class="scanner"></div></div>
+                <div class="stage-text">Verifying Payment...</div>
+            </div>
+            <div id="stage2" class="stage">
+                <div class="stage-icon"><i class="fas fa-file-invoice"></i></div>
+                <div class="stage-text">Confirming Order...</div>
+            </div>
+            <div id="stage3" class="stage">
+                <div class="stage-icon"><i class="fas fa-party-popper"></i></div>
+                <div class="stage-text">All Done!</div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="main-content">
+        <header class="main-header">
+            <div class="header-icon"><i class="fas fa-check"></i></div>
+            <h1>Ordered Successful!</h1>
+        </header>
+        <div class="success-container">
+            <div id="receipt-content">
+                <h2>Order ID: <span id="orderId" style="color: var(--secondary-color);">#0000</span></h2>
+                <div class="receipt-grid">
+                    <div class="detail-box"><strong>Shipping To:</strong><p id="userName"></p><p id="userAddress"></p></div>
+                    <div class="detail-box"><strong>Payment Info:</strong><p id="paymentMethod"></p><p id="transactionInfo"></p></div>
+                </div>
+                <h2>Items Ordered</h2>
+                <ul class="items-list" id="itemsList"></ul>
+                <div class="grand-total" id="grandTotal"></div>
+            </div>
+            <div class="action-buttons">
+                <a href="#" id="trackOrderBtn" class="action-btn btn-primary"><i class="fas fa-map-marker-alt"></i> Track Order</a>
+                <a href="index.html" class="action-btn btn-secondary"><i class="fas fa-home"></i> Home</a>
+                <button id="downloadBtn" class="action-btn btn-secondary"><i class="fas fa-download"></i> Download Receipt</button>
+                <a href="#" class="action-btn btn-danger"><i class="fas fa-times"></i> Cancel Order</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyAMweRCGXZCfuRvtlVO0acLbKmY4heV08s", authDomain: "setupguru-217af.firebaseapp.com", projectId: "setupguru-217af", storageBucket: "setupguru-217af.firebasestorage.app", messagingSenderId: "377386830551", appId: "1:377386830551:web:39909b0addf2bc630be92" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // --- SECURITY CHECK ---
+            const referrer = document.referrer;
+            const isValidReferrer = referrer.includes('checkout.html') || referrer.includes('pay.html');
+
+            if (!isValidReferrer) {
+                document.body.innerHTML = `<div style="text-align:center; padding-top: 40vh;"><h1>Access Denied</h1><p>Redirecting to homepage...</p></div>`;
+                setTimeout(() => { window.location.href = 'index.html'; }, 3000);
+                return;
+            }
+
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    processOrder(user, referrer);
+                } else {
+                    document.body.innerHTML = '<h1>Authentication Error. Please log in.</h1>';
+                }
+            });
+        });
+
+        async function processOrder(user, referrer) {
+            // --- DATA HANDLING (runs during animation) ---
+            const shippingDetails = JSON.parse(localStorage.getItem('pendingOrderDetails'));
+            const cartItems = JSON.parse(localStorage.getItem('cartItems'));
+            
+            // Rock-solid check for refreshed page
+            if (!shippingDetails || !cartItems) {
+                document.body.innerHTML = `<div style="text-align:center; padding-top: 40vh;"><h1>Order already processed or data missing.</h1><p>Redirecting to homepage...</p></div>`;
+                setTimeout(() => { window.location.href = 'index.html'; }, 3000);
+                return;
+            }
+
+            const paymentMethod = referrer.includes('checkout.html') ? 'COD' : 'ONLINE';
+            const transactionId = localStorage.getItem('transactionId');
+            const orderId = `SG-${String(Date.now()).slice(-6)}`;
+            const grandTotal = cartItems.reduce((total, item) => total + (item.price * (1 - (item.discountPercent || 0) / 100) * item.quantity), 0) + 19;
+
+            const orderData = {
+                orderId, userId: user.uid, shippingDetails, items: cartItems, paymentMethod,
+                transactionId: transactionId || 'N/A', grandTotal: Math.floor(grandTotal), status: 'Confirmed',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            // GUARANTEED FIREBASE SAVE
+            try {
+                await Promise.all([
+                    db.collection('orders').doc(orderId).set(orderData),
+                    clearUserCart(user.uid)
+                ]);
+                
+                // --- NEW: Send Telegram Notification on Success ---
+                await sendTelegramNotification(orderData.orderId, shippingDetails.fullName);
+
+            } catch (error) {
+                 document.body.innerHTML = `<div style="text-align:center; padding-top: 40vh;"><h1>Error Saving Order!</h1><p>Please contact support. Your transaction ID is ${transactionId || 'N/A'}</p></div>`;
+                 console.error("Firebase save error:", error);
+                 return;
+            }
+            
+            // --- ANIMATION TIMING (Total 4 Seconds) ---
+            const stage1 = document.getElementById('stage1');
+            const stage2 = document.getElementById('stage2');
+            const stage3 = document.getElementById('stage3');
+            const overlay = document.getElementById('animation-overlay');
+
+            // 0s: Stage 1 appears
+            stage1.classList.add('active');
+
+            // 1.5s: Stage 2 appears
+            setTimeout(() => {
+                stage1.style.display = 'none';
+                stage2.classList.add('active');
+                stage2.querySelector('.stage-icon').innerHTML = '<i class="fas fa-check"></i>';
+                document.getElementById('successSound').play().catch(e => {});
+            }, 1500);
+
+            // 2.8s: Stage 3 appears with Confetti
+            setTimeout(() => {
+                stage2.style.display = 'none';
+                stage3.classList.add('active');
+                runConfetti();
+            }, 2800);
+            
+            // 4.0s: Animation finishes, show main content
+            setTimeout(() => {
+                overlay.style.opacity = '0';
+                document.getElementById('main-content').style.visibility = 'visible';
+                document.getElementById('main-content').style.opacity = '1';
+                setTimeout(() => overlay.style.display = 'none', 500);
+            }, 4000);
+
+            // Populate page with confirmed data and cleanup localStorage
+            populatePage(orderData);
+            localStorage.clear();
+        }
+        
+        // --- NEW: Telegram Bot Notification Function ---
+        async function sendTelegramNotification(orderId, userName) {
+            const botToken = '8311976506:AAHCMdrwWzHbKYPVxItoiRXFg0hvppS_26c';
+            const chatIds = ['5165964724', '6155964724'];
+            const adminLink = 'https://setupguru.shop/admin-orders.html';
+            
+            const messageText = `🎉 New Order Alert!\n\nOrder ID: #${orderId}\nUser: ${userName}\n\nView and manage orders here:\n${adminLink}`;
+            
+            for (const chatId of chatIds) {
+                const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+                const params = new URLSearchParams({
+                    chat_id: chatId,
+                    text: messageText,
+                    parse_mode: 'Markdown'
+                });
+                
+                try {
+                    await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: params.toString()
+                    });
+                } catch (error) {
+                    console.error(`Error sending Telegram notification to chat ${chatId}:`, error);
+                }
+            }
+        }
+        
+        // --- HELPER FUNCTIONS ---
+        function populatePage(data) {
+            document.getElementById('orderId').textContent = `#${data.orderId}`;
+            document.getElementById('userName').textContent = data.shippingDetails.fullName;
+            document.getElementById('userAddress').innerHTML = `${data.shippingDetails.address}, ${data.shippingDetails.city},<br>${data.shippingDetails.state} - ${data.shippingDetails.pincode}`;
+            document.getElementById('paymentMethod').innerHTML = `<strong>Method:</strong> ${data.paymentMethod}`;
+            document.getElementById('transactionInfo').innerHTML = data.paymentMethod === 'ONLINE' ? `<strong>Transaction ID:</strong> ${data.transactionId}` : 'Payment at delivery';
+            document.getElementById('itemsList').innerHTML = data.items.map(item => `<li><span>${item.title} (x${item.quantity})</span><strong>₹${Math.floor(item.price * (1-(item.discountPercent||0)/100) * item.quantity)}</strong></li>`).join('');
+            document.getElementById('grandTotal').textContent = `Grand Total: ₹${data.grandTotal}`;
+            document.getElementById('trackOrderBtn').href = `track.html?orderId=${data.orderId}`;
+        }
+        
+        async function clearUserCart(userId) {
+            const cartRef = db.collection('users').doc(userId).collection('cart');
+            const snapshot = await cartRef.get();
+            if (snapshot.empty) return;
+            const batch = db.batch();
+            snapshot.docs.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+        }
+
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            html2canvas(document.getElementById('receipt-content'), { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `receipt_order_${document.getElementById('orderId').textContent.replace('#','')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        });
+        
+        // --- Confetti Animation Logic ---
+        function runConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            let particles = [];
+            const colors = ["#C49B46", "#FFFFFF", "#2ecc71", "#3498db"];
+
+            function Particle() {
+                this.x = canvas.width / 2;
+                this.y = canvas.height / 2;
+                this.radius = Math.random() * 6 + 2;
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.velocity = { x: (Math.random() - 0.5) * 15, y: (Math.random() - 0.5) * 15 };
+                this.alpha = 1;
+                this.friction = 0.99;
+                this.gravity = 0.2;
+            }
+
+            Particle.prototype.draw = function() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.restore();
+            };
+
+            Particle.prototype.update = function() {
+                this.velocity.x *= this.friction;
+                this.velocity.y *= this.friction;
+                this.velocity.y += this.gravity;
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.alpha -= 0.01;
+                this.draw();
+            };
+
+            for (let i = 0; i < 150; i++) {
+                particles.push(new Particle());
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach((p, index) => {
+                    if (p.alpha > 0) {
+                        p.update();
+                    } else {
+                        particles.splice(index, 1);
+                    }
+                });
+            }
+            animate();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | SetupGuru.shop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2E1A5F;
+            --secondary-color: #C49B46;
+            --background-color: #f4f7fc;
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --light-text-color: #6c757d;
+            --border-color: #e9ecef;
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --danger-color: #dc3545;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: none;
+        }
+
+        .header {
+            background-color: var(--card-bg);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .user-profile span {
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .main-content {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            min-height: 80vh;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tab-btn {
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary-color);
+            color: var(--card-bg);
+            border-color: var(--primary-color);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background-color: var(--border-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .admin-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .admin-form input[type="text"], .admin-form textarea, .admin-form input[type="number"], .admin-form select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .admin-form button {
+            background-color: var(--primary-color);
+            color: var(--card-bg);
+            padding: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .admin-form button:hover {
+            background-color: #201344;
+        }
+
+        .image-upload-section {
+            border: 1px dashed var(--border-color);
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            border-radius: 10px;
+        }
+
+        .image-upload-section i {
+            font-size: 3rem;
+            color: var(--light-text-color);
+            margin-bottom: 1rem;
+        }
+
+        .uploaded-images-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .uploaded-images-preview img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .data-table th, .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            background-color: var(--background-color);
+            font-weight: 600;
+            color: var(--light-text-color);
+        }
+
+        .data-table tr:hover {
+            background-color: var(--background-color);
+        }
+
+        .action-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
+
+        .action-btn:hover {
+            background-color: #201344;
+        }
+
+        .edit-btn { background-color: var(--info-color); }
+        .delete-btn { background-color: var(--danger-color); }
+        
+        .add-new-btn {
+            background-color: var(--success-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .add-new-btn:hover { background-color: #218838; }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+            .user-profile span {
+                display: none;
+            }
+            .tab-buttons {
+                flex-wrap: wrap;
+            }
+            .tab-btn {
+                flex: 1 1 auto;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <span class="logo-text">Admin Panel</span>
+        </div>
+        <div class="user-profile">
+            <img id="user-avatar" src="https://placehold.co/40x40" alt="User Avatar">
+            <span id="user-name">Loading...</span>
+            <button class="logout-btn" id="logout-btn">Logout</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="section-header">
+                <h1 class="section-title">Home Page Control</h1>
+                <div class="tab-buttons">
+                    <button class="tab-btn active" data-tab="products">Products</button>
+                    <button class="tab-btn" data-tab="banners">Banners</button>
+                    <button class="tab-btn" data-tab="categories">Categories</button>
+                    <button class="tab-btn" data-tab="footer">Footer</button>
+                </div>
+            </div>
+
+            <div id="products" class="tab-content active">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2>Manage Products</h2>
+                    <button class="add-new-btn" id="add-product-btn">Add New Product</button>
+                </div>
+                <form id="product-form" class="admin-form" style="display: none;">
+                    <input type="hidden" id="product-id">
+                    <input type="text" id="product-title" placeholder="Product Title" required>
+                    <div class="form-grid">
+                        <input type="number" id="product-price" placeholder="Price" required>
+                        <input type="number" id="product-discount" placeholder="Discount Percent (e.g., 10)" value="0">
+                    </div>
+                    <textarea id="product-description" placeholder="Product Description" rows="4" required></textarea>
+                    
+                    <h3>Product Images</h3>
+                    <div class="image-upload-section" onclick="document.getElementById('product-image-upload').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click to upload images</p>
+                        <input type="file" id="product-image-upload" multiple accept="image/*" style="display: none;">
+                    </div>
+                    <div class="uploaded-images-preview" id="image-previews"></div>
+                    <input type="hidden" id="product-image-urls">
+                    
+                    <h3>Home Page Sections</h3>
+                    <div class="form-grid">
+                        <label>
+                            <input type="checkbox" id="is-best-seller"> Best Seller
+                        </label>
+                        <label>
+                            <input type="checkbox" id="is-new-arrival"> New Arrival
+                        </label>
+                    </div>
+
+                    <button type="submit" id="save-product-btn">Add Product</button>
+                </form>
+                <hr style="margin: 2rem 0; border: 0; border-top: 1px solid var(--border-color);">
+                <h2>Existing Products</h2>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Title</th>
+                                <th>Price</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-list">
+                            <tr><td colspan="4">Loading products...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="banners" class="tab-content">
+                <h2>Manage Banners</h2>
+                <form id="banner-form" class="admin-form">
+                     <div class="image-upload-section" onclick="document.getElementById('banner-image-upload').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click to upload banner images</p>
+                        <input type="file" id="banner-image-upload" multiple accept="image/*" style="display: none;">
+                    </div>
+                    <div class="uploaded-images-preview" id="banner-previews"></div>
+                    <input type="hidden" id="banner-image-urls">
+                    <button type="submit" id="save-banner-btn">Save Banners</button>
+                </form>
+                <hr style="margin: 2rem 0; border: 0; border-top: 1px solid var(--border-color);">
+                <h2>Current Banners</h2>
+                <div class="uploaded-images-preview" id="current-banners"></div>
+            </div>
+
+            <div id="categories" class="tab-content">
+                <h2>Manage Categories</h2>
+                <form id="category-form" class="admin-form">
+                    <input type="hidden" id="category-id">
+                    <input type="text" id="category-name" placeholder="Category Name" required>
+                    <div class="image-upload-section" onclick="document.getElementById('category-image-upload').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click to upload category image</p>
+                        <input type="file" id="category-image-upload" accept="image/*" style="display: none;">
+                    </div>
+                    <div class="uploaded-images-preview" id="category-previews"></div>
+                    <input type="hidden" id="category-image-url">
+                    <button type="submit" id="save-category-btn">Add Category</button>
+                </form>
+                <hr style="margin: 2rem 0; border: 0; border-top: 1px solid var(--border-color);">
+                <h2>Existing Categories</h2>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categories-list">
+                            <tr><td colspan="3">Loading categories...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="footer" class="tab-content">
+                <h2>Manage Footer & Social Links</h2>
+                <form id="footer-form" class="admin-form">
+                    <h3>Contact Information</h3>
+                    <input type="text" id="footer-email" placeholder="Email Address" required>
+                    <input type="text" id="footer-mobile" placeholder="Mobile Number" required>
+                    <h3>Social Media Links</h3>
+                    <input type="text" id="footer-facebook" placeholder="Facebook URL">
+                    <input type="text" id="footer-instagram" placeholder="Instagram URL">
+                    <input type="text" id="footer-twitter" placeholder="Twitter URL">
+                    <button type="submit">Save Footer</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <script>
+        const ADMIN_EMAIL = 'raojatin@gmail.com';
+        const IMGBB_API_KEY = 'f31247f51f07c7e6fdf325abaed8e58c';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMweRCGXZCfuRvtlVO0acLbKmY4heV08s",
+            authDomain: "setupguru-217af.firebaseapp.com",
+            projectId: "setupguru-217af",
+            storageBucket: "setupguru-217af.firebasestorage.app",
+            messagingSenderId: "377386830551",
+            appId: "1:377386830551:web:39909b0add3f2bc630be92"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        const userAvatar = document.getElementById('user-avatar');
+        const userName = document.getElementById('user-name');
+        const logoutBtn = document.getElementById('logout-btn');
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        const productsTab = document.getElementById('products');
+        const productForm = document.getElementById('product-form');
+        const addProductBtn = document.getElementById('add-product-btn');
+        const imageUploadInput = document.getElementById('product-image-upload');
+        const imagePreviews = document.getElementById('image-previews');
+        const productsList = document.getElementById('products-list');
+        const saveProductBtn = document.getElementById('save-product-btn');
+
+        const bannerForm = document.getElementById('banner-form');
+        const bannerUploadInput = document.getElementById('banner-image-upload');
+        const bannerPreviews = document.getElementById('banner-previews');
+        const currentBannersContainer = document.getElementById('current-banners');
+
+        const categoryForm = document.getElementById('category-form');
+        const categoryImageUploadInput = document.getElementById('category-image-upload');
+        const categoryPreviews = document.getElementById('category-previews');
+        const categoriesList = document.getElementById('categories-list');
+
+        const footerForm = document.getElementById('footer-form');
+
+        let allProducts = [];
+        let allCategories = [];
+        let uploadedProductImageURLs = [];
+        let uploadedCategoryImageURL = '';
+
+        // --- AUTHENTICATION & ACCESS CONTROL ---
+        auth.onAuthStateChanged(user => {
+            if (user && user.email === ADMIN_EMAIL) {
+                userName.textContent = user.displayName || user.email;
+                userAvatar.src = user.photoURL || `https://placehold.co/40x40/C49B46/2E1A5F?text=${user.email.charAt(0).toUpperCase()}`;
+                document.body.style.display = 'block';
+                loadProducts();
+                loadBanners();
+                loadCategories();
+                loadFooter();
+            } else {
+                alert('Access Denied. Please log in with the admin account.');
+                auth.signOut().then(() => {
+                    window.location.href = 'login.html';
+                });
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut().then(() => {
+                window.location.href = 'login.html';
+            });
+        });
+
+        // --- TAB SWITCHING ---
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(btn.dataset.tab).classList.add('active');
+            });
+        });
+
+          // --- IMAGE UPLOAD (ImgBB) ---
+        async function uploadImages(files, previewContainer) {
+            const uploadedUrls = [];
+            previewContainer.innerHTML = 'Uploading...';
+            for (const file of files) {
+                const formData = new FormData();
+                formData.append('image', file);
+                try {
+                    const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        uploadedUrls.push(result.data.url);
+                    } else {
+                        console.error('Image upload failed:', result.error.message);
+                    }
+                } catch (error) {
+                    console.error('Error uploading image:', error);
+                }
+            }
+            previewContainer.innerHTML = uploadedUrls.map(url => `<img src="${url}" alt="Uploaded Image">`).join('');
+            return uploadedUrls;
+        }
+
+        imageUploadInput.addEventListener('change', async (e) => {
+            uploadedProductImageURLs = await uploadImages(e.target.files, imagePreviews);
+        });
+        
+        bannerUploadInput.addEventListener('change', async (e) => {
+            const urls = await uploadImages(e.target.files, bannerPreviews);
+            document.getElementById('banner-image-urls').value = urls.join(',');
+        });
+
+        categoryImageUploadInput.addEventListener('change', async (e) => {
+            const urls = await uploadImages(e.target.files, categoryPreviews);
+            uploadedCategoryImageURL = urls[0] || '';
+            document.getElementById('category-image-url').value = uploadedCategoryImageURL;
+        });
+
+        // --- PRODUCTS MANAGEMENT ---
+        async function loadProducts() {
+            try {
+                const snapshot = await db.collection('items').orderBy('createdAt', 'desc').get();
+                allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderProducts();
+            } catch (error) {
+                console.error('Error loading products:', error);
+                productsList.innerHTML = `<tr><td colspan="4">Failed to load products.</td></tr>`;
+            }
+        }
+
+        function renderProducts() {
+            if (allProducts.length === 0) {
+                productsList.innerHTML = `<tr><td colspan="4">No products found.</td></tr>`;
+                return;
+            }
+            productsList.innerHTML = allProducts.map(product => `
+                <tr>
+                    <td><img src="${product.imageURLs[0]}" width="50" alt="${product.title}"></td>
+                    <td>${product.title}</td>
+                    <td>₹${product.price}</td>
+                    <td>
+                        <button class="action-btn edit-btn" data-id="${product.id}">Edit</button>
+                        <button class="action-btn delete-btn" data-id="${product.id}">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        addProductBtn.addEventListener('click', () => {
+            productForm.reset();
+            productForm.style.display = 'flex';
+            imagePreviews.innerHTML = '';
+            uploadedProductImageURLs = [];
+            document.getElementById('product-id').value = '';
+            saveProductBtn.textContent = 'Add Product';
+            productsTab.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        productForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const productId = document.getElementById('product-id').value;
+            const productData = {
+                title: document.getElementById('product-title').value,
+                price: parseInt(document.getElementById('product-price').value),
+                description: document.getElementById('product-description').value,
+                imageURLs: uploadedImageURLs,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                sales: 0
+            };
+
+            saveProductBtn.textContent = 'Saving...';
+            saveProductBtn.disabled = true;
+
+            try {
+                if (productId) {
+                    await db.collection('items').doc(productId).update(productData);
+                } else {
+                    await db.collection('items').add(productData);
+                }
+                productForm.reset();
+                uploadedImageURLs = [];
+                imagePreviews.innerHTML = '';
+                document.getElementById('product-id').value = '';
+                saveProductBtn.textContent = 'Add Product';
+                productForm.style.display = 'none';
+                loadProducts();
+            } catch (error) {
+                console.error("Error saving product:", error);
+                alert("Failed to save product.");
+            } finally {
+                saveProductBtn.disabled = false;
+            }
+        });
+
+        productsList.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('edit-btn')) {
+                const productId = e.target.dataset.id;
+                const product = allProducts.find(p => p.id === productId);
+                if (product) {
+                    document.getElementById('product-id').value = product.id;
+                    document.getElementById('product-title').value = product.title;
+                    document.getElementById('product-price').value = product.price;
+                    document.getElementById('product-description').value = product.description;
+                    uploadedImageURLs = product.imageURLs;
+                    imagePreviews.innerHTML = product.imageURLs.map(url => `<img src="${url}" alt="Product Image">`).join('');
+                    saveProductBtn.textContent = 'Update Product';
+                    document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+                }
+            } else if (e.target.classList.contains('delete-btn')) {
+                const productId = e.target.dataset.id;
+                if (confirm('Are you sure you want to delete this product?')) {
+                    try {
+                        await db.collection('items').doc(productId).delete();
+                        loadProducts();
+                    } catch (error) {
+                        console.error("Error deleting product:", error);
+                        alert("Failed to delete product.");
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

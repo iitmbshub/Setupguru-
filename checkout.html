@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - SetupGuru</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #2E1A5F; --secondary-color: #C49B46; --background-color: #f4f7fc;
+            --text-color: #212529; --card-bg: #ffffff; --shadow-color: rgba(46, 26, 95, 0.1);
+            --border-color: #e9ecef; --error-color: #e74c3c;
+        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--background-color); font-family: 'Poppins', sans-serif; color: var(--text-color); }
+
+        /* --- LOADER --- */
+        #loader-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--background-color); display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 9999; transition: opacity 0.5s ease-out; opacity: 1; gap: 1rem;
+        }
+        .spinner { width: 50px; height: 50px; border: 5px solid var(--border-color); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #loader-overlay.hidden { opacity: 0; pointer-events: none; }
+        
+        #main-container, #statusContainer { display: none; }
+
+        /* --- HEADER --- */
+        .header { background: var(--card-bg); padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px var(--shadow-color); position: sticky; top: 0; z-index: 1000; }
+        .back-btn { background: none; border: none; font-size: 1.5rem; color: var(--text-color); cursor: pointer; }
+        .logo-text { font-size: 1.8rem; font-weight: 700; color: var(--primary-color); text-decoration: none; position: absolute; left: 50%; transform: translateX(-50%); }
+        .user-info { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        #user-name { 
+            font-weight: 600; 
+            color: var(--primary-color); 
+            text-transform: uppercase;
+        }
+        .profile-avatar { width: 45px; height: 45px; border-radius: 50%; background-image: url('https://i.ibb.co/zT8W3ZhL/pngtree-user-profile-avatar-png-image-10211467.png'); background-size: cover; background-position: center; border: 2px solid var(--secondary-color); }
+
+        /* --- MAIN LAYOUT & CARDS --- */
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .checkout-layout { display: grid; grid-template-columns: 2fr 1.25fr; gap: 2rem; align-items: start; }
+        .checkout-card { background: var(--card-bg); padding: 2rem; border-radius: 12px; box-shadow: 0 5px 15px var(--shadow-color); margin-bottom: 2rem; }
+        h1, h2 { color: var(--primary-color); }
+        h1 { margin-bottom: 2rem; }
+        h2 { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+
+        /* --- SHIPPING FORM & COORDINATES --- */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .form-group { grid-column: span 2; }
+        .form-group.half { grid-column: span 1; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; transition: border-color 0.2s; }
+        .form-group input:focus { border-color: var(--primary-color); outline: none; }
+        
+        /* New styles to fix the location group layout */
+        .location-group { display: flex; gap: 10px; }
+        .location-group input { flex-grow: 1; } /* Allow input to take available space */
+        #getLocationBtn { 
+            padding: 12px 15px; /* Match padding to other inputs */
+            border: none; 
+            background-color: var(--primary-color); 
+            color: white; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px;
+            white-space: nowrap; /* Prevent text from wrapping */
+        }
+        #getLocationBtn .fa-spin { display: none; }
+        .error-message { color: var(--error-color); font-size: 0.85rem; margin-top: 5px; display: none; }
+
+        /* --- ORDER SUMMARY --- */
+        .summary-item { display: flex; align-items: center; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border-color); }
+        .summary-item:last-child { border-bottom: none; }
+        .summary-item img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
+        .summary-item-details h4 { font-size: 1rem; margin: 0; font-weight: 500; }
+        .price-details .summary-row { display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1rem; }
+        .price-details .summary-row.total { font-weight: 700; font-size: 1.3rem; border-top: 2px solid var(--border-color); padding-top: 1rem; margin-top: 1rem; }
+        
+        /* --- PAYMENT OPTIONS --- */
+        .payment-option { border: 2px solid var(--border-color); border-radius: 8px; padding: 1rem; display: flex; align-items: center; cursor: pointer; transition: all 0.2s; margin-bottom: 1rem; }
+        .payment-option input[type="radio"] { display: none; }
+        .payment-option .radio-circle { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border-color); margin-right: 1rem; position: relative; transition: border-color 0.2s; }
+        .payment-option input:checked + .radio-circle { border-color: var(--primary-color); }
+        .payment-option input:checked + .radio-circle::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; background: var(--primary-color); border-radius: 50%; }
+        .payment-option:hover { border-color: var(--primary-color); }
+        .option-label { font-weight: 600; }
+        .option-desc { font-size: 0.85rem; color: #777; }
+        .payment-option.disabled { opacity: 0.6; cursor: not-allowed; background-color: #f9f9f9; border-color: var(--border-color) !important; }
+        .payment-option.disabled .option-desc { color: var(--error-color); font-weight: 500; }
+        
+        /* --- CTA & STATUS --- */
+        .place-order-btn { width: 100%; padding: 1rem; border: none; background: var(--secondary-color); color: var(--primary-color); font-size: 1.2rem; font-weight: 700; border-radius: 8px; cursor: pointer; margin-top: 1rem; transition: all 0.3s ease; }
+        .place-order-btn:disabled { background-color: #ccc; color: #666; cursor: not-allowed; }
+        .status-container { text-align: center; padding: 4rem; background: var(--card-bg); border-radius: 12px; }
+        .status-container a { text-decoration: none; padding: 10px 20px; background: var(--primary-color); color: white; border-radius: 8px; display: inline-block; margin-top: 1rem; }
+
+        /* --- RESPONSIVE DESIGN --- */
+        @media (max-width: 900px) { 
+            .checkout-layout { 
+                grid-template-columns: 1fr; 
+            }
+            aside.checkout-card { 
+                position: static; 
+                top: auto; 
+            }
+        }
+        @media (max-width: 600px) { 
+            .form-grid { 
+                grid-template-columns: 1fr; 
+                gap: 1.5rem;
+            } 
+            .form-group, .form-group.half { 
+                grid-column: span 1; 
+            } 
+            .logo-text { 
+                display: none; 
+            }
+            .location-group {
+                flex-direction: column; /* Keep column for small screens for better spacing */
+                gap: 1rem;
+            }
+            #getLocationBtn {
+                width: 100%; /* Full width on small screens */
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loader-overlay">
+        <div class="spinner"></div>
+        <p>Preparing Your Checkout...</p>
+    </div>
+    
+    <header class="header">
+        <button class="back-btn" onclick="window.location.href='cart.html'"><i class="fas fa-arrow-left"></i></button>
+        <a href="index.html" class="logo-text">SetupGuru</a>
+        <a href="profile.html" class="user-info">
+            <span id="user-name">Guest</span>
+            <div class="profile-avatar"></div>
+        </a>
+    </header>
+
+    <div class="container" id="main-container">
+        <h1>Checkout</h1>
+        <form id="checkoutForm" novalidate>
+            <div class="checkout-layout">
+                <div>
+                    <div class="checkout-card">
+                        <h2>1. Shipping Information</h2>
+                        <div class="form-grid">
+                            <div class="form-group half"><label for="fullName">Full Name</label><input type="text" id="fullName" required></div>
+                            <div class="form-group half"><label for="mobile">Mobile Number</label><input type="tel" id="mobile" required pattern="[0-9]{10}"></div>
+                            <div class="form-group"><label for="email">Email Address</label><input type="email" id="email" required></div>
+                            <div class="form-group"><label for="address">Full Address (Street, Area)</label><input type="text" id="address" required></div>
+                            <div class="form-group half"><label for="city">City</label><input type="text" id="city" required></div>
+                            <div class="form-group half"><label for="state">State</label><input type="text" id="state" required></div>
+                            <div class="form-group half"><label for="pincode">Pincode</label><input type="text" id="pincode" required pattern="[0-9]{6}"></div>
+                            <div class="form-group half">
+                                <label for="location">Live Location</label>
+                                <div class="location-group">
+                                    <input type="text" id="location" placeholder="Click Fetch" readonly required>
+                                    <button type="button" id="getLocationBtn"><i class="fas fa-crosshairs"></i><span>Fetch</span><i class="fas fa-spinner fa-spin"></i></button>
+                                </div>
+                                <div id="location-error" class="error-message">Please fetch your live location.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="checkout-card">
+                        <h2>2. Payment Method</h2>
+                        <label class="payment-option"><input type="radio" name="paymentMethod" value="online" checked><span class="radio-circle"></span><div><div class="option-label">Online Payment</div><div class="option-desc">UPI, Card, Netbanking.</div></div></label>
+                        <label class="payment-option" id="codOptionContainer"><input type="radio" name="paymentMethod" value="cod" id="codRadio"><span class="radio-circle"></span><div><div class="option-label">Cash on Delivery (COD)</div><div class="option-desc" id="codDesc">Pay with cash upon delivery.</div></div></label>
+                    </div>
+                </div>
+                <aside class="checkout-card" style="position: sticky; top: 100px;">
+                    <h2>Order Summary</h2>
+                    <div id="summaryItemsList"><p>Loading...</p></div>
+                    <div class="price-details">
+                        <div class="summary-row"><span>Subtotal</span><span id="subtotalPrice">₹0</span></div>
+                        <div class="summary-row"><span>Delivery Fee</span><span id="deliveryFee">₹19</span></div>
+                        <div class="summary-row total"><span>Grand Total</span><span id="grandTotalPrice">₹0</span></div>
+                    </div>
+                    <button type="submit" class="place-order-btn" id="placeOrderBtn" disabled>Place Order</button>
+                </aside>
+            </div>
+        </form>
+    </div>
+    
+    <div class="container" id="statusContainer"></div>
+
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyAMweRCGXZCfuRvtlVO0acLbKmY4heV08s", authDomain: "setupguru-217af.firebaseapp.com", projectId: "setupguru-217af", storageBucket: "setupguru-217af.firebasestorage.app", messagingSenderId: "377386830551", appId: "1:377386830551:web:39909b0addf2bc630be92" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        const loaderOverlay = document.getElementById('loader-overlay');
+        const mainContainer = document.getElementById('main-container');
+        const statusContainer = document.getElementById('statusContainer');
+        const checkoutForm = document.getElementById('checkoutForm');
+        const userNameDisplay = document.getElementById('user-name');
+        const getLocationBtn = document.getElementById('getLocationBtn');
+        const placeOrderBtn = document.getElementById('placeOrderBtn');
+        const locationInput = document.getElementById('location');
+        const locationError = document.getElementById('location-error');
+        const fullNameInput = document.getElementById('fullName');
+        const cityInput = document.getElementById('city');
+        const stateInput = document.getElementById('state');
+
+        function hideLoaderAndShowContent(isSuccess) {
+            loaderOverlay.classList.add('hidden');
+            mainContainer.style.display = isSuccess ? 'block' : 'none';
+            statusContainer.style.display = isSuccess ? 'none' : 'block';
+        }
+        
+        async function loadUserData(user) {
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            if (userDoc.exists) {
+                const data = userDoc.data();
+                userNameDisplay.textContent = data.fullName || user.displayName || 'USER';
+                document.getElementById('fullName').value = (data.fullName || '').toUpperCase();
+                document.getElementById('mobile').value = data.mobile || '';
+                document.getElementById('email').value = data.email || user.email || '';
+                document.getElementById('address').value = data.address || '';
+                document.getElementById('city').value = (data.city || '').toUpperCase();
+                document.getElementById('state').value = (data.state || '').toUpperCase();
+                document.getElementById('pincode').value = data.pincode || '';
+            } else {
+                userNameDisplay.textContent = user.displayName || 'USER';
+                document.getElementById('email').value = user.email || '';
+            }
+            validateForm();
+        }
+
+        function loadCartAndSummary() {
+            const buyNowItem = JSON.parse(localStorage.getItem('buyNowItem'));
+            let itemsToDisplay = [];
+            
+            if (buyNowItem) {
+                itemsToDisplay = [buyNowItem];
+                localStorage.removeItem('buyNowItem');
+            } else {
+                itemsToDisplay = JSON.parse(localStorage.getItem('cartItems')) || [];
+            }
+
+            if (itemsToDisplay.length === 0) {
+                statusContainer.innerHTML = '<h2>Your Cart is Empty</h2><p>Please add items to your cart before checking out.</p><a href="items.html">Go Shopping</a>';
+                return false;
+            }
+            
+            renderSummary(itemsToDisplay);
+            return true;
+        }
+        
+        function renderSummary(items) {
+            document.getElementById('summaryItemsList').innerHTML = items.map(item => `
+                <div class="summary-item">
+                    <img src="${(item.imageURLs && item.imageURLs[0]) || 'https://placehold.co/100x100'}" alt="${item.title}">
+                    <div><h4>${item.title} (x${item.quantity})</h4></div>
+                </div>`).join('');
+            
+            const subtotal = items.reduce((total, item) => (total + (item.price * (1 - (item.discountPercent || 0) / 100) * item.quantity)), 0);
+            const grandTotal = subtotal + 19;
+            
+            document.getElementById('subtotalPrice').textContent = `₹${Math.floor(subtotal)}`;
+            document.getElementById('grandTotalPrice').textContent = `₹${Math.floor(grandTotal)}`;
+            updatePaymentOptions(grandTotal);
+        }
+
+        function updatePaymentOptions(total) {
+            const codRadio = document.getElementById('codRadio');
+            const codOptionContainer = document.getElementById('codOptionContainer');
+            if (total > 300) {
+                codOptionContainer.classList.add('disabled');
+                codRadio.disabled = true;
+                codOptionContainer.querySelector('.option-desc').textContent = 'Not available for orders over ₹300';
+                document.querySelector('input[value="online"]').checked = true;
+            }
+        }
+
+        // --- COORDINATE LOCATION SYSTEM ---
+        getLocationBtn.addEventListener('click', () => {
+            if (!navigator.geolocation) { 
+                alert('Geolocation is not supported by your browser.'); 
+                return; 
+            }
+            
+            const btnText = getLocationBtn.querySelector('span');
+            const btnSpinner = getLocationBtn.querySelector('.fa-spin');
+            
+            btnText.textContent = 'Fetching...';
+            btnSpinner.style.display = 'inline-block';
+            getLocationBtn.disabled = true;
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const coords = `${position.coords.latitude.toFixed(5)}, ${position.coords.longitude.toFixed(5)}`;
+                    locationInput.value = coords;
+                    locationError.style.display = 'none';
+                    btnText.textContent = 'Fetched!';
+                    btnSpinner.style.display = 'none';
+                    getLocationBtn.disabled = false;
+                    validateForm();
+                },
+                (error) => {
+                    alert(`Error (${error.code}): ${error.message}`);
+                    btnText.textContent = 'Fetch';
+                    btnSpinner.style.display = 'none';
+                    getLocationBtn.disabled = false;
+                    validateForm();
+                },
+                { timeout: 10000, enableHighAccuracy: true }
+            );
+        });
+
+           // --- FORM VALIDATION & SUBMISSION ---
+        function validateForm() {
+            const inputs = checkoutForm.querySelectorAll('input[required]');
+            let allValid = true;
+            
+            inputs.forEach(input => {
+                if (!input.checkValidity()) {
+                    allValid = false;
+                }
+            });
+            
+            const isLocationFilled = locationInput.value.trim() !== '';
+            if (!isLocationFilled) {
+                allValid = false;
+            }
+            
+            placeOrderBtn.disabled = !allValid;
+        }
+
+        fullNameInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+        });
+
+        cityInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+        });
+
+        stateInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+        });
+
+        checkoutForm.addEventListener('input', validateForm);
+
+        locationInput.addEventListener('blur', () => {
+            if (locationInput.value.trim() === '') {
+                locationError.style.display = 'block';
+            } else {
+                locationError.style.display = 'none';
+            }
+        });
+
+        checkoutForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const isLocationFilled = locationInput.value.trim() !== '';
+            if (!checkoutForm.checkValidity() || !isLocationFilled) {
+                alert("Please fill all required fields correctly, including your live location.");
+                if (!isLocationFilled) {
+                    locationError.style.display = 'block';
+                }
+                return;
+            }
+            
+            const shippingDetails = {
+                fullName: document.getElementById('fullName').value,
+                mobile: document.getElementById('mobile').value,
+                email: document.getElementById('email').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                pincode: document.getElementById('pincode').value,
+                location: locationInput.value
+            };
+
+            const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked').value;
+            
+            localStorage.setItem('pendingOrderDetails', JSON.stringify(shippingDetails));
+            localStorage.setItem('pendingPaymentMethod', selectedPayment.toUpperCase());
+            
+            window.location.href = (selectedPayment === 'cod') ? 'success.html' : 'pay.html';
+        });
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    await loadUserData(user);
+                    const cartIsOk = loadCartAndSummary();
+                    hideLoaderAndShowContent(cartIsOk);
+                } else {
+                    statusContainer.innerHTML = '<h2>Please Login</h2><p>You need to be logged in to checkout.</p><a href="login.html">Go to Login</a>';
+                    hideLoaderAndShowContent(false);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
