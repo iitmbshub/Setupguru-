@@ -52,32 +52,13 @@
         h1 { margin-bottom: 2rem; }
         h2 { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
 
-        /* --- SHIPPING FORM & COORDINATES --- */
+        /* --- SHIPPING FORM --- */
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
         .form-group { grid-column: span 2; }
         .form-group.half { grid-column: span 1; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
         .form-group input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; transition: border-color 0.2s; }
         .form-group input:focus { border-color: var(--primary-color); outline: none; }
-        
-        /* New styles to fix the location group layout */
-        .location-group { display: flex; gap: 10px; }
-        .location-group input { flex-grow: 1; } /* Allow input to take available space */
-        #getLocationBtn { 
-            padding: 12px 15px; /* Match padding to other inputs */
-            border: none; 
-            background-color: var(--primary-color); 
-            color: white; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: 600; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px;
-            white-space: nowrap; /* Prevent text from wrapping */
-        }
-        #getLocationBtn .fa-spin { display: none; }
-        .error-message { color: var(--error-color); font-size: 0.85rem; margin-top: 5px; display: none; }
 
         /* --- ORDER SUMMARY --- */
         .summary-item { display: flex; align-items: center; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border-color); }
@@ -126,14 +107,6 @@
             .logo-text { 
                 display: none; 
             }
-            .location-group {
-                flex-direction: column; /* Keep column for small screens for better spacing */
-                gap: 1rem;
-            }
-            #getLocationBtn {
-                width: 100%; /* Full width on small screens */
-                justify-content: center;
-            }
         }
     </style>
 </head>
@@ -166,15 +139,7 @@
                             <div class="form-group"><label for="address">Full Address (Street, Area)</label><input type="text" id="address" required></div>
                             <div class="form-group half"><label for="city">City</label><input type="text" id="city" required></div>
                             <div class="form-group half"><label for="state">State</label><input type="text" id="state" required></div>
-                            <div class="form-group half"><label for="pincode">Pincode</label><input type="text" id="pincode" required pattern="[0-9]{6}"></div>
-                            <div class="form-group half">
-                                <label for="location">Live Location</label>
-                                <div class="location-group">
-                                    <input type="text" id="location" placeholder="Click Fetch" readonly required>
-                                    <button type="button" id="getLocationBtn"><i class="fas fa-crosshairs"></i><span>Fetch</span><i class="fas fa-spinner fa-spin"></i></button>
-                                </div>
-                                <div id="location-error" class="error-message">Please fetch your live location.</div>
-                            </div>
+                            <div class="form-group"><label for="pincode">Pincode</label><input type="text" id="pincode" required pattern="[0-9]{6}"></div>
                         </div>
                     </div>
                     <div class="checkout-card">
@@ -210,10 +175,7 @@
         const statusContainer = document.getElementById('statusContainer');
         const checkoutForm = document.getElementById('checkoutForm');
         const userNameDisplay = document.getElementById('user-name');
-        const getLocationBtn = document.getElementById('getLocationBtn');
         const placeOrderBtn = document.getElementById('placeOrderBtn');
-        const locationInput = document.getElementById('location');
-        const locationError = document.getElementById('location-error');
         const fullNameInput = document.getElementById('fullName');
         const cityInput = document.getElementById('city');
         const stateInput = document.getElementById('state');
@@ -289,42 +251,7 @@
             }
         }
 
-        // --- COORDINATE LOCATION SYSTEM ---
-        getLocationBtn.addEventListener('click', () => {
-            if (!navigator.geolocation) { 
-                alert('Geolocation is not supported by your browser.'); 
-                return; 
-            }
-            
-            const btnText = getLocationBtn.querySelector('span');
-            const btnSpinner = getLocationBtn.querySelector('.fa-spin');
-            
-            btnText.textContent = 'Fetching...';
-            btnSpinner.style.display = 'inline-block';
-            getLocationBtn.disabled = true;
-
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const coords = `${position.coords.latitude.toFixed(5)}, ${position.coords.longitude.toFixed(5)}`;
-                    locationInput.value = coords;
-                    locationError.style.display = 'none';
-                    btnText.textContent = 'Fetched!';
-                    btnSpinner.style.display = 'none';
-                    getLocationBtn.disabled = false;
-                    validateForm();
-                },
-                (error) => {
-                    alert(`Error (${error.code}): ${error.message}`);
-                    btnText.textContent = 'Fetch';
-                    btnSpinner.style.display = 'none';
-                    getLocationBtn.disabled = false;
-                    validateForm();
-                },
-                { timeout: 10000, enableHighAccuracy: true }
-            );
-        });
-
-           // --- FORM VALIDATION & SUBMISSION ---
+        // --- FORM VALIDATION & SUBMISSION ---
         function validateForm() {
             const inputs = checkoutForm.querySelectorAll('input[required]');
             let allValid = true;
@@ -334,11 +261,6 @@
                     allValid = false;
                 }
             });
-            
-            const isLocationFilled = locationInput.value.trim() !== '';
-            if (!isLocationFilled) {
-                allValid = false;
-            }
             
             placeOrderBtn.disabled = !allValid;
         }
@@ -357,23 +279,11 @@
 
         checkoutForm.addEventListener('input', validateForm);
 
-        locationInput.addEventListener('blur', () => {
-            if (locationInput.value.trim() === '') {
-                locationError.style.display = 'block';
-            } else {
-                locationError.style.display = 'none';
-            }
-        });
-
         checkoutForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
-            const isLocationFilled = locationInput.value.trim() !== '';
-            if (!checkoutForm.checkValidity() || !isLocationFilled) {
-                alert("Please fill all required fields correctly, including your live location.");
-                if (!isLocationFilled) {
-                    locationError.style.display = 'block';
-                }
+            if (!checkoutForm.checkValidity()) {
+                alert("Please fill all required fields correctly.");
                 return;
             }
             
@@ -384,8 +294,7 @@
                 address: document.getElementById('address').value,
                 city: document.getElementById('city').value,
                 state: document.getElementById('state').value,
-                pincode: document.getElementById('pincode').value,
-                location: locationInput.value
+                pincode: document.getElementById('pincode').value
             };
 
             const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked').value;
