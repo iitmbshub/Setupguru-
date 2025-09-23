@@ -37,9 +37,26 @@
         
         .image-gallery { position: relative; overflow: hidden; border-radius: 12px; }
         .slider-wrapper { display: flex; transition: transform 0.4s ease-in-out; }
-        .slider-wrapper img { width: 100%; flex-shrink: 0; aspect-ratio: 1/1; object-fit: cover; }
+        .slider-wrapper img { 
+            width: 100%; 
+            flex-shrink: 0; 
+            aspect-ratio: 16/9; 
+            object-fit: contain;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
         .thumbnails { display: flex; gap: 10px; margin-top: 1rem; flex-wrap: wrap; }
-        .thumbnails img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 3px solid transparent; opacity: 0.6; transition: all 0.3s; }
+        .thumbnails img { 
+            width: 80px; 
+            height: 45px; 
+            object-fit: cover; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            border: 3px solid transparent; 
+            opacity: 0.6; 
+            transition: all 0.3s;
+            aspect-ratio: 16/9;
+        }
         .thumbnails img.active, .thumbnails img:hover { border-color: var(--primary-color); opacity: 1; }
 
         .product-details h1 { font-size: 2.5rem; line-height: 1.2; }
@@ -60,8 +77,69 @@
         .rating-bar-container { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
         .rating-bar { flex-grow: 1; height: 8px; background-color: var(--border-color); border-radius: 5px; }
         .rating-bar-fill { height: 100%; background-color: var(--star-color); }
-        .review { display: flex; gap: 1rem; padding: 1.5rem 0; border-top: 1px solid var(--border-color); }
-        .review-avatar { width: 50px; height: 50px; border-radius: 50%; background-color: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        
+        .review { 
+            display: flex; 
+            gap: 1.5rem; 
+            padding: 2rem 0; 
+            border-top: 1px solid var(--border-color);
+            transition: background-color 0.2s ease;
+        }
+        .review:hover {
+            background-color: #fafbfc;
+            margin: 0 -1rem;
+            padding: 2rem 1rem;
+            border-radius: 12px;
+        }
+        .review-avatar { 
+            width: 60px; 
+            height: 60px; 
+            border-radius: 50%; 
+            color: white; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 700;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: 3px solid white;
+        }
+        .review-content {
+            flex-grow: 1;
+        }
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .review-author {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-color);
+        }
+        .review-date {
+            font-size: 0.9rem;
+            color: #888;
+        }
+        .review-stars {
+            color: var(--star-color);
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+        }
+        .review-headline {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary-color);
+        }
+        .review-text {
+            line-height: 1.6;
+            color: #555;
+            font-size: 1rem;
+        }
         
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1001; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .modal-overlay.visible { display: flex; opacity: 1; pointer-events: all; }
@@ -91,6 +169,14 @@
             .current-price { font-size: 2.2rem; }
             .reviews-summary { grid-template-columns: 1fr; gap: 1rem; text-align: center; }
             .reviews-header { flex-direction: column; align-items: center; }
+            .review {
+                gap: 1rem;
+            }
+            .review-avatar {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
@@ -157,6 +243,24 @@
         let currentUser = null;
         let currentProduct = null;
         let sliderInterval;
+
+        // Color palette for avatars
+        const avatarColors = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57',
+            '#FF9FF3', '#54A0FF', '#5F27CD', '#00D2D3', '#FF9F43',
+            '#C44569', '#40407A', '#706FD3', '#F8B500', '#3742FA',
+            '#2ED573', '#FF3838', '#FF9500', '#7D5BA6', '#25CCF7'
+        ];
+
+        // Function to get consistent color for user
+        const getUserAvatarColor = (userId, name) => {
+            const str = userId || name || 'default';
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return avatarColors[Math.abs(hash) % avatarColors.length];
+        };
 
         // --- UI UTILS ---
         const showToast = (message, type = 'success') => {
@@ -252,153 +356,177 @@
         }
         
            // --- REVIEW SYSTEM ---
-        async function loadReviews(productId) {
-            const reviewsList = document.getElementById('reviews-list');
-            const snapshot = await db.collection('items').doc(productId).collection('reviews').orderBy('createdAt', 'desc').get();
-            const reviews = snapshot.docs.map(doc => {
-                const data = doc.data();
-                if (data.createdAt && typeof data.createdAt.toDate === 'function') {
-                    data.createdAt = data.createdAt.toDate();
-                }
-                return data;
-            });
-
-            const totalReviews = reviews.length;
-            const ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-            let totalRatingSum = 0;
-            reviews.forEach(r => { 
-                if(r.rating) {
-                    ratingCounts[r.rating]++; totalRatingSum += r.rating;
-                }
-            });
-            const avgRating = totalReviews > 0 ? (totalRatingSum / totalReviews) : 0;
-
-            document.getElementById('avg-rating-score').textContent = avgRating.toFixed(1);
-            document.getElementById('avg-rating-stars').innerHTML = '★'.repeat(Math.round(avgRating)) + '☆'.repeat(5 - Math.round(avgRating));
-            document.getElementById('total-reviews').textContent = `${totalReviews} ratings`;
-
-            const distributionContainer = document.getElementById('rating-distribution');
-            distributionContainer.innerHTML = [5,4,3,2,1].map(star => {
-                const percentage = totalReviews > 0 ? (ratingCounts[star] / totalReviews) * 100 : 0;
-                return `<div class="rating-bar-container"><div class="rating-bar-label">${star} star</div><div class="rating-bar"><div class="rating-bar-fill" style="width: ${percentage}%;"></div></div></div>`;
-            }).join('');
-            
-            if (snapshot.empty) {
-                reviewsList.innerHTML = "<p>No reviews yet. Be the first to write one!</p>";
-                return;
-            }
-            reviewsList.innerHTML = reviews.map(review => {
-                const avatarLetter = (review.author || 'A').charAt(0).toUpperCase();
-                const reviewDate = review.createdAt ? review.createdAt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Just now';
-                return `<div class="review">
-                    <div class="review-avatar" style="background-color: hsl(${ (review.userId || 'default').charCodeAt(0) % 360}, 50%, 40%)">${avatarLetter}</div>
-                    <div class="review-content">
-                        <p><strong>${review.author}</strong><span style="font-size:0.8rem;color:#888;margin-left:10px;">${reviewDate}</span></p>
-                        <p style="color:var(--star-color);">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</p>
-                        <h4 style="margin:0.5rem 0;">${review.headline || ''}</h4>
-                        <p>${review.text}</p>
-                    </div></div>`;
-            }).join('');
+async function loadReviews(productId) {
+    const reviewsList = document.getElementById('reviews-list');
+    const snapshot = await db.collection('items').doc(productId).collection('reviews').orderBy('createdAt', 'desc').get();
+    const reviews = snapshot.docs.map(doc => {
+        const data = doc.data();
+        if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+            data.createdAt = data.createdAt.toDate();
         }
+        return data;
+    });
+
+    const totalReviews = reviews.length;
+    const ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    let totalRatingSum = 0;
+    reviews.forEach(r => { 
+        if(r.rating) {
+            ratingCounts[r.rating]++; totalRatingSum += r.rating;
+        }
+    });
+    const avgRating = totalReviews > 0 ? (totalRatingSum / totalReviews) : 0;
+
+    document.getElementById('avg-rating-score').textContent = avgRating.toFixed(1);
+    document.getElementById('avg-rating-stars').innerHTML = '★'.repeat(Math.round(avgRating)) + '☆'.repeat(5 - Math.round(avgRating));
+    document.getElementById('total-reviews').textContent = `${totalReviews} ratings`;
+
+    const distributionContainer = document.getElementById('rating-distribution');
+    distributionContainer.innerHTML = [5,4,3,2,1].map(star => {
+        const percentage = totalReviews > 0 ? (ratingCounts[star] / totalReviews) * 100 : 0;
+        return `<div class="rating-bar-container"><div class="rating-bar-label">${star} star</div><div class="rating-bar"><div class="rating-bar-fill" style="width: ${percentage}%;"></div></div></div>`;
+    }).join('');
+    
+    if (snapshot.empty) {
+        reviewsList.innerHTML = "<p>No reviews yet. Be the first to write one!</p>";
+        return;
+    }
+    reviewsList.innerHTML = reviews.map(review => {
+        const avatarLetter = (review.author || 'A').charAt(0).toUpperCase();
+        const reviewDate = review.createdAt ? review.createdAt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Just now';
+        const avatarColor = getUserAvatarColor(review.userId, review.author);
         
-        const reviewModal = document.getElementById('review-modal');
-        document.getElementById('write-review-btn').onclick = () => { if (currentUser) reviewModal.classList.add('visible'); else showToast("Please log in to write a review.", 'error'); };
-        document.getElementById('close-modal-btn').onclick = () => reviewModal.classList.remove('visible');
-        
-        document.getElementById('review-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            
-            const rating = document.querySelector('input[name="rating"]:checked');
-            if (!rating) {
-                showToast("Please select a star rating.", 'error');
-                return;
-            }
+        return `<div class="review">
+            <div class="review-avatar" style="background-color: ${avatarColor};">${avatarLetter}</div>
+            <div class="review-content">
+                <div class="review-header">
+                    <span class="review-author">${review.author}</span>
+                    <span class="review-date">${reviewDate}</span>
+                </div>
+                <div class="review-stars">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
+                ${review.headline ? `<div class="review-headline">${review.headline}</div>` : ''}
+                <div class="review-text">${review.text}</div>
+            </div>
+        </div>`;
+    }).join('');
+}
 
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Submitting...';
+const reviewModal = document.getElementById('review-modal');
+document.getElementById('write-review-btn').onclick = () => { if (currentUser) reviewModal.classList.add('visible'); else showToast("Please log in to write a review.", 'error'); };
+document.getElementById('close-modal-btn').onclick = () => reviewModal.classList.remove('visible');
 
-            try {
-                const reviewData = {
-                    author: currentUser.displayName || "Anonymous User",
-                    headline: document.getElementById('review-headline').value,
-                    text: document.getElementById('review-text').value,
-                    rating: parseInt(rating.value),
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    userId: currentUser.uid
-                };
+document.getElementById('review-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    
+    const rating = document.querySelector('input[name="rating"]:checked');
+    if (!rating) {
+        showToast("Please select a star rating.", 'error');
+        return;
+    }
 
-                await db.collection('items').doc(currentProduct.id).collection('reviews').add(reviewData);
-                
-                document.getElementById('review-form').reset();
-                reviewModal.classList.remove('visible');
-                showToast('Review submitted successfully!', 'success');
-                loadReviews(currentProduct.id);
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
 
-            } catch (error) {
-                console.error("Error submitting review:", error);
-                showToast(`Failed to submit review. Error: ${error.message}`, 'error');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Submit Review';
-            }
-        });
-
-        // --- ACTION HANDLERS & HELPERS ---
-        const handleCartAction = async (itemId) => {
-            if (!currentUser) { showToast("Please log in first.", 'error'); return; }
-            const btn = document.getElementById('add-to-cart-btn');
-            btn.disabled = true; btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Adding...`;
-            try {
-                await db.collection('users').doc(currentUser.uid).collection('cart').doc(itemId).set({ itemId: itemId, quantity: 1 }, { merge: true });
-                await updateCartCount();
-                showToast('Item added to cart!', 'success');
-            } catch (e) { 
-                showToast('Failed to add item.', 'error'); 
-            } finally {
-                btn.innerHTML = `<i class="fas fa-shopping-cart"></i> Add to Cart`;
-                btn.disabled = false;
-            }
+    try {
+        const reviewData = {
+            author: currentUser.displayName || "Anonymous User",
+            headline: document.getElementById('review-headline').value,
+            text: document.getElementById('review-text').value,
+            rating: parseInt(rating.value),
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            userId: currentUser.uid
         };
 
-        const handleBuyNow = (item) => {
-            if (!currentUser) { showToast("Please log in first.", 'error'); return; }
-            const singleItemCart = [{ ...item, quantity: 1 }];
-            localStorage.setItem('cartItems', JSON.stringify(singleItemCart));
-            window.location.href = 'checkout.html';
-        };
-
-        const shareProduct = (item) => { if (navigator.share) navigator.share({ title: item.title, text: `Check out: ${item.title}`, url: window.location.href }); else showToast('Share feature not available on this browser.', 'error'); };
+        await db.collection('items').doc(currentProduct.id).collection('reviews').add(reviewData);
         
-        function setupSlider(imageCount) {
-             if (imageCount <= 1) { 
-                return; 
-             }
-             const slider = document.getElementById('slider-wrapper'), thumbnails = document.querySelectorAll('.thumbnails img');
-             let currentIndex = 0;
-             
-             const goToSlide = i => {
-                 slider.style.transform = `translateX(-${i * 100}%)`;
-                 thumbnails.forEach(t => t.classList.remove('active'));
-                 if(thumbnails[i]) thumbnails[i].classList.add('active');
-                 currentIndex = i;
-             };
+        document.getElementById('review-form').reset();
+        reviewModal.classList.remove('visible');
+        showToast('Review submitted successfully!', 'success');
+        loadReviews(currentProduct.id);
 
-             thumbnails.forEach(t => t.onclick = () => {
-                 clearInterval(sliderInterval);
-                 goToSlide(parseInt(t.dataset.index));
-                 startSlider();
-             });
-             
-             const startSlider = () => {
-                 sliderInterval = setInterval(() => {
-                     currentIndex = (currentIndex + 1) % imageCount;
-                     goToSlide(currentIndex);
-                 }, 4000); // 4-second interval
-             };
+    } catch (error) {
+        console.error("Error submitting review:", error);
+        showToast(`Failed to submit review. Error: ${error.message}`, 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Review';
+    }
+});
 
-             startSlider();
-        }
-    </script>
+// --- ACTION HANDLERS & HELPERS ---
+const handleCartAction = async (itemId) => {
+    if (!currentUser) { showToast("Please log in first.", 'error'); return; }
+    const btn = document.getElementById('add-to-cart-btn');
+    btn.disabled = true; btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Adding...`;
+    try {
+        await db.collection('users').doc(currentUser.uid).collection('cart').doc(itemId).set({ itemId: itemId, quantity: 1 }, { merge: true });
+        await updateCartCount();
+        showToast('Item added to cart!', 'success');
+    } catch (e) { 
+        showToast('Failed to add item.', 'error'); 
+    } finally {
+        btn.innerHTML = `<i class="fas fa-shopping-cart"></i> Add to Cart`;
+        btn.disabled = false;
+    }
+};
+
+const handleBuyNow = (item) => {
+    if (!currentUser) { showToast("Please log in first.", 'error'); return; }
+    const singleItemCart = [{ ...item, quantity: 1 }];
+    localStorage.setItem('cartItems', JSON.stringify(singleItemCart));
+    window.location.href = 'checkout.html';
+};
+
+const shareProduct = (item) => { if (navigator.share) navigator.share({ title: item.title, text: `Check out: ${item.title}`, url: window.location.href }); else showToast('Share feature not available on this browser.', 'error'); };
+
+function setupSlider(imageCount) {
+     if (imageCount <= 1) { 
+        return; 
+     }
+     const slider = document.getElementById('slider-wrapper'), thumbnails = document.querySelectorAll('.thumbnails img');
+     let currentIndex = 0;
+     
+     const goToSlide = i => {
+         slider.style.transform = `translateX(-${i * 100}%)`;
+         thumbnails.forEach(t => t.classList.remove('active'));
+         if(thumbnails[i]) thumbnails[i].classList.add('active');
+         currentIndex = i;
+     };
+
+     thumbnails.forEach(t => t.onclick = () => {
+         clearInterval(sliderInterval);
+         goToSlide(parseInt(t.dataset.index));
+         startSlider();
+     });
+     
+     const startSlider = () => {
+         sliderInterval = setInterval(() => {
+             currentIndex = (currentIndex + 1) % imageCount;
+             goToSlide(currentIndex);
+         }, 4000); // 4-second interval
+     };
+
+     startSlider();
+}
+</script>
+<script>
+// Get item ID from the URL (e.g., card.html?id=XYZ)
+const urlParams = new URLSearchParams(window.location.search);
+const itemId = urlParams.get('id');
+
+if (itemId) {
+    // Get existing recently viewed items from localStorage
+    let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+    // Remove the item if it's already in the list to move it to the front
+    recentlyViewed = recentlyViewed.filter(id => id !== itemId);
+    // Add the new item to the beginning of the list
+    recentlyViewed.unshift(itemId);
+    // Keep only the last 10 viewed items
+    const recentItemsToShow = recentlyViewed.slice(0, 10);
+    // Save back to localStorage
+    localStorage.setItem('recentlyViewed', JSON.stringify(recentItemsToShow));
+}
+</script>
 </body>
 </html>
