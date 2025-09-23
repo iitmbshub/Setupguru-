@@ -96,10 +96,9 @@
         .form-item:nth-child(3) { animation-delay: 0.4s; } 
         .form-item:nth-child(4) { animation-delay: 0.5s; }
         .form-item:nth-child(5) { animation-delay: 0.6s; } 
+        /* Adjusted animation delay for remaining items */
         .form-item:nth-child(6) { animation-delay: 0.7s; } 
-        .form-item:nth-child(7) { animation-delay: 0.8s; } 
-        .form-item:nth-child(8) { animation-delay: 0.9s; } 
-
+        
         @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
         
         .login-card h2 { font-size: 28px; font-weight: 700; color: var(--primary-color); margin-bottom: 8px; text-align: center; }
@@ -129,16 +128,8 @@
         .btn:active { transform: scale(0.98); }
         .btn-primary { background: var(--primary-color); color: white; box-shadow: 0 4px 15px rgba(46, 26, 95, 0.3); }
         .btn-primary:hover { background: var(--secondary-color); color: var(--primary-color); transform: translateY(-3px); box-shadow: 0 7px 20px rgba(196, 155, 70, 0.4); }
-        .btn-google { background-color: #fff; color: var(--text-color); border: 1px solid #ddd; }
-        .btn-google:hover { background-color: #f9f9f9; border-color: #ccc; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .google-icon { width: 20px; height: 20px; }
-        
-        .divider { display: flex; align-items: center; text-align: center; color: #aaa; margin: 25px 0; font-size: 12px; }
-        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #ddd; }
-        .divider:not(:empty)::before { margin-right: .5em; }
-        .divider:not(:empty)::after { margin-left: .5em; }
-        
-        .signup-link { text-align: center; font-size: 14px; }
+
+        .signup-link { text-align: center; font-size: 14px; margin-top: 25px; }
         .signup-link a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
         .signup-link a:hover { text-decoration: underline; color: var(--secondary-color); }
 
@@ -200,15 +191,6 @@
                         </button>
                     </div>
                 </form>
-                
-                <div class="divider form-item">OR</div>
-                
-                <div class="form-item">
-                    <button class="btn btn-google" id="googleLoginButton">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Icon" class="google-icon">
-                        Continue with Google
-                    </button>
-                </div>
 
                 <div class="signup-link form-item">
                     <p>Don’t have an account? <a href="signup.html">Sign up</a></p>
@@ -244,7 +226,6 @@
             const passwordToggle = document.getElementById('password-toggle');
             const emailValidationMsg = document.getElementById('email-validation');
             const loginButton = document.getElementById('loginButton');
-            const googleLoginButton = document.getElementById('googleLoginButton');
             const btnText = loginButton.querySelector('.btn-text');
             const loader = loginButton.querySelector('.loader');
             const toast = document.getElementById('toast');
@@ -256,7 +237,6 @@
 
             // --- Event Listeners ---
             loginForm.addEventListener('submit', handleEmailLogin);
-            googleLoginButton.addEventListener('click', handleGoogleLogin);
             passwordToggle.addEventListener('click', togglePasswordVisibility);
             emailInput.addEventListener('input', validateEmail);
 
@@ -327,22 +307,6 @@
                     showToast('Invalid email or password. Please try again. ❌', 'error');
                 } finally {
                     toggleLoader(false);
-                }
-            }
-            
-            async function handleGoogleLogin() {
-                // REMINDER: This requires enabling Google Sign-In in your Firebase Console
-                // and adding your website's domain to the "Authorized Domains" list.
-                const provider = new firebase.auth.GoogleAuthProvider();
-                try {
-                    const result = await auth.signInWithPopup(provider);
-                    await sendTelegramNotification(result.user.email, 'Success (Google)');
-                    showToast(`Welcome, ${result.user.displayName}! ✅`, 'success');
-                    setTimeout(() => window.location.href = 'index.html', 1500);
-                } catch (error) {
-                    console.error("Google Login Error:", error.code, error.message);
-                    await sendTelegramNotification('N/A', `Failed (Google): ${error.code}`);
-                    showToast('Google login failed. Please try again. ❌', 'error');
                 }
             }
         });
