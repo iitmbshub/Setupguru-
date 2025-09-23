@@ -401,7 +401,8 @@
              if(currentUser && currentUser.name !== 'Guest'){
                 replyText = `Hello, ${currentUser.name}! We'll reply within some time. Please wait.`
              } else {
-                 replyText = "Hello! For a better experience, please login first. We'll reply within some time. Please wait.";
+                 replyText = "Hello! We typically Reply in just a minute Please wait If we don't reply Please Call 👉 9499473347,8278455700
+                  ";
              }
              await addDoc(messagesRef, { sender: 'support', text: replyText, timestamp: serverTimestamp() });
         }
