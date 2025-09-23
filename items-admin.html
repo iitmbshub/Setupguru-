@@ -36,8 +36,21 @@
         .form-group { margin-bottom: 1rem; }
         .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; font-family: 'Poppins', sans-serif;}
+        
+        /* Enhanced Image Management Styles */
         #image-previews { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 1rem; }
+        .image-preview-container { position: relative; display: inline-block; }
         .preview-img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid var(--border-color); }
+        .remove-image-btn { 
+            position: absolute; top: -5px; right: -5px; background: var(--danger-color); color: white; 
+            border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; line-height: 1;
+        }
+        .remove-image-btn:hover { background: #c82333; }
+        
+        .image-upload-section { border: 2px dashed var(--border-color); padding: 1rem; border-radius: 8px; text-align: center; margin-top: 0.5rem; }
+        .image-upload-section:hover { border-color: var(--primary-color); }
+        .upload-text { margin-bottom: 0.5rem; color: #666; }
         
         .table-wrapper { overflow-x: auto; }
         #item-table { width: 100%; border-collapse: collapse; }
@@ -133,9 +146,14 @@
                             <div class="form-group"><label for="rating">Initial Avg Rating (1-5)</label><input type="number" id="rating" step="0.1" value="4.5" required></div>
                             <div class="form-group">
                                 <label for="image-upload">Images</label>
-                                <input type="file" id="image-upload" accept="image/*" multiple>
+                                <div id="existing-images" style="margin-bottom: 1rem;">
+                                    <div id="image-previews"></div>
+                                </div>
+                                <div class="image-upload-section">
+                                    <div class="upload-text">Click to add more images or drag and drop</div>
+                                    <input type="file" id="image-upload" accept="image/*" multiple>
+                                </div>
                                 <div id="image-upload-status" style="font-size: 0.9rem; margin-top: 5px;"></div>
-                                <div id="image-previews"></div>
                             </div>
                             <button type="submit" id="save-btn" class="btn btn-primary" style="width: 100%;">Save Item</button>
                         </form>
@@ -191,7 +209,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore(), auth = firebase.auth(), itemsCollection = db.collection('items');
         const IMGBB_API_KEY = 'f31247f51f07c7e6fdf325abaed8e58c';
-        let imageUrlsForFirestore = [];
+        let imageUrlsForFirestore = []; // This will store all image URLs (existing + new)
 
         // Auth and UI Setup
         auth.onAuthStateChanged(user => {
@@ -223,16 +241,51 @@
         priceInput.addEventListener('input', updateDiscountedPrice);
         discountInput.addEventListener('input', updateDiscountedPrice);
 
-        // Item Form Logic
+        // Enhanced Image Management Functions
+        function renderImagePreviews() {
+            const previewsContainer = document.getElementById('image-previews');
+            previewsContainer.innerHTML = '';
+            
+            imageUrlsForFirestore.forEach((url, index) => {
+                const container = document.createElement('div');
+                container.className = 'image-preview-container';
+                container.innerHTML = `
+                    <img src="${url}" class="preview-img" alt="Preview ${index + 1}">
+                    <button type="button" class="remove-image-btn" onclick="removeImage(${index})" title="Remove Image">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                previewsContainer.appendChild(container);
+            });
+        }
+
+        window.removeImage = function(index) {
+            if (confirm('Are you sure you want to remove this image?')) {
+                imageUrlsForFirestore.splice(index, 1);
+                renderImagePreviews();
+                updateImageUploadStatus();
+            }
+        };
+
+        function updateImageUploadStatus() {
+            const uploadStatus = document.getElementById('image-upload-status');
+            const count = imageUrlsForFirestore.length;
+            if (count > 0) {
+                uploadStatus.textContent = `${count} image(s) selected`;
+                uploadStatus.style.color = '#198754';
+            } else {
+                uploadStatus.textContent = '';
+            }
+        }
+
+        // Image Upload Logic
         document.getElementById('image-upload').addEventListener('change', async (e) => {
             const files = e.target.files;
             if (!files.length) return;
-            const uploadStatus = document.getElementById('image-upload-status');
-            const previewsContainer = document.getElementById('image-previews');
             
+            const uploadStatus = document.getElementById('image-upload-status');
             uploadStatus.textContent = `Uploading ${files.length} image(s)...`;
-            previewsContainer.innerHTML = '';
-            imageUrlsForFirestore = []; // Reset the array for new uploads
+            uploadStatus.style.color = '#2E1A5F';
 
             const uploadPromises = Array.from(files).map(file => {
                 const formData = new FormData();
@@ -255,44 +308,71 @@
             try {
                 const newImageUrls = await Promise.all(uploadPromises);
                 imageUrlsForFirestore = [...imageUrlsForFirestore, ...newImageUrls];
-                previewsContainer.innerHTML = imageUrlsForFirestore.map(url => `<img src="${url}" class="preview-img">`).join('');
-                uploadStatus.textContent = `${imageUrlsForFirestore.length} image(s) uploaded successfully!`;
+                renderImagePreviews();
+                updateImageUploadStatus();
+                uploadStatus.textContent = `${files.length} image(s) uploaded successfully!`;
+                uploadStatus.style.color = '#198754';
+                // Clear the file input
+                e.target.value = '';
             } catch (error) {
                 uploadStatus.textContent = 'An error occurred during upload.';
+                uploadStatus.style.color = '#dc3545';
                 console.error(error);
             }
         });
 
+        // Item Form Logic
         document.getElementById('item-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('item-id').value;
             const itemData = {
-                title: document.getElementById('title').value, description: document.getElementById('description').value,
-                price: parseFloat(priceInput.value), category: document.getElementById('category').value,
-                rating: parseFloat(document.getElementById('rating').value), discountPercent: parseInt(discountInput.value) || 0,
+                title: document.getElementById('title').value, 
+                description: document.getElementById('description').value,
+                price: parseFloat(priceInput.value), 
+                category: document.getElementById('category').value,
+                rating: parseFloat(document.getElementById('rating').value), 
+                discountPercent: parseInt(discountInput.value) || 0,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
-            if (imageUrlsForFirestore.length > 0) itemData.imageURLs = imageUrlsForFirestore;
+            
+            // Always update imageURLs if there are images
+            if (imageUrlsForFirestore.length > 0) {
+                itemData.imageURLs = imageUrlsForFirestore;
+            }
 
             try {
-                if (id) await itemsCollection.doc(id).update(itemData);
-                else {
-                    if (imageUrlsForFirestore.length === 0) { alert('Please upload at least one image.'); return; }
+                if (id) {
+                    // Update existing item
+                    await itemsCollection.doc(id).update(itemData);
+                } else {
+                    // Add new item
+                    if (imageUrlsForFirestore.length === 0) { 
+                        alert('Please upload at least one image.'); 
+                        return; 
+                    }
                     await itemsCollection.add(itemData);
                 }
-                alert(`Item ${id ? 'updated' : 'added'} successfully!`); resetForm();
-            } catch (error) { console.error("Error saving:", error); alert("Error saving item."); }
+                alert(`Item ${id ? 'updated' : 'added'} successfully!`); 
+                resetForm();
+            } catch (error) { 
+                console.error("Error saving:", error); 
+                alert("Error saving item."); 
+            }
         });
         
         const resetForm = () => {
-            document.getElementById('item-form').reset(); document.getElementById('item-id').value = '';
-            document.getElementById('image-previews').innerHTML = ''; document.getElementById('image-upload-status').textContent = '';
-            document.getElementById('form-title').textContent = 'Add New Item'; imageUrlsForFirestore = [];
-            discountedPriceDisplay.textContent = ''; // Reset the discounted price display
+            document.getElementById('item-form').reset(); 
+            document.getElementById('item-id').value = '';
+            document.getElementById('form-title').textContent = 'Add New Item'; 
+            imageUrlsForFirestore = [];
+            renderImagePreviews();
+            discountedPriceDisplay.textContent = '';
+            updateImageUploadStatus();
         };
 
         const loadItems = () => itemsCollection.orderBy('timestamp', 'desc').onSnapshot(snapshot => {
-            const list = document.getElementById('item-list'); list.innerHTML = '';
+            const list = document.getElementById('item-list'); 
+            list.innerHTML = '';
             snapshot.forEach(doc => {
                 const item = doc.data();
                 const imageUrl = (item.imageURLs && item.imageURLs.length > 0) ? item.imageURLs[0] : 'https://placehold.co/40x40';
@@ -308,15 +388,26 @@
         });
 
         window.editItem = async (id) => {
-            resetForm(); const doc = await itemsCollection.doc(id).get(); const item = doc.data();
-            document.getElementById('item-id').value = id; document.getElementById('title').value = item.title;
-            document.getElementById('description').value = item.description; document.getElementById('price').value = item.price;
-            document.getElementById('discountPercent').value = item.discountPercent || 0; document.getElementById('category').value = item.category;
+            resetForm(); 
+            const doc = await itemsCollection.doc(id).get(); 
+            const item = doc.data();
+            
+            document.getElementById('item-id').value = id; 
+            document.getElementById('title').value = item.title;
+            document.getElementById('description').value = item.description; 
+            document.getElementById('price').value = item.price;
+            document.getElementById('discountPercent').value = item.discountPercent || 0; 
+            document.getElementById('category').value = item.category;
             document.getElementById('rating').value = item.rating;
+            
+            // Load existing images
             imageUrlsForFirestore = item.imageURLs || [];
-            document.getElementById('image-previews').innerHTML = imageUrlsForFirestore.map(url => `<img src="${url}" class="preview-img">`).join('');
-            document.getElementById('form-title').textContent = 'Edit Item'; window.scrollTo(0,0);
-            updateDiscountedPrice(); // Update price on edit
+            renderImagePreviews();
+            updateImageUploadStatus();
+            
+            document.getElementById('form-title').textContent = 'Edit Item'; 
+            window.scrollTo(0,0);
+            updateDiscountedPrice();
         };
 
         window.deleteItem = async (id) => {
@@ -326,7 +417,7 @@
             }
         };
 
-           // --- REVIEW MANAGEMENT LOGIC ---
+        // --- REVIEW MANAGEMENT LOGIC ---
         const reviewModal = document.getElementById('review-modal');
         const reviewForm = document.getElementById('add-review-form');
         const reviewsListContainer = document.getElementById('reviews-list-admin');
@@ -373,10 +464,11 @@
                 rating: parseInt(document.getElementById('review-rating').value),
                 text: document.getElementById('review-text').value,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                userId: `fake_${Math.random().toString(36).substr(2, 9)}` // Add a fake user ID
+                userId: `fake_${Math.random().toString(36).substr(2, 9)}`
             };
             if(!reviewData.author || !reviewData.text) {
-                alert("Please fill in all fields."); return;
+                alert("Please fill in all fields."); 
+                return;
             }
             await itemsCollection.doc(itemId).collection('reviews').add(reviewData);
             reviewForm.reset();
@@ -387,7 +479,6 @@
                 await itemsCollection.doc(itemId).collection('reviews').doc(reviewId).delete();
             }
         };
-
     </script>
 </body>
 </html>
