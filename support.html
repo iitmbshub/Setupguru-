@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SETUP GURU- Support Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --real-vh: 1vh;
+        }
+        
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            overflow: hidden;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-text-size-adjust: 100%;
+            touch-action: manipulation;
+        }
+        
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+        
+        input, textarea {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+            -webkit-touch-callout: default;
+        }
+        
+        .h-screen-dynamic {
+            height: 100vh;
+            height: calc(var(--real-vh, 1vh) * 100);
+        }
+        
+        #chat-window { 
+            background-color: #e5ddd5; 
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); 
+        }
+        
+        .chat-bubble { 
+            max-width: 85%; 
+            padding: 8px 12px; 
+            border-radius: 8px; 
+            position: relative; 
+            word-wrap: break-word; 
+            box-shadow: 0 1px 1px rgba(0,0,0,0.05);
+            word-break: break-word;
+        }
+        
+        .user-bubble { 
+            background-color: #dcf8c6; 
+            color: #303030; 
+            margin-left: auto; 
+        }
+        
+        .support-bubble { 
+            background-color: #ffffff; 
+            color: #303030; 
+            margin-right: auto; 
+        }
+        
+        .link-preview { 
+            background-color: rgba(0,0,0,0.05); 
+            border-left: 3px solid #f17922; 
+        }
+        
+        #chat-window::-webkit-scrollbar { width: 4px; }
+        #chat-window::-webkit-scrollbar-thumb { 
+            background-color: rgba(0,0,0,0.2); 
+            border-radius: 2px;
+        }
+        
+        .date-divider { text-align: center; margin: 1rem 0; }
+        .date-divider span { 
+            background-color: #e1f2fb; 
+            color: #5b5b5b; 
+            padding: 4px 12px; 
+            border-radius: 8px; 
+            font-size: 12px; 
+            font-weight: 500; 
+        }
+        
+        @keyframes message-in { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        .message-animate-in { animation: message-in 0.3s ease-out; }
+        
+        /* Mobile specific styles */
+        @media (max-width: 768px) {
+            .chat-bubble { 
+                max-width: 90%; 
+                font-size: 14px;
+                padding: 6px 10px;
+            }
+            
+            .date-divider span {
+                font-size: 11px;
+                padding: 3px 10px;
+            }
+            
+            /* Handle mobile keyboard */
+            .mobile-keyboard-active {
+                padding-bottom: 0;
+            }
+            
+            .mobile-keyboard-active #chat-window {
+                padding-bottom: 20px;
+            }
+            
+            /* Prevent zoom on input focus */
+            input[type="text"] {
+                font-size: 16px;
+            }
+        }
+        
+        /* Desktop styles */
+        @media (min-width: 769px) {
+            .chat-bubble { 
+                max-width: 70%; 
+                font-size: 15px;
+            }
+            
+            body {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+        }
+        
+        /* Prevent text selection on messages */
+        .chat-bubble, .chat-bubble * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+        
+        /* Allow text selection only on links */
+        .chat-bubble a {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+    </style>
+</head>
+<body class="bg-gray-200">
+
+    <div class="w-full flex flex-col h-screen-dynamic" id="app-container">
+        <header class="bg-[#003B5C] text-white shadow-md z-40 flex items-center p-3 sm:p-4 flex-shrink-0">
+            <a href="index.html" class="mr-3 sm:mr-4 text-white hover:bg-white/20 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center">
+                <i class="fas fa-arrow-left text-sm sm:text-base"></i>
+            </a>
+            <img src="https://i.ibb.co/hRBZFSS3/1758331953202.jpg" alt="Logo" class="h-8 w-8 sm:h-10 sm:w-10 rounded-full mr-2 sm:mr-3 border-2 border-white/50">
+            <div>
+                <div class="flex items-center">
+                    <h1 class="text-base sm:text-lg font-bold">SETUP GURU Support</h1>
+                    <i class="fas fa-check-circle text-blue-400 ml-2 text-xs sm:text-sm" title="Verified"></i>
+                </div>
+                <p class="text-xs text-green-300">Online</p>
+            </div>
+        </header>
+
+        <main id="chat-window" class="flex-1 overflow-y-auto p-2 sm:p-4 space-y-2 pb-2">
+             <div id="loading-spinner" class="flex justify-center items-center h-full">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 border-4 border-t-[#005a8b] border-gray-400/20 rounded-full animate-spin"></div>
+            </div>
+        </main>
+        
+        <footer class="bg-gray-100 p-2 sm:p-3 flex-shrink-0 border-t">
+            <form id="chat-form" class="flex items-center w-full gap-2 sm:gap-3">
+                <input type="text" id="message-input" placeholder="Type a message..." 
+                       class="flex-1 min-w-0 h-10 sm:h-11 px-3 sm:px-4 border bg-white rounded-full focus:outline-none focus:ring-2 focus:ring-[#f17922] text-sm sm:text-base" 
+                       autocomplete="off">
+                <button type="submit" class="flex-shrink-0 bg-[#005a8b] text-white rounded-full w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center hover:bg-[#003B5C] transition-colors">
+                    <i class="fas fa-paper-plane text-sm sm:text-xl"></i>
+                </button>
+            </form>
+        </footer>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { getFirestore, doc, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAC47u3mXuciaavoov2Td2AaI8TiOwV7eY",
+            authDomain: "iitm-74779.firebaseapp.com",
+            projectId: "iitm-74779",
+            storageBucket: "iitm-74779.appspot.com",
+            messagingSenderId: "49030766593",
+            appId: "1:49030766593:web:99b7eae829f4af82556000"
+        };
+        
+        const TELEGRAM_BOT_TOKEN = "8311976506:AAHCMdrwWzHbKYPVxItoiRXFg0hvppS_26c";
+        const TELEGRAM_CHAT_ID = "5165964724";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const appContainer = document.getElementById('app-container');
+        const chatWindow = document.getElementById('chat-window');
+        const chatForm = document.getElementById('chat-form');
+        const messageInput = document.getElementById('message-input');
+        const loadingSpinner = document.getElementById('loading-spinner');
+
+        let currentUser = null;
+        let chatId = null;
+        let isKeyboardActive = false;
+
+        // --- MOBILE KEYBOARD & VIEWPORT FIX ---
+        function setRealViewportHeight() {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--real-vh', `${vh}px`);
+        }
+        
+        window.addEventListener('resize', setRealViewportHeight);
+        setRealViewportHeight();
+
+        // Handle mobile keyboard show/hide
+        messageInput.addEventListener('focus', () => {
+            if (window.innerWidth <= 768) {
+                setTimeout(() => {
+                    isKeyboardActive = true;
+                    appContainer.classList.add('mobile-keyboard-active');
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                }, 300);
+            }
+        });
+
+        messageInput.addEventListener('blur', () => {
+            if (window.innerWidth <= 768) {
+                setTimeout(() => {
+                    isKeyboardActive = false;
+                    appContainer.classList.remove('mobile-keyboard-active');
+                    setRealViewportHeight();
+                }, 300);
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                isKeyboardActive = false;
+                appContainer.classList.remove('mobile-keyboard-active');
+            }
+            setRealViewportHeight();
+        });
+
+        function getOrCreateChatId() {
+            const params = new URLSearchParams(window.location.search);
+            let id = params.get('chatId');
+            if (!id) {
+                id = doc(collection(db, 'support_chats')).id;
+                window.history.replaceState({}, '', `${window.location.pathname}?chatId=${id}`);
+            }
+            return id;
+        }
+
+        function listenForMessages() {
+            const messagesRef = collection(db, `support_chats/${chatId}/messages`);
+            const q = query(messagesRef, orderBy("timestamp"));
+
+            onSnapshot(q, (snapshot) => {
+                loadingSpinner.style.display = 'none';
+                chatWindow.innerHTML = '';
+                let lastDate = null;
+                
+                snapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    const messageDate = data.timestamp ? data.timestamp.toDate() : new Date();
+                    
+                    if (!lastDate || messageDate.toDateString() !== lastDate.toDateString()) {
+                        chatWindow.innerHTML += createDateDivider(messageDate);
+                        lastDate = messageDate;
+                    }
+                    renderMessage(data);
+                });
+                
+                // Auto scroll to bottom
+                setTimeout(() => {
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                }, 100);
+            });
+        }
+        
+        function createDateDivider(date) {
+            const today = new Date();
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            let dateText = date.toLocaleDateString([], { day: 'numeric', month: 'long', year: 'numeric' });
+            if (date.toDateString() === today.toDateString()) dateText = 'Today';
+            else if (date.toDateString() === yesterday.toDateString()) dateText = 'Yesterday';
+            return `<div class="date-divider"><span>${dateText}</span></div>`;
+        }
+        
+        function renderMessage(data) {
+            const isUserMessage = data.sender === 'user';
+            const bubbleClass = isUserMessage ? 'user-bubble' : 'support-bubble';
+            const containerClass = isUserMessage ? 'justify-end' : 'justify-start';
+            const sanitizedText = data.text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            
+            let linkPreviewHTML = '';
+            if (data.isLink && data.link) {
+                 linkPreviewHTML = `<div class="link-preview mt-2 p-2 rounded">
+                    <a href="${data.link}" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-semibold truncate block hover:underline text-xs sm:text-sm">
+                        ${data.link}
+                    </a>
+                 </div>`;
+            }
+
+            const avatarSize = window.innerWidth <= 768 ? 'w-7 h-7' : 'w-8 h-8';
+            
+            const avatarHTML = isUserMessage
+                ? `<img src="${currentUser?.avatar || data.userAvatar}" class="${avatarSize} rounded-full flex-shrink-0" alt="User Avatar">`
+                : `<img src="https://i.ibb.co/hRBZFSS3/1758331953202.jpg" class="${avatarSize} rounded-full flex-shrink-0" alt="Support Avatar">`;
+
+            const messageHTML = `
+                <div class="flex items-end gap-2 ${containerClass} message-animate-in">
+                    ${!isUserMessage ? avatarHTML : ''}
+                    <div class="chat-bubble ${bubbleClass}">
+                        <p class="text-sm sm:text-base">${sanitizedText}</p>
+                        ${linkPreviewHTML}
+                        <p class="text-xs text-right mt-1" style="color: #667781;">
+                            ${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}
+                        </p>
+                    </div>
+                    ${isUserMessage ? avatarHTML : ''}
+                </div>
+            `;
+            chatWindow.innerHTML += messageHTML;
+        }
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const messageText = messageInput.value.trim();
+            if (!messageText) return;
+            
+            const messageInputValue = messageInput.value;
+            messageInput.value = '';
+            
+            const messagesRef = collection(db, `support_chats/${chatId}/messages`);
+            
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            const foundUrl = messageInputValue.match(urlRegex);
+            
+            const userMessagesQuery = query(collection(db, `support_chats/${chatId}/messages`));
+            const userMessagesSnapshot = await getDocs(userMessagesQuery);
+
+            const isFirstMessage = userMessagesSnapshot.docs.filter(doc => doc.data().sender === 'user').length === 0;
+
+            const messagePayload = {
+                text: messageInputValue,
+                sender: 'user',
+                timestamp: serverTimestamp(),
+                isLink: !!foundUrl,
+                link: foundUrl ? foundUrl[0] : null,
+                userId: currentUser ? currentUser.uid : 'guest',
+                userName: currentUser ? currentUser.name : 'Guest',
+                userAvatar: currentUser ? currentUser.avatar : 'https://placehold.co/100x100/607d8b/FFFFFF?text=G'
+            };
+            
+            await addDoc(messagesRef, messagePayload);
+
+            if (isFirstMessage) {
+                sendAutoReply();
+                sendTelegramNotification();
+            }
+            
+            // Auto scroll to bottom after sending message
+            setTimeout(() => {
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }, 100);
+        });
+
+        async function sendAutoReply() {
+             const messagesRef = collection(db, `support_chats/${chatId}/messages`);
+             let replyText = "Hello! We'll reply within some time. Please wait.";
+             if(currentUser && currentUser.name !== 'Guest'){
+                replyText = `Hello, ${currentUser.name}! We'll reply within some time. Please wait.`
+             } else {
+                 replyText = "Hello! For a better experience, please login first. We'll reply within some time. Please wait.";
+             }
+             await addDoc(messagesRef, { sender: 'support', text: replyText, timestamp: serverTimestamp() });
+        }
+        
+        async function sendTelegramNotification() {
+            const adminChatLink = `${window.location.origin}/support-admin.html?chatId=${chatId}`;
+            const userName = currentUser ? currentUser.name : 'A Guest';
+            const message = `*New Support Chat Request*\n\n*From:* ${encodeURIComponent(userName)}\n*Reply Here:* ${adminChatLink}`;
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${message}&parse_mode=Markdown`;
+
+            try { await fetch(url); } 
+            catch (error) { console.error("Failed to send Telegram notification:", error); }
+        }
+
+        onAuthStateChanged(auth, user => {
+            if (user && user.email) {
+                const nameFromEmail = user.email.split('@')[0];
+                const formattedName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
+                const initial = formattedName.charAt(0).toUpperCase();
+                currentUser = {
+                    uid: user.uid,
+                    name: user.displayName || formattedName,
+                    email: user.email,
+                    avatar: user.photoURL || `https://placehold.co/100x100/f17922/FFFFFF?text=${initial}`
+                };
+            } else {
+                 currentUser = {
+                    uid: 'guest-' + Math.random().toString(36).substring(2, 9),
+                    name: 'Guest',
+                    email: null,
+                    avatar: `https://placehold.co/100x100/607d8b/FFFFFF?text=G`
+                };
+            }
+            if (!chatId) {
+               chatId = getOrCreateChatId();
+               listenForMessages();
+            }
+        });
+    </script>
+</body>
+</html>

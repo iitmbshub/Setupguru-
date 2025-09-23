@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Support Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            overflow: hidden;
+            height: 100vh;
+            height: 100dvh; /* Use dynamic viewport height for mobile */
+        }
+        
+        .main-container {
+            height: 100vh;
+            height: 100dvh;
+        }
+        
+        #chat-window { 
+            background-color: #e5ddd5; 
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); 
+        }
+        
+        .chat-bubble { 
+            max-width: 85%; 
+            padding: 8px 12px; 
+            border-radius: 8px; 
+            position: relative; 
+            word-wrap: break-word; 
+            box-shadow: 0 1px 1px rgba(0,0,0,0.05); 
+        }
+        
+        .user-bubble { 
+            background-color: #dcf8c6; 
+            color: #303030; 
+            border-bottom-right-radius: 0; 
+            margin-left: auto; 
+        }
+        
+        .support-bubble { 
+            background-color: #ffffff; 
+            color: #303030; 
+            border-bottom-left-radius: 0; 
+            margin-right: auto; 
+        }
+        
+        #chat-list::-webkit-scrollbar, 
+        #chat-window::-webkit-scrollbar, 
+        #canned-replies-popup::-webkit-scrollbar { 
+            width: 6px; 
+        }
+        
+        #chat-list::-webkit-scrollbar-thumb, 
+        #chat-window::-webkit-scrollbar-thumb, 
+        #canned-replies-popup::-webkit-scrollbar-thumb { 
+            background-color: rgba(0,0,0,0.2); 
+            border-radius: 3px;
+        }
+        
+        .date-divider span { 
+            background-color: #e1f2fb; 
+            color: #5b5b5b; 
+            padding: 4px 12px; 
+            border-radius: 8px; 
+            font-size: 12px; 
+        }
+        
+        @keyframes message-in { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        .message-animate-in { 
+            animation: message-in 0.3s ease-out; 
+        }
+        
+        /* Mobile specific styles */
+        @media (max-width: 768px) {
+            .sidebar-mobile {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 50;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+            }
+            
+            .sidebar-mobile.open {
+                transform: translateX(0);
+            }
+            
+            .chat-bubble {
+                max-width: 90%;
+            }
+            
+            .mobile-header {
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+            
+            /* Keyboard handling */
+            .keyboard-open {
+                height: calc(100vh - env(keyboard-height, 0px));
+                height: calc(100dvh - env(keyboard-height, 0px));
+            }
+        }
+        
+        /* Back button for mobile */
+        .back-btn {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .back-btn {
+                display: flex;
+            }
+        }
+        
+        /* Hide scrollbars on mobile */
+        @media (max-width: 768px) {
+            #chat-list::-webkit-scrollbar,
+            #chat-window::-webkit-scrollbar {
+                display: none;
+            }
+            
+            #chat-list,
+            #chat-window {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+<div class="main-container flex">
+    <!-- Mobile Overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+    
+    <!-- Sidebar - Chat List -->
+    <aside id="sidebar" class="w-full md:w-1/3 bg-white border-r flex flex-col md:relative sidebar-mobile">
+        <header class="p-4 border-b bg-gray-50 flex items-center justify-between">
+            <h1 class="text-xl font-bold text-gray-800">Support Chats</h1>
+            <button id="close-sidebar" class="md:hidden text-gray-600 hover:text-gray-800">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </header>
+        <div id="chat-list" class="flex-1 overflow-y-auto">
+            <div id="chat-list-loading" class="p-4 text-center text-gray-500">Loading chats...</div>
+        </div>
+    </aside>
+
+    <!-- Main Chat Area -->
+    <main class="w-full md:w-2/3 flex flex-col relative">
+        <div id="no-chat-selected" class="flex flex-col items-center justify-center h-full text-gray-500">
+            <button id="open-sidebar" class="md:hidden absolute top-4 left-4 text-gray-600 hover:text-gray-800 z-10">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <i class="fas fa-comments text-6xl mb-4"></i>
+            <h2 class="text-2xl font-semibold text-center px-4">Select a chat to start replying</h2>
+        </div>
+        
+        <div id="chat-area" class="hidden flex-col h-full">
+            <!-- Header -->
+            <header id="chat-header" class="mobile-header bg-[#d63341] text-white shadow-md z-10 flex items-center p-3 flex-shrink-0">
+                <button id="back-btn" class="back-btn items-center justify-center w-10 h-10 rounded-full hover:bg-white/10 mr-2">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+                <img id="header-avatar" src="https://placehold.co/100x100/607d8b/FFFFFF?text=U" alt="User Avatar" class="h-10 w-10 rounded-full mr-3">
+                <div class="flex-1 min-w-0">
+                    <h1 id="header-title" class="text-lg font-bold truncate">User</h1>
+                    <p id="support-status" class="text-xs text-white/80">Support Reply Mode</p>
+                </div>
+            </header>
+
+            <!-- Chat Window -->
+            <div id="chat-window" class="flex-1 overflow-y-auto p-2 md:p-4 space-y-2"></div>
+            
+            <!-- Message Input Form -->
+            <footer id="chat-footer" class="bg-gray-100 p-2 md:p-3 flex-shrink-0 border-t relative">
+                <!-- Canned Replies Popup -->
+                <div id="canned-replies-popup" class="hidden absolute bottom-full mb-2 w-full max-w-md bg-white rounded-lg shadow-2xl border max-h-60 overflow-y-auto left-0 right-0 mx-auto">
+                    <!-- Replies will be populated here -->
+                </div>
+
+                <form id="chat-form" class="flex items-center space-x-2 md:space-x-3">
+                    <button type="button" id="canned-replies-btn" class="text-gray-500 hover:text-[#d63341] flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-full hover:bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-bolt text-lg md:text-xl"></i>
+                    </button>
+                    <input type="text" id="message-input" placeholder="Type your reply..." class="flex-1 p-2 md:p-3 border bg-white rounded-full focus:outline-none focus:ring-2 focus:ring-[#d63341] text-sm md:text-base">
+                    <button type="submit" class="bg-[#d63341] text-white rounded-full w-10 h-10 md:w-12 md:h-12 flex items-center justify-center hover:bg-[#b02734] transition-colors flex-shrink-0">
+                        <i class="fas fa-paper-plane text-lg md:text-xl"></i>
+                    </button>
+                </form>
+            </footer>
+        </div>
+    </main>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, limit, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAC47u3mXuciaavoov2Td2AaI8TiOwV7eY",
+        authDomain: "iitm-74779.firebaseapp.com",
+        projectId: "iitm-74779",
+        storageBucket: "iitm-74779.appspot.com",
+        messagingSenderId: "49030766593",
+        appId: "1:49030766593:web:99b7eae829f4af82556000"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // DOM elements
+    const sidebar = document.getElementById('sidebar');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    const openSidebarBtn = document.getElementById('open-sidebar');
+    const closeSidebarBtn = document.getElementById('close-sidebar');
+    const backBtn = document.getElementById('back-btn');
+    const chatList = document.getElementById('chat-list');
+    const chatArea = document.getElementById('chat-area');
+    const noChatSelected = document.getElementById('no-chat-selected');
+    const chatWindow = document.getElementById('chat-window');
+    const chatForm = document.getElementById('chat-form');
+    const messageInput = document.getElementById('message-input');
+    const headerTitle = document.getElementById('header-title');
+    const headerAvatar = document.getElementById('header-avatar');
+    const cannedRepliesBtn = document.getElementById('canned-replies-btn');
+    const cannedRepliesPopup = document.getElementById('canned-replies-popup');
+    
+    let activeChatId = null;
+    let unsubscribe = null;
+    let isKeyboardOpen = false;
+
+    // Mobile sidebar controls
+    function openSidebar() {
+        sidebar.classList.add('open');
+        mobileOverlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        sidebar.classList.remove('open');
+        mobileOverlay.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    openSidebarBtn.addEventListener('click', openSidebar);
+    closeSidebarBtn.addEventListener('click', closeSidebar);
+    mobileOverlay.addEventListener('click', closeSidebar);
+
+    // Back button functionality
+    backBtn.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+            chatArea.style.display = 'none';
+            noChatSelected.style.display = 'flex';
+            if (unsubscribe) unsubscribe();
+            activeChatId = null;
+            history.pushState(null, '', window.location.pathname);
+        }
+    });
+
+    // Keyboard handling for mobile
+    function handleKeyboardOpen() {
+        if (window.innerWidth <= 768) {
+            document.body.classList.add('keyboard-open');
+            isKeyboardOpen = true;
+            // Scroll to bottom after keyboard opens
+            setTimeout(() => {
+                if (chatWindow) {
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                }
+            }, 300);
+        }
+    }
+
+    function handleKeyboardClose() {
+        document.body.classList.remove('keyboard-open');
+        isKeyboardOpen = false;
+    }
+
+    // Detect keyboard open/close on mobile
+    let initialViewportHeight = window.innerHeight;
+    
+    function detectKeyboard() {
+        const currentHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+        const heightDifference = initialViewportHeight - currentHeight;
+        
+        if (heightDifference > 150 && !isKeyboardOpen) {
+            handleKeyboardOpen();
+        } else if (heightDifference <= 150 && isKeyboardOpen) {
+            handleKeyboardClose();
+        }
+    }
+
+    // Listen for viewport changes
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', detectKeyboard);
+    } else {
+        window.addEventListener('resize', detectKeyboard);
+    }
+
+    // Focus handling for input
+    messageInput.addEventListener('focus', () => {
+        setTimeout(() => {
+            if (window.innerWidth <= 768) {
+                handleKeyboardOpen();
+            }
+        }, 300);
+    });
+
+    messageInput.addEventListener('blur', () => {
+        setTimeout(() => {
+            if (window.innerWidth <= 768 && !document.activeElement || document.activeElement.tagName !== 'INPUT') {
+                handleKeyboardClose();
+            }
+        }, 300);
+    });
+
+    // Canned Replies
+    const cannedReplies = [
+        "Hello! How may I help you today?",
+        "Thanks for reaching out to our support team.",
+        "Could you please provide your registration number or email address?",
+        "Can you please elaborate on the issue you are facing?",
+        "Let me check on that for you. Please give me a moment.",
+        "We are looking into this issue and will get back to you shortly.",
+        "Have you tried clearing your browser's cache and cookies?",
+        "Please try accessing the page in an incognito window.",
+        "The issue seems to be resolved. Can you please confirm?",
+        "Is there anything else I can assist you with?",
+        "We are glad we could help!",
+        "Thanks for your patience.",
+        "Thank you for contacting us. Have a great day!",
+        "Your ticket has been escalated to our technical team.",
+        "Hope your problem gets solved. Feel free to reach out again if you need more help."
+    ];
+
+    function populateCannedReplies() {
+        cannedRepliesPopup.innerHTML = '';
+        cannedReplies.forEach(reply => {
+            const li = document.createElement('div');
+            li.textContent = reply;
+            li.className = 'p-3 hover:bg-gray-100 cursor-pointer text-sm text-gray-700 border-b';
+            li.addEventListener('click', () => {
+                messageInput.value = reply;
+                cannedRepliesPopup.classList.add('hidden');
+                messageInput.focus();
+            });
+            cannedRepliesPopup.appendChild(li);
+        });
+    }
+
+    cannedRepliesBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        cannedRepliesPopup.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!cannedRepliesPopup.contains(e.target) && e.target !== cannedRepliesBtn) {
+            cannedRepliesPopup.classList.add('hidden');
+        }
+    });
+
+    async function loadChatList() {
+        const chatsRef = collection(db, 'support_chats');
+        const chatsSnapshot = await getDocs(chatsRef);
+        document.getElementById('chat-list-loading').style.display = 'none';
+
+        for (const chatDoc of chatsSnapshot.docs) {
+            const lastMessageQuery = query(collection(db, `support_chats/${chatDoc.id}/messages`), orderBy('timestamp', 'desc'), limit(1));
+            const firstMessageQuery = query(collection(db, `support_chats/${chatDoc.id}/messages`), orderBy('timestamp', 'asc'), limit(1));
+            
+            const lastMessageSnapshot = await getDocs(lastMessageQuery);
+            const firstMessageSnapshot = await getDocs(firstMessageQuery);
+
+            const lastMessage = lastMessageSnapshot.docs[0]?.data();
+            const firstMessage = firstMessageSnapshot.docs[0]?.data();
+
+            const listItem = document.createElement('div');
+            listItem.className = 'p-3 md:p-4 border-b hover:bg-gray-50 cursor-pointer flex items-center space-x-3';
+            listItem.dataset.chatId = chatDoc.id;
+
+            listItem.innerHTML = `
+                <img src="${firstMessage?.userAvatar || 'https://placehold.co/100x100/607d8b/FFFFFF?text=G'}" class="w-10 h-10 md:w-12 md:h-12 rounded-full flex-shrink-0">
+                <div class="flex-1 overflow-hidden">
+                    <p class="font-bold truncate text-sm md:text-base">${firstMessage?.userName || 'Guest'}</p>
+                    <p class="text-xs md:text-sm text-gray-500 truncate">${lastMessage?.text || 'No messages yet'}</p>
+                </div>
+            `;
+            
+            listItem.addEventListener('click', () => {
+                loadChat(chatDoc.id);
+                // Highlight active chat
+                document.querySelectorAll('#chat-list > div').forEach(el => el.classList.remove('bg-blue-50'));
+                listItem.classList.add('bg-blue-50');
+                
+                // Close sidebar on mobile after selecting chat
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+            chatList.appendChild(listItem);
+        }
+    }
+
+    function loadChat(chatId) {
+        if (unsubscribe) unsubscribe();
+        activeChatId = chatId;
+
+        history.pushState(null, '', `?chatId=${chatId}`);
+        noChatSelected.style.display = 'none';
+        chatArea.style.display = 'flex';
+        chatWindow.innerHTML = '<div class="text-center p-4">Loading messages...</div>';
+
+        const messagesRef = collection(db, `support_chats/${activeChatId}/messages`);
+        const q = query(messagesRef, orderBy("timestamp"));
+
+        unsubscribe = onSnapshot(q, snapshot => {
+            chatWindow.innerHTML = '';
+            let lastDate = null;
+            const firstUserMessage = snapshot.docs.map(d => d.data()).find(d => d.sender === 'user');
+            
+            headerTitle.textContent = firstUserMessage?.userName || 'User';
+            headerAvatar.src = firstUserMessage?.userAvatar || 'https://placehold.co/100x100/607d8b/FFFFFF?text=U';
+            
+            snapshot.docs.forEach(doc => {
+                const data = doc.data();
+                const messageDate = data.timestamp ? data.timestamp.toDate() : new Date();
+                const currentDateString = messageDate.toDateString();
+                
+                if (!lastDate || lastDate !== currentDateString) {
+                    const dateDivider = document.createElement('div');
+                    dateDivider.className = 'text-center my-4';
+                    dateDivider.innerHTML = `<span class="date-divider">${messageDate.toLocaleDateString()}</span>`;
+                    chatWindow.appendChild(dateDivider);
+                    lastDate = currentDateString;
+                }
+                renderMessage(data);
+            });
+            
+            // Scroll to bottom
+            setTimeout(() => {
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }, 100);
+        });
+    }
+
+    function renderMessage(data) {
+        const bubbleClass = data.sender === 'user' ? 'support-bubble' : 'user-bubble';
+        const containerClass = data.sender === 'user' ? 'justify-start' : 'justify-end';
+        const avatarHTML = data.sender === 'user'
+            ? `<img src="${data.userAvatar || 'https://placehold.co/100x100/f17922/FFFFFF?text=G'}" class="w-6 h-6 md:w-8 md:h-8 rounded-full flex-shrink-0">`
+            : `<img src="https://i.ibb.co/hRBZFSS3/1758331953202.jpg" class="w-6 h-6 md:w-8 md:h-8 rounded-full flex-shrink-0">`;
+        
+        const messageContainer = document.createElement('div');
+        messageContainer.className = `flex items-end gap-2 ${containerClass} message-animate-in`;
+        
+        messageContainer.innerHTML = `
+            ${containerClass === 'justify-start' ? avatarHTML : ''}
+            <div class="chat-bubble ${bubbleClass}">
+                <p class="text-sm md:text-base">${data.text}</p>
+                <p class="text-xs text-right mt-1 text-gray-400">${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ''}</p>
+            </div>
+            ${containerClass === 'justify-end' ? avatarHTML : ''}
+        `;
+        
+        chatWindow.appendChild(messageContainer);
+    }
+
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const messageText = messageInput.value.trim();
+        if (!messageText || !activeChatId) return;
+        
+        messageInput.value = '';
+        cannedRepliesPopup.classList.add('hidden');
+
+        await addDoc(collection(db, `support_chats/${activeChatId}/messages`), {
+            text: messageText,
+            sender: 'support',
+            timestamp: serverTimestamp()
+        });
+        
+        // Auto-scroll after sending message
+        setTimeout(() => {
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }, 100);
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            // Desktop view
+            closeSidebar();
+            document.body.classList.remove('keyboard-open');
+            isKeyboardOpen = false;
+        }
+        initialViewportHeight = window.innerHeight;
+    });
+
+    // Prevent zoom on input focus (iOS)
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        messageInput.style.fontSize = '16px';
+    }
+
+    // Initial Load
+    document.addEventListener('DOMContentLoaded', () => {
+        populateCannedReplies();
+        loadChatList();
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const chatIdFromUrl = urlParams.get('chatId');
+        if (chatIdFromUrl) {
+            loadChat(chatIdFromUrl);
+        }
+        
+        // Set initial viewport height
+        initialViewportHeight = window.innerHeight;
+    });
+
+</script>
+</body>
+</html>
