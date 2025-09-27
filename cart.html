@@ -15,6 +15,20 @@
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--background-color); font-family: 'Poppins', sans-serif; color: var(--text-color); }
         
+        /* --- Preloader for a smooth initial load --- */
+        .preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--background-color);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999; transition: opacity 0.5s ease; pointer-events: none;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 5px solid var(--border-color);
+            border-top-color: var(--primary-color); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
         /* --- HEADER --- */
         .header {
             background: var(--card-bg); padding: 1rem 1.5rem; display: flex; justify-content: space-between;
@@ -30,22 +44,17 @@
             background-size: cover; background-position: center; border: 2px solid var(--secondary-color);
         }
 
-        /* --- LOADER --- */
-        #loader-container { display: flex; justify-content: center; align-items: center; padding: 5rem 0; }
-        .spinner { width: 50px; height: 50px; border: 5px solid var(--border-color); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
         /* --- MAIN LAYOUT --- */
         .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
         .cart-layout { display: grid; grid-template-columns: 2.5fr 1fr; gap: 2rem; align-items: start; }
-        .cart-items, .order-summary { background: var(--card-bg); padding: 1.5rem 2rem; border-radius: 12px; box-shadow: 0 5px 15px var(--shadow-color); }
+        .cart-items, .order-summary, .saved-for-later, .recommendations { background: var(--card-bg); padding: 1.5rem 2rem; border-radius: 12px; box-shadow: 0 5px 15px var(--shadow-color); }
         .cart-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; }
         h1, h2 { color: var(--primary-color); }
         .clear-cart-btn { background: none; border: 1px solid var(--error-color); color: var(--error-color); padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.2s ease; }
         .clear-cart-btn:hover { background-color: var(--error-color); color: white; }
 
         /* --- CART ITEM STYLES --- */
-        .cart-item { display: grid; grid-template-columns: 100px 1fr auto; gap: 1.5rem; align-items: center; padding: 1.5rem 0; border-bottom: 1px solid var(--border-color); transition: opacity 0.3s; }
+        .cart-item { display: grid; grid-template-columns: 100px 1fr auto; gap: 1.5rem; align-items: center; padding: 1.5rem 0; border-bottom: 1px solid var(--border-color); }
         .cart-item:last-child { border-bottom: none; }
         .item-img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; }
         .item-details h3 { font-size: 1.1rem; margin: 0 0 5px; }
@@ -57,18 +66,33 @@
         .quantity-control { display: flex; align-items: center; border: 1px solid var(--border-color); border-radius: 20px; margin-bottom: 10px; }
         .quantity-control button { background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px 12px; color: var(--text-color); }
         .quantity-control button:disabled { color: #ccc; cursor: not-allowed; }
-        .quantity-control input { width: 40px; text-align: center; border: none; font-size: 1rem; background: transparent; }
-        .remove-btn { background: none; border: none; color: #888; cursor: pointer; font-size: 0.9rem; transition: color 0.2s; }
+        .quantity-control input { width: 40px; text-align: center; border: none; font-size: 1rem; background: transparent; -moz-appearance: textfield; }
+        .quantity-control input::-webkit-outer-spin-button, .quantity-control input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .item-sub-actions { margin-top: 10px; display: flex; gap: 15px; justify-content: flex-end; }
+        .remove-btn, .save-later-btn { background: none; border: none; color: #888; cursor: pointer; font-size: 0.9rem; transition: color 0.2s; }
         .remove-btn:hover { color: var(--error-color); }
+        .save-later-btn:hover { color: var(--primary-color); }
+        .notify-btn { background-color: var(--primary-color); color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
 
         /* --- ORDER SUMMARY --- */
         .order-summary { position: sticky; top: 100px; }
-        .summary-row { display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.1rem; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1rem; }
         .summary-row.total { font-weight: 700; font-size: 1.3rem; border-top: 2px solid var(--border-color); padding-top: 1rem; }
+        #delivery-date { font-size: 0.9rem; color: #555; text-align: center; margin-bottom: 1rem; }
+        #free-delivery-message { background-color: #e8f5e9; color: #2e7d32; text-align: center; padding: 10px; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem; }
         .checkout-btn { width: 100%; padding: 1rem; border: none; background: var(--secondary-color); color: var(--primary-color); font-size: 1.2rem; font-weight: 700; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
         .checkout-btn:hover { transform: translateY(-3px); box-shadow: 0 4px 15px rgba(196, 155, 70, 0.3); }
         .checkout-btn:disabled { background-color: #ccc; color: #666; cursor: not-allowed; transform: none; box-shadow: none; }
         
+        /* --- SAVED FOR LATER & RECOMMENDATIONS --- */
+        .saved-for-later, .recommendations { margin-top: 2rem; }
+        .saved-item-actions button { background: var(--primary-color); color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.9rem; margin-top: 10px; }
+        .recommendations-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .rec-item { text-align: center; cursor: pointer; }
+        .rec-item img { width: 100%; border-radius: 8px; margin-bottom: 0.5rem; aspect-ratio: 1 / 1; object-fit: cover; }
+        .rec-item h4 { font-size: 1rem; margin-bottom: 0.2rem; color: #333; }
+        .rec-item p { font-weight: 600; color: var(--primary-color); }
+
         /* --- EMPTY CART / MESSAGE CONTAINER --- */
         .message-container { text-align: center; padding: 4rem; background: var(--card-bg); border-radius: 12px; }
         .message-container svg { width: 100px; margin-bottom: 1.5rem; color: var(--primary-color); }
@@ -77,10 +101,11 @@
         .message-container a { text-decoration: none; padding: 12px 25px; background: var(--primary-color); color: white; border-radius: 8px; font-weight: 600; }
         
         /* --- TOAST NOTIFICATION --- */
-        .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); padding: 1rem 2rem; border-radius: 8px; color: white; font-weight: 500; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: bottom 0.5s ease-in-out; z-index: 2000; }
+        .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); padding: 1rem 2rem; border-radius: 8px; color: white; font-weight: 500; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: all 0.5s ease-in-out; z-index: 2000; display: flex; align-items: center; gap: 15px; }
         .toast.show { bottom: 30px; }
         .toast.success { background-color: var(--success-color); }
         .toast.error { background-color: var(--error-color); }
+        #undo-btn { background: none; border: 1px solid white; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
 
         /* --- CONFIRMATION MODAL --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 3000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
@@ -100,6 +125,8 @@
     </style>
 </head>
 <body>
+    <div class="preloader" id="preloader"><div class="spinner"></div></div>
+
     <header class="header">
         <button class="back-btn" onclick="window.history.back()"><i class="fas fa-arrow-left"></i></button>
         <a href="index.html" class="logo-text">SetupGuru</a>
@@ -110,25 +137,39 @@
     </header>
 
     <div class="container" id="container">
-        <div id="loader-container"><div class="spinner"></div></div>
         <div id="main-content" style="display: none;">
-            <div class="cart-layout" id="cart-content">
-                <div class="cart-items">
-                    <div class="cart-header">
-                        <h1>Your Shopping Cart</h1>
-                        <button class="clear-cart-btn" id="clearCartBtn"><i class="fas fa-trash"></i> Clear Cart</button>
+            <div id="cart-view">
+                <div class="cart-layout" id="cart-content">
+                    <div class="cart-items">
+                        <div class="cart-header">
+                            <h1>Your Shopping Cart</h1>
+                            <button class="clear-cart-btn" id="clearCartBtn"><i class="fas fa-trash"></i> Clear Cart</button>
+                        </div>
+                        <div id="cart-items-container"></div>
                     </div>
-                    <div id="cart-items-container"></div>
+                    <div class="order-summary">
+                        <h2>Order Summary</h2>
+                        <div id="delivery-date"></div>
+                        <div class="summary-row"><span>Subtotal</span><span id="subtotal-price">₹0</span></div>
+                        <div class="summary-row"><span>Delivery Fee</span><span id="delivery-fee">₹19</span></div>
+                        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 1rem 0;">
+                        <div class="summary-row total"><span>Total</span><span id="total-price">₹0</span></div>
+                        <div id="free-delivery-message"></div>
+                        <button class="checkout-btn" id="checkoutBtn">Proceed to Checkout</button>
+                    </div>
                 </div>
-                <div class="order-summary">
-                    <h2>Order Summary</h2>
-                    <div class="summary-row"><span>Subtotal</span><span id="subtotal-price">₹0</span></div>
-                    <div class="summary-row"><span>Delivery Fee</span><span id="delivery-fee">₹19</span></div>
-                    <hr style="border: none; border-top: 1px solid var(--border-color); margin: 1rem 0;">
-                    <div class="summary-row total"><span>Total</span><span id="total-price">₹0</span></div>
-                    <button class="checkout-btn" id="checkoutBtn">Proceed to Checkout</button>
+
+                <div class="saved-for-later" id="saved-for-later-section" style="display: none;">
+                    <h2>Saved for Later</h2>
+                    <div id="saved-items-container"></div>
+                </div>
+
+                <div class="recommendations" id="recommendations-section">
+                    <h2>You Might Also Like</h2>
+                    <div class="recommendations-grid" id="recommendations-grid"></div>
                 </div>
             </div>
+
             <div id="empty-cart-message" style="display: none;">
                  <div class="message-container">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11 9H13V6H11V9ZM12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM11 17H13V11H11V17Z"/></svg>
@@ -153,222 +194,394 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script>
-        const firebaseConfig = { apiKey: "AIzaSyAMweRCGXZCfuRvtlVO0acLbKmY4heV08s", authDomain: "setupguru-217af.firebaseapp.com", projectId: "setupguru-217af", storageBucket: "setupguru-217af.firebasestorage.app", messagingSenderId: "377386830551", appId: "1:377386830551:web:39909b0addf2bc630be92" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-        let cartItemsData = [];
+   <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+    import { 
+        getFirestore, collection, getDoc, doc, onSnapshot, updateDoc, deleteDoc,
+        writeBatch, query, where, limit, orderBy, getDocs, addDoc
+    } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
-        // DOM Elements
-        const loader = document.getElementById('loader-container');
-        const mainContent = document.getElementById('main-content');
-        const emptyCartMsg = document.getElementById('empty-cart-message');
-        const cartContent = document.getElementById('cart-content');
-        const cartItemsContainer = document.getElementById('cart-items-container');
-        const userNameDisplay = document.getElementById('user-name');
-        const checkoutBtn = document.getElementById('checkoutBtn');
-        const clearCartBtn = document.getElementById('clearCartBtn');
+    // --- Firebase Configuration ---
+    const firebaseConfig = { apiKey: "AIzaSyAMweRCGXZCfuRvtlVO0acLbKmY4heV08s", authDomain: "setupguru-217af.firebaseapp.com", projectId: "setupguru-217af", storageBucket: "setupguru-217af.firebasestorage.app", messagingSenderId: "377386830551", appId: "1:377386830551:web:39909b0addf2bc630be92" };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    
+    // --- State Management ---
+    let cartItemsData = [];
+    let savedItemsData = [];
+    let itemDetailsCache = {};
+    let lastRemovedItem = null;
+    let undoTimeout = null;
+    
+    // Flags to prevent flicker by waiting for both data sources to load initially
+    let initialCartDataReceived = false;
+    let initialSavedDataReceived = false;
 
-        // --- AUTHENTICATION ---
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                loadCartItems(user.uid);
-                loadUserProfile(user);
-            } else {
-                loader.innerHTML = `
-                <div class="message-container">
-                    <h2>Login Required</h2><p>Please log in to see your cart.</p><a href="login.html">Login Now</a>
-                </div>`;
-            }
-        });
+    // --- DOM Elements ---
+    const preloader = document.getElementById('preloader');
+    const mainContent = document.getElementById('main-content');
+    const cartView = document.getElementById('cart-view');
+    const emptyCartMsg = document.getElementById('empty-cart-message');
+    const cartItemsContainer = document.getElementById('cart-items-container');
+    const savedForLaterSection = document.getElementById('saved-for-later-section');
+    const savedItemsContainer = document.getElementById('saved-items-container');
+    const userNameDisplay = document.getElementById('user-name');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const clearCartBtn = document.getElementById('clearCartBtn');
+    const recommendationsGrid = document.getElementById('recommendations-grid');
 
-        // --- DATA LOADING ---
-        async function loadUserProfile(user) {
-            const userDoc = await db.collection('users').doc(user.uid).get();
-            userNameDisplay.textContent = userDoc.exists() ? (userDoc.data().fullName || user.email) : user.email;
-        }
-
-        async function loadCartItems(uid) {
-            try {
-                const cartSnapshot = await db.collection('users').doc(uid).collection('cart').get();
-                if (cartSnapshot.empty) { showEmptyCart(); return; }
-
-                const itemPromises = cartSnapshot.docs.map(cartDoc => 
-                    db.collection('items').doc(cartDoc.data().itemId).get().then(itemDoc => 
-                        itemDoc.exists ? { id: itemDoc.id, ...itemDoc.data(), quantity: cartDoc.data().quantity } : null
-                    )
-                );
-                cartItemsData = (await Promise.all(itemPromises)).filter(Boolean);
-                
-                if (cartItemsData.length > 0) {
-                    renderCart();
-                    loader.style.display = 'none';
-                    mainContent.style.display = 'block';
-                } else { showEmptyCart(); }
-            } catch (error) {
-                console.error("Error loading cart:", error);
-                loader.innerHTML = `<div class="message-container"><h2>Oops!</h2><p>Could not load your cart. Please refresh the page.</p></div>`;
-            }
-        }
-
-        // --- UI RENDERING ---
-        function showEmptyCart() {
-            loader.style.display = 'none';
+    // --- Authentication ---
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            const uid = user.uid;
+            loadUserProfile(user);
+            onSnapshot(collection(db, 'users', uid, 'cart'), (snapshot) => handleDataSnapshot(snapshot, 'cart'), handleSnapshotError);
+            onSnapshot(collection(db, 'users', uid, 'savedForLater'), (snapshot) => handleDataSnapshot(snapshot, 'savedForLater'), handleSnapshotError);
+            loadRecommendations();
+        } else {
+            preloader.style.opacity = '0'; // Hide preloader if not logged in
+            mainContent.innerHTML = `<div class="message-container"><h2>Login Required</h2><p>Please log in to see your cart.</p><a href="login.html">Login Now</a></div>`;
             mainContent.style.display = 'block';
-            cartContent.style.display = 'none';
-            emptyCartMsg.style.display = 'block';
+        }
+    });
+
+    // --- Data Loading & Handling ---
+    async function loadUserProfile(user) {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        userNameDisplay.textContent = userDoc.exists() ? (userDoc.data().fullName || user.email) : user.email;
+    }
+
+    async function handleDataSnapshot(snapshot, type) {
+        const itemsFromSnapshot = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
+        const itemIdsToFetch = itemsFromSnapshot.map(item => item.itemId).filter(id => !itemDetailsCache[id]);
+
+        if (itemIdsToFetch.length > 0) {
+            const itemPromises = itemIdsToFetch.map(id => getDoc(doc(db, 'items', id)));
+            const itemDocs = await Promise.all(itemPromises);
+            itemDocs.forEach(itemDoc => {
+                if (itemDoc.exists()) itemDetailsCache[itemDoc.id] = itemDoc.data();
+            });
         }
 
-        function renderCart() {
-            cartItemsContainer.innerHTML = cartItemsData.map(item => {
-                const discountPercent = item.discountPercent || 0;
-                const currentPrice = item.price * (1 - discountPercent / 100);
-                const isOutOfStock = item.quantity > item.stock;
+        const processedData = itemsFromSnapshot.map(item => {
+            const details = itemDetailsCache[item.itemId];
+            return details ? { ...details, ...item, id: item.itemId } : null;
+        }).filter(Boolean);
 
-                return `
-                <div class="cart-item" data-item-id="${item.id}" style="${isOutOfStock ? 'background-color: #fff5f5;' : ''}">
-                    <img src="${(item.imageURLs && item.imageURLs.length > 0) ? item.imageURLs[0] : 'https://placehold.co/100x100'}" alt="${item.title}" class="item-img">
-                    <div class="item-details">
-                        <h3>${item.title}</h3>
-                        <div class="item-price-details">
-                            <span class="current-price">₹${Math.floor(currentPrice)}</span>
-                            ${discountPercent > 0 ? `<span class="original-price">₹${Math.floor(item.price)}</span>` : ''}
-                        </div>
-                        ${isOutOfStock ? `<div class="stock-message"><i class="fas fa-exclamation-triangle"></i> Only ${item.stock} left in stock!</div>` : ''}
-                    </div>
-                    <div class="item-actions">
-                         <div class="quantity-control">
-                            <button data-action="decrease" onclick="updateQuantity(this, '${item.id}', ${item.quantity - 1})">-</button>
-                            <input type="text" value="${item.quantity}" readonly>
-                            <button data-action="increase" onclick="updateQuantity(this, '${item.id}', ${item.quantity + 1})">+</button>
-                        </div>
-                        <button class="remove-btn" onclick="confirmRemoveItem('${item.id}')"><i class="fas fa-trash"></i> Remove</button>
-                    </div>
-                </div>`;
-            }).join('');
+        if (type === 'cart') {
+            cartItemsData = processedData;
+            if (!initialCartDataReceived) initialCartDataReceived = true;
+        } else if (type === 'savedForLater') {
+            savedItemsData = processedData;
+            if (!initialSavedDataReceived) initialSavedDataReceived = true;
+        }
+        
+        // Only update the UI after BOTH initial loads are complete
+        if (initialCartDataReceived && initialSavedDataReceived) {
+            updateUI();
+        }
+    }
+    
+    function handleSnapshotError(error) {
+        console.error("Error listening to collection:", error);
+        showToast("Could not sync items. Please refresh.", "error");
+    }
+    
+    // --- UI Rendering ---
+    function updateUI() {
+        // Hide preloader on the first valid UI update
+        if (preloader.style.opacity !== '0') {
+            preloader.style.opacity = '0';
+            setTimeout(() => { preloader.style.display = 'none' }, 500); // For smooth transition
+            mainContent.style.display = 'block';
+        }
+
+        if (cartItemsData.length === 0 && savedItemsData.length === 0) {
+            cartView.style.display = 'none';
+            emptyCartMsg.style.display = 'block';
+        } else {
+            cartView.style.display = 'block';
+            emptyCartMsg.style.display = 'none';
+            renderCart();
+            renderSavedItems();
             calculateSummary();
         }
+    }
 
-        function calculateSummary() {
-            const deliveryFee = 19;
-            const subtotal = cartItemsData.reduce((total, item) => total + (item.price * (1 - (item.discountPercent || 0) / 100) * item.quantity), 0);
-            const total = subtotal + deliveryFee;
-            document.getElementById('subtotal-price').textContent = `₹${Math.floor(subtotal)}`;
-            document.getElementById('total-price').textContent = `₹${Math.floor(total)}`;
-
-            // STOCK CHECK FOR CHECKOUT BUTTON
-            const hasStockIssue = cartItemsData.some(item => item.quantity > item.stock);
-            checkoutBtn.disabled = hasStockIssue;
-            if(hasStockIssue) checkoutBtn.title = "Please resolve stock issues before proceeding.";
-            else checkoutBtn.title = "";
+    function renderCart() {
+         if(cartItemsData.length === 0) {
+            cartItemsContainer.innerHTML = `<p style="text-align:center; padding: 2rem 0; color: #777;">Your shopping cart is empty.</p>`;
+            return;
         }
+        cartItemsContainer.innerHTML = cartItemsData.map(item => {
+            const currentPrice = item.price * (1 - (item.discountPercent || 0) / 100);
+            const isOutOfStock = item.quantity > item.stock;
+            return `
+            <div class="cart-item" data-item-id="${item.id}" style="${isOutOfStock ? 'background-color: #fff5f5;' : ''}">
+                <img src="${item.imageURLs?.[0] || 'https://placehold.co/100x100'}" alt="${item.title}" class="item-img">
+                <div class="item-details">
+                    <h3>${item.title}</h3>
+                    <div class="item-price-details">
+                        <span class="current-price">₹${Math.floor(currentPrice)}</span>
+                        ${item.discountPercent > 0 ? `<span class="original-price">₹${Math.floor(item.price)}</span>` : ''}
+                    </div>
+                     ${isOutOfStock ? `<div class="stock-message"><i class="fas fa-exclamation-triangle"></i> Only ${item.stock} left! Selected: ${item.quantity}</div>` : ''}
+                </div>
+                <div class="item-actions">
+                    ${isOutOfStock ? `<button class="notify-btn" data-action="notify" data-item-id="${item.id}"><i class="fas fa-bell"></i> Notify Me</button>` : `
+                    <div class="quantity-control">
+                        <button data-action="decrease-qty" data-item-id="${item.id}">-</button>
+                        <input type="number" value="${item.quantity}" min="1" max="${item.stock}" data-action="set-qty" data-item-id="${item.id}">
+                        <button data-action="increase-qty" data-item-id="${item.id}">+</button>
+                    </div>`}
+                    <div class="item-sub-actions">
+                         <button class="save-later-btn" data-action="save-for-later" data-item-id="${item.id}"><i class="fas fa-save"></i> Save for Later</button>
+                         <button class="remove-btn" data-action="remove-from-cart" data-item-id="${item.id}"><i class="fas fa-trash"></i> Remove</button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
 
-        // --- CART ACTIONS ---
-        window.updateQuantity = async (element, itemId, newQuantity) => {
-            const controlDiv = element.closest('.quantity-control');
-            controlDiv.querySelectorAll('button').forEach(btn => btn.disabled = true);
+    function renderSavedItems() {
+        savedForLaterSection.style.display = savedItemsData.length > 0 ? 'block' : 'none';
+        if (savedItemsData.length > 0) {
+            savedItemsContainer.innerHTML = savedItemsData.map(item => `
+                <div class="cart-item" data-item-id="${item.id}">
+                    <img src="${item.imageURLs?.[0] || 'https://placehold.co/100x100'}" alt="${item.title}" class="item-img">
+                    <div class="item-details"><h3>${item.title}</h3></div>
+                    <div class="item-actions saved-item-actions">
+                        <button data-action="move-to-cart" data-item-id="${item.id}">Move to Cart</button>
+                        <button class="remove-btn" data-action="remove-from-saved" data-item-id="${item.id}"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>`).join('');
+        }
+    }
 
-            if (newQuantity < 1) { 
-                controlDiv.querySelectorAll('button').forEach(btn => btn.disabled = false);
-                confirmRemoveItem(itemId); 
-                return; 
-            }
-
-            const itemInCart = cartItemsData.find(item => item.id === itemId);
-            if(newQuantity > itemInCart.stock && element.dataset.action === 'increase') {
-                showToast(`Max stock for ${itemInCart.title} is ${itemInCart.stock}!`, 'error');
-                controlDiv.querySelectorAll('button').forEach(btn => btn.disabled = false);
-                return;
-            }
-
-            itemInCart.quantity = newQuantity;
-            renderCart();
-
-            const uid = auth.currentUser.uid;
-            await db.collection('users').doc(uid).collection('cart').doc(itemId).update({ quantity: newQuantity });
-            controlDiv.querySelectorAll('button').forEach(btn => btn.disabled = false);
-        };
-
-        window.confirmRemoveItem = (itemId) => {
-            showModal(
-                'Remove Item?', 
-                'Are you sure you want to remove this item from your cart?',
-                () => removeItem(itemId)
-            );
-        };
+    function calculateSummary() {
+        const deliveryFee = 19;
+        const freeDeliveryThreshold = 1000;
+        const subtotal = cartItemsData.reduce((total, item) => total + (item.price * (1 - (item.discountPercent || 0) / 100) * item.quantity), 0);
         
-        async function removeItem(itemId) {
-            const uid = auth.currentUser.uid;
-            await db.collection('users').doc(uid).collection('cart').doc(itemId).delete();
-            cartItemsData = cartItemsData.filter(item => item.id !== itemId);
-            
-            showToast('Item removed from cart', 'success');
+        const finalDeliveryFee = (subtotal > 0 && subtotal < freeDeliveryThreshold) ? deliveryFee : 0;
+        const total = subtotal + finalDeliveryFee;
 
-            if (cartItemsData.length > 0) renderCart();
-            else showEmptyCart();
+        document.getElementById('subtotal-price').textContent = `₹${Math.floor(subtotal)}`;
+        document.getElementById('delivery-fee').textContent = `₹${finalDeliveryFee}`;
+        document.getElementById('total-price').textContent = `₹${Math.floor(total)}`;
+
+        const deliveryDate = new Date();
+        deliveryDate.setDate(deliveryDate.getDate() + 4);
+        document.getElementById('delivery-date').innerHTML = subtotal > 0 ? `<i class="fas fa-truck"></i> Estimated delivery by ${deliveryDate.toDateString()}` : '';
+
+        const freeDeliveryMsgEl = document.getElementById('free-delivery-message');
+        if (subtotal > 0 && subtotal < freeDeliveryThreshold) {
+            freeDeliveryMsgEl.style.display = 'block';
+            freeDeliveryMsgEl.textContent = `Add ₹${Math.ceil(freeDeliveryThreshold - subtotal)} more for FREE delivery!`;
+        } else if (subtotal >= freeDeliveryThreshold) {
+            freeDeliveryMsgEl.style.display = 'block';
+            freeDeliveryMsgEl.textContent = `🎉 You've got FREE Delivery!`;
+        } else {
+             freeDeliveryMsgEl.style.display = 'none';
         }
 
-        clearCartBtn.addEventListener('click', () => {
-             showModal(
-                'Clear Cart?', 
-                'Are you sure you want to remove all items from your cart?',
-                async () => {
-                    const uid = auth.currentUser.uid;
-                    const cartRef = db.collection('users').doc(uid).collection('cart');
-                    const snapshot = await cartRef.get();
-                    const batch = db.batch();
-                    snapshot.docs.forEach(doc => batch.delete(doc.ref));
-                    await batch.commit();
+        const hasStockIssue = cartItemsData.some(item => item.quantity > item.stock);
+        checkoutBtn.disabled = hasStockIssue || cartItemsData.length === 0;
+        checkoutBtn.title = hasStockIssue ? "Please resolve stock issues before proceeding." : "";
+    }
 
-                    cartItemsData = [];
-                    showToast('Cart has been cleared', 'success');
-                    showEmptyCart();
-                }
-            );
-        });
+    // --- Event Delegation for Actions ---
+    document.getElementById('container').addEventListener('click', handleContainerClick);
+    document.getElementById('container').addEventListener('change', handleContainerChange);
 
-        checkoutBtn.addEventListener('click', () => {
-            if (cartItemsData.length > 0) {
-                localStorage.setItem('cartItems', JSON.stringify(cartItemsData));
-                window.location.href = 'checkout.html';
-            } else {
-                showToast("Your cart is empty!", 'error');
+    function handleContainerClick(e) {
+        const target = e.target.closest('button');
+        if (!target) return;
+        
+        const { action, itemId } = target.dataset;
+        if (!action || !itemId) return;
+
+        const item = cartItemsData.find(i => i.id === itemId) || savedItemsData.find(i => i.id === itemId);
+
+        switch (action) {
+            case 'increase-qty': updateQuantity(itemId, item.quantity + 1); break;
+            case 'decrease-qty': updateQuantity(itemId, item.quantity - 1); break;
+            case 'remove-from-cart': removeItemWithUndo(itemId); break;
+            case 'save-for-later': moveToSaved(itemId); break;
+            case 'move-to-cart': moveToCart(itemId); break;
+            case 'remove-from-saved': confirmRemoveSavedItem(itemId); break;
+            case 'notify': notifyMe(itemId, target); break;
+        }
+    }
+
+    function handleContainerChange(e) {
+         const target = e.target.closest('input[type="number"]');
+         if (!target) return;
+         const { action, itemId } = target.dataset;
+         if (action === 'set-qty') updateQuantity(itemId, parseInt(target.value));
+    }
+
+    // --- Cart Actions ---
+    async function updateQuantity(itemId, newQuantity) {
+        newQuantity = parseInt(newQuantity);
+        if (isNaN(newQuantity) || newQuantity < 1) { removeItemWithUndo(itemId); return; }
+        
+        const itemInCart = cartItemsData.find(item => item.id === itemId);
+        if(newQuantity > itemInCart.stock) {
+            showToast(`Max stock for ${itemInCart.title} is ${itemInCart.stock}!`, 'error');
+            newQuantity = itemInCart.stock;
+            // Re-render to show the corrected quantity in the input field immediately
+            const inputField = cartItemsContainer.querySelector(`input[data-item-id="${itemId}"]`);
+            if(inputField) inputField.value = newQuantity;
+        }
+        
+        const uid = auth.currentUser.uid;
+        await updateDoc(doc(db, 'users', uid, 'cart', itemId), { quantity: newQuantity });
+    };
+
+    function removeItemWithUndo(itemId) {
+        clearTimeout(undoTimeout);
+        const itemIndex = cartItemsData.findIndex(item => item.id === itemId);
+        if (itemIndex === -1) return;
+        lastRemovedItem = { item: cartItemsData[itemIndex], index: itemIndex };
+        cartItemsData.splice(itemIndex, 1);
+        updateUI(); 
+        showToast(`Item removed. <button id="undo-btn">Undo</button>`, 'success');
+        document.getElementById('undo-btn').onclick = undoRemove;
+        undoTimeout = setTimeout(() => {
+            if (lastRemovedItem) {
+                const uid = auth.currentUser.uid;
+                deleteDoc(doc(db, 'users', uid, 'cart', lastRemovedItem.item.id)).catch(err => console.error("Error deleting item from DB: ", err));
+                lastRemovedItem = null;
             }
-        });
+        }, 5000);
+    };
+    
+    function undoRemove() {
+        if (!lastRemovedItem) return;
+        clearTimeout(undoTimeout);
+        cartItemsData.splice(lastRemovedItem.index, 0, lastRemovedItem.item);
+        updateUI();
+        lastRemovedItem = null;
+        document.getElementById('toast').classList.remove('show');
+        showToast("Item restored!", "success");
+    }
 
-        // --- UTILITY FUNCTIONS (TOAST & MODAL) ---
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = `toast show ${type}`;
+    function confirmRemoveSavedItem(itemId) {
+         showModal('Remove Item?', 'Are you sure?', () => {
+             const uid = auth.currentUser.uid;
+             deleteDoc(doc(db, 'users', uid, 'savedForLater', itemId));
+         });
+    };
+    
+    async function moveToSaved(itemId) {
+        const uid = auth.currentUser.uid;
+        const batch = writeBatch(db);
+        batch.delete(doc(db, 'users', uid, 'cart', itemId));
+        batch.set(doc(db, 'users', uid, 'savedForLater', itemId), { itemId });
+        await batch.commit();
+        showToast("Item saved for later", "success");
+    };
+
+    async function moveToCart(itemId) {
+        const uid = auth.currentUser.uid;
+        const batch = writeBatch(db);
+        batch.delete(doc(db, 'users', uid, 'savedForLater', itemId));
+        batch.set(doc(db, 'users', uid, 'cart', itemId), { itemId, quantity: 1 });
+        await batch.commit();
+        showToast("Item moved to cart", "success");
+    };
+    
+    async function notifyMe(itemId, element) {
+        element.disabled = true;
+        element.innerHTML = '<i class="fas fa-check"></i> Notified';
+        const uid = auth.currentUser.uid;
+        await addDoc(collection(db, 'stockNotifications'), { userId: uid, itemId: itemId, requestedAt: new Date() });
+        showToast("We'll notify you when it's back in stock!", "success");
+    };
+
+    clearCartBtn.addEventListener('click', () => {
+         showModal('Clear Cart?', 'Remove all items from your cart?', async () => {
+            const uid = auth.currentUser.uid;
+            const cartRef = collection(db, 'users', uid, 'cart');
+            const snapshot = await getDocs(cartRef);
+            if(snapshot.empty) return;
+            const batch = writeBatch(db);
+            snapshot.docs.forEach(d => batch.delete(d.ref));
+            await batch.commit();
+            showToast('Cart has been cleared', 'success');
+         });
+    });
+
+    checkoutBtn.addEventListener('click', () => {
+        if (cartItemsData.length > 0) {
+            localStorage.setItem('cartItems', JSON.stringify(cartItemsData));
+            window.location.href = 'checkout.html';
+        } else {
+            showToast("Your cart is empty!", 'error');
+        }
+    });
+
+    // --- Dynamic Recommendations ---
+    async function loadRecommendations() {
+        recommendationsGrid.innerHTML = '';
+        const itemIdsInCart = cartItemsData.map(item => item.id);
+        const categoriesInCart = [...new Set(cartItemsData.map(item => item.category))];
+
+        let q = categoriesInCart.length > 0 
+            ? query(collection(db, 'items'), where('category', 'in', categoriesInCart), limit(8))
+            : query(collection(db, 'items'), orderBy('timestamp', 'desc'), limit(4));
+
+        const snapshot = await getDocs(q);
+        let items = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        items = items.filter(item => !itemIdsInCart.includes(item.id)).slice(0, 4);
+        
+        if (items.length < 4) {
+             const fallbackQ = query(collection(db, 'items'), orderBy('timestamp', 'desc'), limit(4));
+             const fallbackSnap = await getDocs(fallbackQ);
+             const fallbackItems = fallbackSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+             items = [...items, ...fallbackItems.filter(item => !itemIdsInCart.includes(item.id) && !items.some(i => i.id === item.id))].slice(0, 4);
+        }
+
+        items.forEach(item => {
+            const currentPrice = item.price * (1 - (item.discountPercent || 0) / 100);
+            const recItemEl = document.createElement('div');
+            recItemEl.className = 'rec-item';
+            recItemEl.innerHTML = `
+                <img src="${item.imageURLs?.[0] || 'https://placehold.co/200x200'}" alt="${item.title}">
+                <h4>${item.title}</h4>
+                <p>₹${Math.floor(currentPrice)}</p>
+            `;
+            recItemEl.addEventListener('click', () => window.location.href = `card.html?id=${item.id}`);
+            recommendationsGrid.appendChild(recItemEl);
+        });
+    }
+
+    // --- Utility Functions (TOAST & MODAL) ---
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.innerHTML = message;
+        toast.className = `toast show ${type}`;
+        if(!message.includes('Undo')) {
             setTimeout(() => { toast.className = toast.className.replace('show', ''); }, 3000);
         }
+    }
 
-        function showModal(title, message, onConfirm) {
-            const modal = document.getElementById('modal');
-            document.getElementById('modal-title').textContent = title;
-            document.getElementById('modal-message').textContent = message;
-            
-            const confirmBtn = document.getElementById('modal-confirm-btn');
-            const cancelBtn = document.getElementById('modal-cancel-btn');
-
-            const newConfirmBtn = confirmBtn.cloneNode(true); // Remove old listeners
-            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-            
-            newConfirmBtn.addEventListener('click', () => {
-                onConfirm();
-                modal.classList.remove('visible');
-            });
-            
-            cancelBtn.onclick = () => modal.classList.remove('visible');
-            
-            modal.classList.add('visible');
-        }
-
-    </script>
+    function showModal(title, message, onConfirm) {
+        const modal = document.getElementById('modal');
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-message').textContent = message;
+        
+        const confirmBtn = document.getElementById('modal-confirm-btn');
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        
+        newConfirmBtn.addEventListener('click', () => { onConfirm(); modal.classList.remove('visible'); });
+        document.getElementById('modal-cancel-btn').onclick = () => modal.classList.remove('visible');
+        modal.classList.add('visible');
+    }
+</script>
 </body>
 </html>

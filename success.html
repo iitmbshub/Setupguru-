@@ -19,7 +19,7 @@
             --border-color: #e9ecef; --light-text: #6c757d;
         }
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--background-color); font-family: 'Poppins', sans-serif; color: var(--text-color); overflow-x: hidden; }
+        body { background-color: var(--background-color); font-family: 'Poppins', sans-serif; color: var(--text-color); overflow: hidden; }
 
         /* --- 1000x BETTER ANIMATION --- */
         #animation-overlay {
@@ -60,15 +60,6 @@
         .btn-primary { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
         .btn-secondary { background-color: transparent; color: var(--primary-color); border-color: var(--primary-color); }
         .btn-danger { background-color: transparent; color: #e74c3c; border-color: #e74c3c; }
-
-        @media (max-width: 768px) {
-            .main-header h1 { font-size: 1.5rem; }
-            .success-container { padding: 0 1rem 1rem 1rem; }
-            #receipt-content { padding: 1.5rem; }
-            .receipt-grid { grid-template-columns: 1fr; gap: 1rem; }
-            .action-buttons { flex-direction: column; align-items: stretch; }
-            .action-btn { justify-content: center; }
-        }
     </style>
 </head>
 <body>
@@ -95,7 +86,7 @@
     <div id="main-content">
         <header class="main-header">
             <div class="header-icon"><i class="fas fa-check"></i></div>
-            <h1>Ordered Successful!</h1>
+            <h1>Payment Successful!</h1>
         </header>
         <div class="success-container">
             <div id="receipt-content">
@@ -112,7 +103,7 @@
                 <a href="#" id="trackOrderBtn" class="action-btn btn-primary"><i class="fas fa-map-marker-alt"></i> Track Order</a>
                 <a href="index.html" class="action-btn btn-secondary"><i class="fas fa-home"></i> Home</a>
                 <button id="downloadBtn" class="action-btn btn-secondary"><i class="fas fa-download"></i> Download Receipt</button>
-                <a href="#" class="action-btn btn-danger"><i class="fas fa-times"></i> Cancel Order</a>
+                <a href="cancel.html" class="action-btn btn-danger"><i class="fas fa-times"></i> Cancel Order</a>
             </div>
         </div>
     </div>
@@ -124,7 +115,6 @@
         const auth = firebase.auth();
 
         window.addEventListener('DOMContentLoaded', () => {
-            // --- SECURITY CHECK ---
             const referrer = document.referrer;
             const isValidReferrer = referrer.includes('checkout.html') || referrer.includes('pay.html');
 
@@ -143,12 +133,31 @@
             });
         });
 
+        // --- START: NEW TELEGRAM NOTIFICATION FUNCTION ---
+        async function sendTelegramNotification(message) {
+            const botToken = "8311976506:AAHCMdrwWzHbKYPVxItoiRXFg0hvppS_26c";
+            const chatIds = ["5165964724", "5765135287"];
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+            for (const chatId of chatIds) {
+                try {
+                    await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ chat_id: chatId, text: message }),
+                    });
+                } catch (error) {
+                    console.error(`Failed to send Telegram notification to ${chatId}:`, error);
+                }
+            }
+        }
+        // --- END: NEW TELEGRAM NOTIFICATION FUNCTION ---
+
         async function processOrder(user, referrer) {
-            // --- DATA HANDLING (runs during animation) ---
             const shippingDetails = JSON.parse(localStorage.getItem('pendingOrderDetails'));
             const cartItems = JSON.parse(localStorage.getItem('cartItems'));
+            const appliedCoupon = JSON.parse(localStorage.getItem('appliedCoupon'));
             
-            // Rock-solid check for refreshed page
             if (!shippingDetails || !cartItems) {
                 document.body.innerHTML = `<div style="text-align:center; padding-top: 40vh;"><h1>Order already processed or data missing.</h1><p>Redirecting to homepage...</p></div>`;
                 setTimeout(() => { window.location.href = 'index.html'; }, 3000);
@@ -158,7 +167,15 @@
             const paymentMethod = referrer.includes('checkout.html') ? 'COD' : 'ONLINE';
             const transactionId = localStorage.getItem('transactionId');
             const orderId = `SG-${String(Date.now()).slice(-6)}`;
-            const grandTotal = cartItems.reduce((total, item) => total + (item.price * (1 - (item.discountPercent || 0) / 100) * item.quantity), 0) + 19;
+
+            const subtotal = cartItems.reduce((total, item) => total + (item.price * (1 - (item.discountPercent || 0) / 100) * item.quantity), 0);
+            let couponDiscountAmount = 0;
+            if (appliedCoupon) {
+                couponDiscountAmount = subtotal * (appliedCoupon.discountPercent / 100);
+            }
+            const subtotalAfterCoupon = subtotal - couponDiscountAmount;
+            const deliveryFee = subtotalAfterCoupon >= 1000 ? 0 : 19;
+            const grandTotal = subtotalAfterCoupon + deliveryFee;
 
             const orderData = {
                 orderId, userId: user.uid, shippingDetails, items: cartItems, paymentMethod,
@@ -166,15 +183,16 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
-            // GUARANTEED FIREBASE SAVE
             try {
                 await Promise.all([
                     db.collection('orders').doc(orderId).set(orderData),
                     clearUserCart(user.uid)
                 ]);
-                
-                // --- NEW: Send Telegram Notification on Success ---
-                await sendTelegramNotification(orderData.orderId, shippingDetails.fullName);
+
+                // --- START: CALL TELEGRAM FUNCTION ON SUCCESS ---
+                const notificationMessage = `helooo admins new order aya hai chcek karo setupguru.shop/admin-success.html link se\n\nUser: ${shippingDetails.fullName}\nEmail: ${user.email}`;
+                sendTelegramNotification(notificationMessage);
+                // --- END: CALL TELEGRAM FUNCTION ON SUCCESS ---
 
             } catch (error) {
                  document.body.innerHTML = `<div style="text-align:center; padding-top: 40vh;"><h1>Error Saving Order!</h1><p>Please contact support. Your transaction ID is ${transactionId || 'N/A'}</p></div>`;
@@ -182,16 +200,13 @@
                  return;
             }
             
-            // --- ANIMATION TIMING (Total 4 Seconds) ---
             const stage1 = document.getElementById('stage1');
             const stage2 = document.getElementById('stage2');
             const stage3 = document.getElementById('stage3');
             const overlay = document.getElementById('animation-overlay');
 
-            // 0s: Stage 1 appears
             stage1.classList.add('active');
 
-            // 1.5s: Stage 2 appears
             setTimeout(() => {
                 stage1.style.display = 'none';
                 stage2.classList.add('active');
@@ -199,14 +214,12 @@
                 document.getElementById('successSound').play().catch(e => {});
             }, 1500);
 
-            // 2.8s: Stage 3 appears with Confetti
             setTimeout(() => {
                 stage2.style.display = 'none';
                 stage3.classList.add('active');
                 runConfetti();
             }, 2800);
             
-            // 4.0s: Animation finishes, show main content
             setTimeout(() => {
                 overlay.style.opacity = '0';
                 document.getElementById('main-content').style.visibility = 'visible';
@@ -214,40 +227,10 @@
                 setTimeout(() => overlay.style.display = 'none', 500);
             }, 4000);
 
-            // Populate page with confirmed data and cleanup localStorage
             populatePage(orderData);
             localStorage.clear();
         }
         
-        // --- NEW: Telegram Bot Notification Function ---
-        async function sendTelegramNotification(orderId, userName) {
-            const botToken = '8311976506:AAHCMdrwWzHbKYPVxItoiRXFg0hvppS_26c';
-            const chatIds = ['5165964724', '5765135287'];
-            const adminLink = 'https://setupguru.shop/admin.html';
-            
-            const messageText = `🎉 New Order Alert!\n\nOrder ID: #${orderId}\nUser: ${userName}\n\nView and manage orders here:\n${adminLink}`;
-            
-            for (const chatId of chatIds) {
-                const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-                const params = new URLSearchParams({
-                    chat_id: chatId,
-                    text: messageText,
-                    parse_mode: 'Markdown'
-                });
-                
-                try {
-                    await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: params.toString()
-                    });
-                } catch (error) {
-                    console.error(`Error sending Telegram notification to chat ${chatId}:`, error);
-                }
-            }
-        }
-        
-        // --- HELPER FUNCTIONS ---
         function populatePage(data) {
             document.getElementById('orderId').textContent = `#${data.orderId}`;
             document.getElementById('userName').textContent = data.shippingDetails.fullName;
@@ -277,7 +260,6 @@
             });
         });
         
-        // --- Confetti Animation Logic ---
         function runConfetti() {
             const canvas = document.getElementById('confetti-canvas');
             const ctx = canvas.getContext('2d');

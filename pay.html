@@ -14,9 +14,14 @@
     
     <style>
         :root {
-            --primary-color: #2E1A5F; --secondary-color: #C49B46; --background-color: #f4f7fc;
-            --text-color: #212529; --card-bg: #ffffff; --shadow-color: rgba(46, 26, 95, 0.08);
-            --success-color: #2ecc71; --error-color: #e74c3c;
+            --primary-color: #2E1A5F; /* Dark Purple */
+            --secondary-color: #C49B46; /* Gold/Ochre */
+            --background-color: #f4f7fc;
+            --text-color: #212529; 
+            --card-bg: #ffffff; 
+            --shadow-color: rgba(46, 26, 95, 0.08);
+            --success-color: #2ecc71; 
+            --error-color: #e74c3c;
         }
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--background-color); font-family: 'Poppins', sans-serif; color: var(--text-color); }
@@ -31,7 +36,7 @@
 
         /* --- LOADER --- */
         #loader-container { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 5rem 0; gap: 1rem; }
-        .spinner { width: 50px; height: 50px; border: 5px solid var(--border-color); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; }
+        .spinner { width: 50px; height: 50px; border: 5px solid #ccc; border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
         /* --- MAIN CONTENT --- */
@@ -59,9 +64,37 @@
         .order-breakdown li { display: flex; justify-content: space-between; padding: 0.8rem 0; font-size: 1.1rem; border-bottom: 1px solid #eee; }
         .order-breakdown li.total { font-weight: bold; font-size: 1.3rem; border-top: 2px solid #333; }
         
+        /* --- NEW PAYMENT METHOD LOGOS STYLE --- */
+        .payment-methods {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 1.5rem 0;
+            padding: 1rem 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap; /* Added for mobile responsiveness */
+        }
+        .payment-methods img {
+            height: 30px; /* Uniform height for logos */
+            width: auto;
+            max-width: 60px;
+            object-fit: contain;
+            opacity: 0.85;
+            transition: opacity 0.2s;
+        }
+        .payment-methods img:hover {
+            opacity: 1;
+        }
+        /* --- END NEW STYLE --- */
+
         .pay-btn {
             width: 100%; padding: 1rem; border: none; background: var(--secondary-color); color: var(--primary-color); font-size: 1.2rem; font-weight: 700;
             border-radius: 8px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 1.5rem;
+            box-shadow: 0 4px 15px rgba(196, 155, 70, 0.4); /* Added soft shadow to button */
+        }
+        .pay-btn:hover {
+            background: #a08242;
         }
         .pay-btn .fa-spinner { display: none; }
         .pay-btn.processing { background-color: #a08242; cursor: not-allowed; }
@@ -72,8 +105,15 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        @media (max-width: 900px) { .payment-layout { grid-template-columns: 1fr; } .payment-summary { position: static; margin-top: 2rem; } }
-        @media (max-width: 600px) { .logo-text { display: none; } }
+        @media (max-width: 900px) { 
+            .payment-layout { grid-template-columns: 1fr; } 
+            .payment-summary { position: static; margin-top: 2rem; } 
+        }
+        @media (max-width: 600px) { 
+            .logo-text { display: none; } 
+            .payment-container { padding: 1rem; }
+            .payment-details, .payment-summary { padding: 1.5rem; }
+        }
     </style>
 </head>
 <body>
@@ -108,9 +148,19 @@
                 <h2>Summary</h2>
                 <ul class="order-breakdown">
                     <li><span>Subtotal</span><span id="subtotalValue">₹0</span></li>
-                    <li><span>Delivery Fee</span><span>₹19</span></li>
+                    <li><span>Delivery Fee</span><span id="deliveryFeeValue">₹19</span></li>
                     <li class="total"><span>Grand Total</span><span id="amountValue">₹0</span></li>
                 </ul>
+
+                <p style="font-size:0.9rem; color:#555; margin-top:1rem;">Accepted Payment Methods</p>
+                <div class="payment-methods">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-Small.svg" alt="UPI Logo" onerror="this.src='https://placehold.co/50x30/2ecc71/fff?text=UPI'">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/52/Google_Pay_logo.svg" alt="Google Pay Logo" onerror="this.src='https://placehold.co/50x30/4285F4/fff?text=GPay'">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Logo.svg" alt="Visa Logo" onerror="this.src='https://placehold.co/50x30/1A1F71/fff?text=VISA'">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard Logo" onerror="this.src='https://placehold.co/50x30/FF5F00/fff?text=MC'">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/07/RuPay-Logo.svg" alt="RuPay Logo" onerror="this.src='https://placehold.co/50x30/2F4687/fff?text=RuPay'">
+                </div>
+
                 <button class="pay-btn" id="payBtn">
                     <i class="fas fa-shield-alt"></i>
                     <span class="btn-text">Pay Securely</span>
@@ -138,13 +188,29 @@
             if (user) {
                 initializePayment(user);
             } else {
-                loader.innerHTML = '<h1>Authentication Error. Please <a href="login.html">log in</a>.</h1>';
+                const __initial_auth_token = typeof window.__initial_auth_token !== 'undefined' ? window.__initial_auth_token : null;
+                
+                if (__initial_auth_token) {
+                    auth.signInWithCustomToken(__initial_auth_token)
+                        .then(() => initializePayment(auth.currentUser))
+                        .catch(error => {
+                            loader.innerHTML = '<h1>Authentication Error. Please <a href="login.html">log in</a>.</h1><p>Error: ' + error.message + '</p>';
+                        });
+                } else {
+                    auth.signInAnonymously()
+                        .then(() => initializePayment(auth.currentUser))
+                        .catch(error => {
+                             loader.innerHTML = '<h1>Authentication Error. Please <a href="login.html">log in</a>.</h1><p>Error: ' + error.message + '</p>';
+                        });
+                }
             }
         });
 
         async function initializePayment(user) {
             const shippingDetails = JSON.parse(localStorage.getItem('pendingOrderDetails'));
             const cartItems = JSON.parse(localStorage.getItem('cartItems'));
+            // NEW: Applied coupon ko localStorage se get karna
+            const appliedCoupon = JSON.parse(localStorage.getItem('appliedCoupon'));
 
             if (!shippingDetails || !cartItems || cartItems.length === 0) {
                 loader.innerHTML = '<h1>Error: Order details not found.</h1><p>Please go back to your <a href="cart.html">cart</a> and try again.</p>';
@@ -165,11 +231,32 @@
                 <div class="item"><span>${item.title} (x${item.quantity})</span> <strong>₹${Math.floor(item.price * (1-(item.discountPercent||0)/100) * item.quantity)}</strong></div>
             `).join('');
 
-            const deliveryFee = 19;
+            // NEW: Calculation ko coupon discount ke saath update karna
             const subtotal = cartItems.reduce((total, item) => total + (item.price * (1 - (item.discountPercent || 0) / 100) * item.quantity), 0);
-            const grandTotal = Math.floor(subtotal + deliveryFee);
 
+            let couponDiscountAmount = 0;
+            if (appliedCoupon) {
+                couponDiscountAmount = subtotal * (appliedCoupon.discountPercent / 100);
+            }
+            const subtotalAfterCoupon = subtotal - couponDiscountAmount;
+            
+            // NEW: Delivery fee ko bhi checkout page ki tarah dynamic karna
+            const deliveryFee = subtotalAfterCoupon >= 1000 ? 0 : 19;
+            const grandTotal = Math.floor(subtotalAfterCoupon + deliveryFee);
+
+            // NEW: Summary UI ko update karna
             document.getElementById('subtotalValue').textContent = `₹${Math.floor(subtotal)}`;
+            document.getElementById('deliveryFeeValue').textContent = deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`;
+
+            // NEW: Coupon row ko dynamically add karna agar coupon applied hai
+            if (appliedCoupon) {
+                const breakdownList = document.querySelector('.order-breakdown');
+                const totalRow = breakdownList.querySelector('.total');
+                const couponRow = document.createElement('li');
+                couponRow.innerHTML = `<span>Coupon Discount (${appliedCoupon.discountPercent}%)</span><span style="color: var(--success-color);">- ₹${Math.floor(couponDiscountAmount)}</span>`;
+                breakdownList.insertBefore(couponRow, totalRow);
+            }
+            
             document.getElementById('amountValue').textContent = `₹${grandTotal}`;
 
             paymentData = {
@@ -194,9 +281,9 @@
                 "description": "Order Payment",
                 "image": "https://i.ibb.co/hRBZFSS3/1758331953202.jpg",
                 "handler": function (response){
-                    // --- THE MOST IMPORTANT FIX ---
-                    // Save the transaction ID before redirecting
                     localStorage.setItem('transactionId', response.razorpay_payment_id);
+                    // NEW: Payment ke baad coupon ko clear kar dena
+                    localStorage.removeItem('appliedCoupon');
                     window.location.href = 'success.html';
                 },
                 "prefill": paymentData.user,

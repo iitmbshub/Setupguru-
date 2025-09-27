@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed! - SetupGuru</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #2E1A5F; --secondary-color: #C49B46; --background-color: #f4f7fc;
+            --text-color: #212529; --card-bg: #ffffff; --success-color: #2ecc71;
+            --border-color: #e9ecef; --light-text: #6c757d;
+        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--background-color); font-family: 'Poppins', sans-serif; color: var(--text-color); }
+        .success-container { max-width: 1100px; margin: 2rem auto; padding: 2rem; opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s ease-out forwards; }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        .success-header { text-align: center; margin-bottom: 2.5rem; }
+        .success-header h1 { font-size: 2.8rem; color: var(--primary-color); display: flex; align-items: center; justify-content: center; gap: 1rem; }
+        .success-header p { font-size: 1.1rem; color: var(--light-text); }
+        .success-header .order-id { font-weight: 600; color: var(--primary-color); background-color: #e9e6f1; padding: 5px 12px; border-radius: 6px; }
+        .order-details-grid { display: grid; grid-template-columns: 1.8fr 1fr; gap: 2rem; }
+        #receipt-content { background-color: var(--card-bg); padding: 2rem; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.05); }
+        #receipt-content h2 { color: var(--primary-color); padding-bottom: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); }
+        .receipt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+        .detail-box strong { font-weight: 600; color: var(--text-color); display: block; margin-bottom: 0.5rem; }
+        .detail-box p { font-size: 0.95rem; color: var(--light-text); line-height: 1.6; }
+        .items-list li { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--border-color); }
+        .grand-total { text-align: right; font-size: 1.5rem; font-weight: 700; margin-top: 1rem; color: var(--primary-color); }
+        .next-steps .card { background-color: var(--card-bg); padding: 1.5rem; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        .next-steps h3 { display: flex; align-items: center; gap: 0.8rem; color: var(--primary-color); margin-bottom: 1rem; font-size: 1.2rem; }
+        .next-steps p { color: var(--light-text); line-height: 1.7; font-size: 0.95rem; }
+        .main-actions { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2.5rem; }
+        .action-btn { padding: 1rem 2rem; border-radius: 8px; font-size: 1.1rem; font-weight: 600; text-decoration: none; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.8rem; }
+        .btn-primary { background-color: var(--primary-color); color: white; border: 2px solid var(--primary-color); }
+        .btn-secondary { background-color: transparent; color: var(--primary-color); border: 2px solid var(--primary-color); }
+        .btn-primary:hover { background-color: var(--secondary-color); color: var(--primary-color); border-color: var(--secondary-color); transform: translateY(-3px); }
+        .btn-secondary:hover { background-color: var(--primary-color); color: white; transform: translateY(-3px); }
+        @media (max-width: 900px) { .order-details-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="success-container" id="detailsContainer" style="display:none;">
+        <header class="success-header">
+            <h1><i class="fas fa-check-circle" style="color: var(--success-color);"></i>Thank You!</h1>
+            <p>Your order has been placed. Your Order ID is: <span id="orderId" class="order-id">#0000</span></p>
+        </header>
+        <div class="order-details-grid">
+            <div id="receipt-content">
+                <h2>Order Receipt</h2>
+                <div class="receipt-grid">
+                    <div class="detail-box"><strong>Shipping To:</strong><p id="userName"></p><p id="userAddress"></p></div>
+                    <div class="detail-box"><strong>Payment Info:</strong><p id="paymentMethod"></p><p id="transactionInfo"></p></div>
+                </div>
+                <h2>Items Ordered</h2>
+                <ul class="items-list" id="itemsList"></ul>
+                <div class="grand-total" id="grandTotal"></div>
+            </div>
+            <aside class="next-steps">
+                <div class="card"><h3><i class="fas fa-box"></i>What's Next?</h3><p>Your order is processing. You will receive an email confirmation shortly.</p></div>
+                <div class="card"><h3><i class="fas fa-download"></i>Your Receipt</h3><p>You can download a copy of your receipt.</p><button id="downloadBtn" class="action-btn btn-secondary" style="width:100%; justify-content:center; margin-top:1rem; padding: 0.8rem 1rem;"><i class="fas fa-download"></i>Download</button></div>
+                <div class="card"><h3><i class="fas fa-question-circle"></i>Need Help?</h3><p>If you have any questions, please <a href="#">Contact Support</a>.</p></div>
+            </aside>
+        </div>
+        <div class="main-actions">
+            <a href="index.html" class="action-btn btn-secondary"><i class="fas fa-home"></i> Go to Home</a>
+            <a href="#" id="trackOrderBtn" class="action-btn btn-primary"><i class="fas fa-map-marker-alt"></i> Track Your Order</a>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyAMweRCGXZCfuRvtlVO0acLbKmY4heV08s", authDomain: "setupguru-217af.firebaseapp.com", projectId: "setupguru-217af", storageBucket: "setupguru-217af.firebasestorage.app", messagingSenderId: "377386830551", appId: "1:377386830551:web:39909b0addf2bc630be92" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        window.addEventListener('DOMContentLoaded', () => {
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const orderId = urlParams.get('orderId');
+                    if (orderId) {
+                        fetchAndDisplayOrder(orderId);
+                    } else {
+                        document.body.innerHTML = '<h1>Error: No Order ID found.</h1>';
+                    }
+                } else {
+                    document.body.innerHTML = '<h1>Error: You must be logged in to view this page.</h1>';
+                }
+            });
+        });
+
+        async function fetchAndDisplayOrder(orderId) {
+            const orderRef = db.collection('orders').doc(orderId);
+            const doc = await orderRef.get();
+
+            if (doc.exists) {
+                const data = doc.data();
+                populatePage(data);
+                document.getElementById('detailsContainer').style.display = 'block';
+            } else {
+                document.body.innerHTML = `<h1>Error: Order #${orderId} not found.</h1>`;
+            }
+        }
+
+        function populatePage(data) {
+            document.getElementById('orderId').textContent = `#${data.orderId}`;
+            document.getElementById('userName').textContent = data.shippingDetails.fullName;
+            document.getElementById('userAddress').innerHTML = `${data.shippingDetails.address}, ${data.shippingDetails.city},<br>${data.shippingDetails.state} - ${data.shippingDetails.pincode}`;
+            document.getElementById('paymentMethod').innerHTML = `<strong>Method:</strong> ${data.paymentMethod}`;
+            document.getElementById('transactionInfo').innerHTML = data.paymentMethod === 'ONLINE' ? `<strong>Transaction ID:</strong> ${data.transactionId}` : '';
+            document.getElementById('itemsList').innerHTML = data.items.map(item => `<li><span>${item.title} (x${item.quantity})</span><strong>₹${Math.floor(item.price * (1-(item.discountPercent||0)/100) * item.quantity)}</strong></li>`).join('');
+            document.getElementById('grandTotal').textContent = `Grand Total: ₹${data.grandTotal}`;
+            document.getElementById('trackOrderBtn').href = `track.html?orderId=${data.orderId}`;
+        }
+
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            html2canvas(document.getElementById('receipt-content'), { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `receipt_order_${document.getElementById('orderId').textContent.replace('#','')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        });
+    </script>
+</body>
+</html>

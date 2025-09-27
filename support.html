@@ -2,443 +2,884 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SETUP GURU- Support Chat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SETUP GURU SUPPORT - Live Chat</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
     <style>
-        :root {
-            --real-vh: 1vh;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * { box-sizing: border-box; }
         
         body { 
-            font-family: 'Poppins', sans-serif; 
-            overflow: hidden;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
-            -webkit-text-size-adjust: 100%;
-            touch-action: manipulation;
-        }
-        
-        * {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
-        }
-        
-        input, textarea {
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            user-select: text;
-            -webkit-touch-callout: default;
-        }
-        
-        .h-screen-dynamic {
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+            margin: 0;
+            padding: 0;
             height: 100vh;
-            height: calc(var(--real-vh, 1vh) * 100);
+            overflow: hidden;
         }
         
-        #chat-window { 
-            background-color: #e5ddd5; 
-            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); 
+        .dark body { 
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: #e0e0e0; 
         }
         
-        .chat-bubble { 
-            max-width: 85%; 
-            padding: 8px 12px; 
-            border-radius: 8px; 
-            position: relative; 
-            word-wrap: break-word; 
-            box-shadow: 0 1px 1px rgba(0,0,0,0.05);
-            word-break: break-word;
+        .chat-container {
+            height: calc(100vh - 140px);
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 0;
         }
         
-        .user-bubble { 
-            background-color: #dcf8c6; 
-            color: #303030; 
-            margin-left: auto; 
+        .dark .chat-container {
+            background: rgba(26, 32, 44, 0.95);
         }
         
-        .support-bubble { 
-            background-color: #ffffff; 
-            color: #303030; 
-            margin-right: auto; 
+        .message-bubble {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            word-wrap: break-word;
+            position: relative;
         }
         
-        .link-preview { 
-            background-color: rgba(0,0,0,0.05); 
-            border-left: 3px solid #f17922; 
+        .user-message { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            align-self: flex-end; 
+            border-bottom-right-radius: 6px;
+            margin-left: auto;
         }
         
-        #chat-window::-webkit-scrollbar { width: 4px; }
-        #chat-window::-webkit-scrollbar-thumb { 
-            background-color: rgba(0,0,0,0.2); 
-            border-radius: 2px;
+        .admin-message { 
+            background: #ffffff;
+            color: #2d3748;
+            align-self: flex-start; 
+            border-bottom-left-radius: 6px;
+            border: 1px solid #e2e8f0;
         }
         
-        .date-divider { text-align: center; margin: 1rem 0; }
-        .date-divider span { 
-            background-color: #e1f2fb; 
-            color: #5b5b5b; 
-            padding: 4px 12px; 
-            border-radius: 8px; 
-            font-size: 12px; 
-            font-weight: 500; 
+        .dark .admin-message { 
+            background: #4a5568;
+            color: #e2e8f0;
+            border-color: #718096;
         }
         
-        @keyframes message-in { 
-            from { opacity: 0; transform: translateY(10px); } 
-            to { opacity: 1; transform: translateY(0); } 
+        .status-icon { font-size: 0.7rem; margin-left: 6px; }
+        .time-stamp { 
+            display: block; 
+            font-size: 0.75rem; 
+            margin-top: 4px; 
+            text-align: right;
+            opacity: 0.8;
         }
         
-        .message-animate-in { animation: message-in 0.3s ease-out; }
+        .user-time-stamp { color: rgba(255,255,255,0.9); }
+        .admin-time-stamp { color: #718096; }
+        .dark .admin-time-stamp { color: #a0aec0; }
         
-        /* Mobile specific styles */
-        @media (max-width: 768px) {
-            .chat-bubble { 
-                max-width: 90%; 
-                font-size: 14px;
-                padding: 6px 10px;
+        .typing-indicator span { 
+            display: inline-block; 
+            width: 8px; 
+            height: 8px; 
+            margin: 0 2px; 
+            border-radius: 50%; 
+            background-color: #667eea; 
+            animation: typing-animation 1.4s infinite ease-in-out;
+        }
+        
+        .dark .typing-indicator span { background-color: #a0aec0; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing-animation {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            transition: left 0.3s ease;
+            z-index: 50;
+            border-right: 1px solid #e2e8f0;
+        }
+        
+        .dark .sidebar {
+            background: rgba(26, 32, 44, 0.98);
+            border-right-color: #4a5568;
+        }
+        
+        .sidebar.open { left: 0; }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .chat-history-item {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .chat-history-item:hover {
+            background-color: #f7fafc;
+        }
+        
+        .dark .chat-history-item {
+            border-bottom-color: #4a5568;
+        }
+        
+        .dark .chat-history-item:hover {
+            background-color: #2d3748;
+        }
+        
+        @media (max-width: 640px) {
+            .message-bubble {
+                max-width: 90%;
+                padding: 10px 14px;
+                font-size: 0.9rem;
             }
             
-            .date-divider span {
-                font-size: 11px;
-                padding: 3px 10px;
+            .chat-container {
+                padding: 0.75rem;
+                height: calc(100vh - 130px);
             }
             
-            /* Handle mobile keyboard */
-            .mobile-keyboard-active {
-                padding-bottom: 0;
+            .sidebar {
+                width: 280px;
             }
-            
-            .mobile-keyboard-active #chat-window {
-                padding-bottom: 20px;
-            }
-            
-            /* Prevent zoom on input focus */
-            input[type="text"] {
-                font-size: 16px;
-            }
-        }
-        
-        /* Desktop styles */
-        @media (min-width: 769px) {
-            .chat-bubble { 
-                max-width: 70%; 
-                font-size: 15px;
-            }
-            
-            body {
-                max-width: 1200px;
-                margin: 0 auto;
-            }
-        }
-        
-        /* Prevent text selection on messages */
-        .chat-bubble, .chat-bubble * {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
-        }
-        
-        /* Allow text selection only on links */
-        .chat-bubble a {
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            user-select: text;
         }
     </style>
 </head>
-<body class="bg-gray-200">
-
-    <div class="w-full flex flex-col h-screen-dynamic" id="app-container">
-        <header class="bg-[#003B5C] text-white shadow-md z-40 flex items-center p-3 sm:p-4 flex-shrink-0">
-            <a href="index.html" class="mr-3 sm:mr-4 text-white hover:bg-white/20 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center">
-                <i class="fas fa-arrow-left text-sm sm:text-base"></i>
-            </a>
-            <img src="https://i.ibb.co/hRBZFSS3/1758331953202.jpg" alt="Logo" class="h-8 w-8 sm:h-10 sm:w-10 rounded-full mr-2 sm:mr-3 border-2 border-white/50">
-            <div>
-                <div class="flex items-center">
-                    <h1 class="text-base sm:text-lg font-bold">SETUP GURU Support</h1>
-                    <i class="fas fa-check-circle text-blue-400 ml-2 text-xs sm:text-sm" title="Verified"></i>
-                </div>
-                <p class="text-xs text-green-300">Online</p>
-            </div>
-        </header>
-
-        <main id="chat-window" class="flex-1 overflow-y-auto p-2 sm:p-4 space-y-2 pb-2">
-             <div id="loading-spinner" class="flex justify-center items-center h-full">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 border-4 border-t-[#005a8b] border-gray-400/20 rounded-full animate-spin"></div>
-            </div>
-        </main>
-        
-        <footer class="bg-gray-100 p-2 sm:p-3 flex-shrink-0 border-t">
-            <form id="chat-form" class="flex items-center w-full gap-2 sm:gap-3">
-                <input type="text" id="message-input" placeholder="Type a message..." 
-                       class="flex-1 min-w-0 h-10 sm:h-11 px-3 sm:px-4 border bg-white rounded-full focus:outline-none focus:ring-2 focus:ring-[#f17922] text-sm sm:text-base" 
-                       autocomplete="off">
-                <button type="submit" class="flex-shrink-0 bg-[#005a8b] text-white rounded-full w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center hover:bg-[#003B5C] transition-colors">
-                    <i class="fas fa-paper-plane text-sm sm:text-xl"></i>
+<body class="flex flex-col h-screen">
+    
+    <!-- Sidebar Overlay -->
+    <div id="overlay" class="overlay"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-600">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Chat History</h2>
+                <button id="close-sidebar" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
                 </button>
-            </form>
-        </footer>
+            </div>
+        </div>
+        
+        <div class="p-4">
+            <button id="new-chat-btn" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition duration-200 mb-4">
+                ✨ Start New Chat
+            </button>
+        </div>
+        
+        <div id="chat-history" class="flex-1 overflow-y-auto">
+            <!-- Chat history items will be populated here -->
+        </div>
     </div>
 
+    <!-- Header Section -->
+    <header class="flex justify-between items-center p-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-lg sticky top-0 z-30">
+        <div class="flex items-center space-x-3">
+            <button id="menu-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition lg:hidden">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <img src="https://i.ibb.co/CpZpc289/logoo.jpg" alt="Logo" class="w-10 h-10 rounded-full shadow-lg">
+            <div>
+                <h1 class="text-lg font-bold text-gray-800 dark:text-gray-100 hidden sm:block">SETUP GURU SUPPORT</h1>
+                <h1 class="text-lg font-bold text-gray-800 dark:text-gray-100 sm:hidden">GURU SUPPORT</h1>
+                <p class="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Professional Support Chat</p>
+            </div>
+        </div>
 
+        <div class="flex items-center space-x-2">
+            <button id="new-chat-header" class="hidden sm:flex items-center px-3 py-2 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-full text-sm font-medium hover:from-green-600 hover:to-blue-600 transition duration-200">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mr-1">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                New Chat
+            </button>
+            <button id="theme-toggle" class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Chat Area -->
+    <main class="flex-grow overflow-hidden flex flex-col relative">
+        <div id="chat-container" class="chat-container flex flex-col space-y-3 flex-grow">
+            <!-- Welcome message -->
+            <div class="text-center py-8">
+                <div class="inline-block p-6 bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-lg backdrop-blur-sm max-w-md mx-auto">
+                    <img src="https://i.ibb.co/CpZpc289/logoo.jpg" alt="Support" class="w-16 h-16 rounded-full mx-auto mb-4 shadow-lg">
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-3">Welcome to Setup Guru Support! 👋</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">We're here to help you with all your technical needs. Start a conversation and our support team will assist you shortly.</p>
+                    <div class="flex items-center justify-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span>Online Support Available</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Typing Indicator -->
+        <div id="typing-indicator" class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400" style="display: none;">
+            <div class="flex items-center bg-white/80 dark:bg-gray-800/80 rounded-full px-4 py-2 backdrop-blur-sm inline-block">
+                <img src="https://i.ibb.co/CpZpc289/logoo.jpg" alt="Admin" class="w-6 h-6 rounded-full mr-3">
+                <p class="mr-3 font-medium">Support team is typing</p>
+                <div class="typing-indicator"><span></span><span></span><span></span></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Input Section -->
+    <footer class="p-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-t border-gray-200/50 dark:border-gray-700/50 sticky bottom-0 z-30">
+        <div class="flex items-center space-x-3 max-w-4xl mx-auto">
+            <!-- Attachment Button -->
+            <label for="file-upload" class="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-600 dark:to-gray-700 text-gray-600 dark:text-gray-200 p-3 rounded-full hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-500 dark:hover:to-gray-600 transition duration-200 cursor-pointer w-12 h-12 flex items-center justify-center shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                </svg>
+            </label>
+            <input type="file" id="file-upload" accept="image/*, application/pdf, .doc, .docx, .txt" class="hidden">
+            
+            <div class="flex-grow relative">
+                <input type="text" id="message-input" placeholder="Type your message..." class="w-full p-4 pr-12 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 shadow-lg bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm">
+            </div>
+            
+            <button id="send-button" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 rounded-full hover:from-blue-600 hover:to-purple-700 transition duration-200 flex items-center justify-center shadow-lg w-12 h-12 transform hover:scale-105">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </footer>
+
+    <!-- Firebase and Application Logic -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { getFirestore, doc, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getDatabase, ref as dbRef, push, onValue, serverTimestamp, set, onDisconnect } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+        
+        // --- Configuration and Constants ---
+        const USER_ID_KEY = 'setup_guru_chat_user_id';
+        const TELEGRAM_BOT_TOKEN = '8311976506:AAHCMdrwWzHbKYPVxItoiRXFg0hvppS_26c';
+        const TELEGRAM_CHAT_IDS = ['5165964724', '5765135287'];
+        const ADMIN_PANEL_LINK = 'admin-support.html';
+        const SUPPORT_PHONE = '9499473347';
+        const USER_AVATAR = 'https://iili.io/K0epkp2.md.jpg';
+        const ADMIN_AVATAR = 'https://i.ibb.co/CpZpc289/logoo.jpg';
 
+        // Provided Firebase Config
         const firebaseConfig = {
-            apiKey: "AIzaSyAC47u3mXuciaavoov2Td2AaI8TiOwV7eY",
-            authDomain: "iitm-74779.firebaseapp.com",
-            projectId: "iitm-74779",
-            storageBucket: "iitm-74779.appspot.com",
-            messagingSenderId: "49030766593",
-            appId: "1:49030766593:web:99b7eae829f4af82556000"
+            apiKey: "AIzaSyDKAu9JvYmpQNfH1ES_Ax3q6qUFZX061Rw",
+            authDomain: "raosuplode.firebaseapp.com",
+            databaseURL: "https://raosuplode-default-rtdb.firebaseio.com",
+            projectId: "raosuplode",
+            storageBucket: "raosuplode.firebasestorage.app",
+            messagingSenderId: "275156697009",
+            appId: "1:275156697009:web:988cc8dc82f59e0535c790"
         };
         
-        const TELEGRAM_BOT_TOKEN = "8311976506:AAHCMdrwWzHbKYPVxItoiRXFg0hvppS_26c";
-        const TELEGRAM_CHAT_ID = "5165964724";
-
+        // --- Initialization ---
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        const db = getDatabase(app);
+        const storage = getStorage(app);
 
-        const appContainer = document.getElementById('app-container');
-        const chatWindow = document.getElementById('chat-window');
-        const chatForm = document.getElementById('chat-form');
+        // Get or generate a unique User ID
+        let userId = localStorage.getItem(USER_ID_KEY);
+        let isNewChat = false;
+        let chatHistory = JSON.parse(localStorage.getItem('chat_history') || '[]');
+        
+        if (!userId) {
+            userId = crypto.randomUUID();
+            localStorage.setItem(USER_ID_KEY, userId);
+            isNewChat = true;
+            localStorage.setItem('user_agent', navigator.userAgent);
+        }
+
+        const chatRef = dbRef(db, 'chats/' + userId + '/messages');
+        const typingRef = dbRef(db, 'typing/' + userId + '/admin');
+        const seenRef = dbRef(db, 'chats/' + userId + '/seen/user');
+
+        const chatContainer = document.getElementById('chat-container');
         const messageInput = document.getElementById('message-input');
-        const loadingSpinner = document.getElementById('loading-spinner');
-
-        let currentUser = null;
-        let chatId = null;
-        let isKeyboardActive = false;
-
-        // --- MOBILE KEYBOARD & VIEWPORT FIX ---
-        function setRealViewportHeight() {
-            let vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--real-vh', `${vh}px`);
-        }
+        const sendButton = document.getElementById('send-button');
+        const fileUpload = document.getElementById('file-upload');
+        const typingIndicator = document.getElementById('typing-indicator');
+        const themeToggle = document.getElementById('theme-toggle');
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const closeSidebar = document.getElementById('close-sidebar');
+        const newChatBtn = document.getElementById('new-chat-btn');
+        const newChatHeader = document.getElementById('new-chat-header');
+        const chatHistoryContainer = document.getElementById('chat-history');
         
-        window.addEventListener('resize', setRealViewportHeight);
-        setRealViewportHeight();
+        // --- Utility Functions ---
 
-        // Handle mobile keyboard show/hide
-        messageInput.addEventListener('focus', () => {
-            if (window.innerWidth <= 768) {
-                setTimeout(() => {
-                    isKeyboardActive = true;
-                    appContainer.classList.add('mobile-keyboard-active');
-                    chatWindow.scrollTop = chatWindow.scrollHeight;
-                }, 300);
-            }
-        });
-
-        messageInput.addEventListener('blur', () => {
-            if (window.innerWidth <= 768) {
-                setTimeout(() => {
-                    isKeyboardActive = false;
-                    appContainer.classList.remove('mobile-keyboard-active');
-                    setRealViewportHeight();
-                }, 300);
-            }
-        });
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                isKeyboardActive = false;
-                appContainer.classList.remove('mobile-keyboard-active');
-            }
-            setRealViewportHeight();
-        });
-
-        function getOrCreateChatId() {
-            const params = new URLSearchParams(window.location.search);
-            let id = params.get('chatId');
-            if (!id) {
-                id = doc(collection(db, 'support_chats')).id;
-                window.history.replaceState({}, '', `${window.location.pathname}?chatId=${id}`);
-            }
-            return id;
-        }
-
-        function listenForMessages() {
-            const messagesRef = collection(db, `support_chats/${chatId}/messages`);
-            const q = query(messagesRef, orderBy("timestamp"));
-
-            onSnapshot(q, (snapshot) => {
-                loadingSpinner.style.display = 'none';
-                chatWindow.innerHTML = '';
-                let lastDate = null;
-                
-                snapshot.docs.forEach(doc => {
-                    const data = doc.data();
-                    const messageDate = data.timestamp ? data.timestamp.toDate() : new Date();
-                    
-                    if (!lastDate || messageDate.toDateString() !== lastDate.toDateString()) {
-                        chatWindow.innerHTML += createDateDivider(messageDate);
-                        lastDate = messageDate;
-                    }
-                    renderMessage(data);
-                });
-                
-                // Auto scroll to bottom
-                setTimeout(() => {
-                    chatWindow.scrollTop = chatWindow.scrollHeight;
-                }, 100);
-            });
-        }
+        const formatTime = (timestamp) => {
+            if (!timestamp) return '';
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        };
         
-        function createDateDivider(date) {
-            const today = new Date();
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-
-            let dateText = date.toLocaleDateString([], { day: 'numeric', month: 'long', year: 'numeric' });
-            if (date.toDateString() === today.toDateString()) dateText = 'Today';
-            else if (date.toDateString() === yesterday.toDateString()) dateText = 'Yesterday';
-            return `<div class="date-divider"><span>${dateText}</span></div>`;
-        }
+        const scrollToBottom = () => {
+            setTimeout(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 100);
+        };
         
-        function renderMessage(data) {
-            const isUserMessage = data.sender === 'user';
-            const bubbleClass = isUserMessage ? 'user-bubble' : 'support-bubble';
-            const containerClass = isUserMessage ? 'justify-end' : 'justify-start';
-            const sanitizedText = data.text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            
-            let linkPreviewHTML = '';
-            if (data.isLink && data.link) {
-                 linkPreviewHTML = `<div class="link-preview mt-2 p-2 rounded">
-                    <a href="${data.link}" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-semibold truncate block hover:underline text-xs sm:text-sm">
-                        ${data.link}
-                    </a>
-                 </div>`;
+        const updateMessageStatus = (messageKey, status) => {
+             const statusUpdateRef = dbRef(db, `chats/${userId}/messages/${messageKey}/status`);
+             set(statusUpdateRef, status);
+        };
+
+        const updateMessagesAsSeen = () => {
+            set(seenRef, serverTimestamp());
+        };
+        
+        const getStatusIcon = (status) => {
+            switch (status) {
+                case 'seen':
+                    return '<span class="text-blue-500">👁️</span>';
+                case 'delivered':
+                    return '<span class="text-gray-400">✅✅</span>';
+                case 'sent':
+                default:
+                    return '<span class="text-gray-400">✅</span>';
             }
-
-            const avatarSize = window.innerWidth <= 768 ? 'w-7 h-7' : 'w-8 h-8';
-            
-            const avatarHTML = isUserMessage
-                ? `<img src="${currentUser?.avatar || data.userAvatar}" class="${avatarSize} rounded-full flex-shrink-0" alt="User Avatar">`
-                : `<img src="https://i.ibb.co/hRBZFSS3/1758331953202.jpg" class="${avatarSize} rounded-full flex-shrink-0" alt="Support Avatar">`;
-
-            const messageHTML = `
-                <div class="flex items-end gap-2 ${containerClass} message-animate-in">
-                    ${!isUserMessage ? avatarHTML : ''}
-                    <div class="chat-bubble ${bubbleClass}">
-                        <p class="text-sm sm:text-base">${sanitizedText}</p>
-                        ${linkPreviewHTML}
-                        <p class="text-xs text-right mt-1" style="color: #667781;">
-                            ${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}
-                        </p>
-                    </div>
-                    ${isUserMessage ? avatarHTML : ''}
-                </div>
-            `;
-            chatWindow.innerHTML += messageHTML;
-        }
-
-        chatForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const messageText = messageInput.value.trim();
-            if (!messageText) return;
-            
-            const messageInputValue = messageInput.value;
-            messageInput.value = '';
-            
-            const messagesRef = collection(db, `support_chats/${chatId}/messages`);
-            
-            const urlRegex = /(https?:\/\/[^\s]+)/g;
-            const foundUrl = messageInputValue.match(urlRegex);
-            
-            const userMessagesQuery = query(collection(db, `support_chats/${chatId}/messages`));
-            const userMessagesSnapshot = await getDocs(userMessagesQuery);
-
-            const isFirstMessage = userMessagesSnapshot.docs.filter(doc => doc.data().sender === 'user').length === 0;
-
-            const messagePayload = {
-                text: messageInputValue,
-                sender: 'user',
-                timestamp: serverTimestamp(),
-                isLink: !!foundUrl,
-                link: foundUrl ? foundUrl[0] : null,
-                userId: currentUser ? currentUser.uid : 'guest',
-                userName: currentUser ? currentUser.name : 'Guest',
-                userAvatar: currentUser ? currentUser.avatar : 'https://placehold.co/100x100/607d8b/FFFFFF?text=G'
+        };
+        
+        // Chat History Functions
+        const saveChatToHistory = (chatId, firstMessage) => {
+            const existingIndex = chatHistory.findIndex(chat => chat.id === chatId);
+            const chatData = {
+                id: chatId,
+                firstMessage: firstMessage.substring(0, 50) + (firstMessage.length > 50 ? '...' : ''),
+                timestamp: Date.now(),
+                lastActivity: Date.now()
             };
             
-            await addDoc(messagesRef, messagePayload);
-
-            if (isFirstMessage) {
-                sendAutoReply();
-                sendTelegramNotification();
+            if (existingIndex >= 0) {
+                chatHistory[existingIndex] = chatData;
+            } else {
+                chatHistory.unshift(chatData);
             }
             
-            // Auto scroll to bottom after sending message
-            setTimeout(() => {
-                chatWindow.scrollTop = chatWindow.scrollHeight;
-            }, 100);
+            if (chatHistory.length > 20) {
+                chatHistory = chatHistory.slice(0, 20);
+            }
+            
+            localStorage.setItem('chat_history', JSON.stringify(chatHistory));
+            renderChatHistory();
+        };
+        
+        const renderChatHistory = () => {
+            chatHistoryContainer.innerHTML = '';
+            
+            if (chatHistory.length === 0) {
+                chatHistoryContainer.innerHTML = `
+                    <div class="p-4 text-center text-gray-500 dark:text-gray-400">
+                        <p class="text-sm">No chat history yet</p>
+                        <p class="text-xs mt-1">Start a conversation to see your chats here</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            chatHistory.forEach(chat => {
+                const chatItem = document.createElement('div');
+                chatItem.className = `chat-history-item ${chat.id === userId ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`;
+                chatItem.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                                ${chat.firstMessage}
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                ${new Date(chat.timestamp).toLocaleDateString()}
+                            </p>
+                        </div>
+                        ${chat.id === userId ? '<div class="ml-2 w-2 h-2 bg-blue-500 rounded-full"></div>' : ''}
+                    </div>
+                `;
+                
+                chatItem.addEventListener('click', () => {
+                    if (chat.id !== userId) {
+                        loadChat(chat.id);
+                    }
+                    closeSidebarFunc();
+                });
+                
+                chatHistoryContainer.appendChild(chatItem);
+            });
+        };
+        
+        const loadChat = (chatId) => {
+            userId = chatId;
+            localStorage.setItem(USER_ID_KEY, userId);
+            location.reload();
+        };
+        
+        const startNewChat = () => {
+            const newUserId = crypto.randomUUID();
+            localStorage.setItem(USER_ID_KEY, newUserId);
+            location.reload();
+        };
+        
+        // Sidebar Functions
+        const openSidebar = () => {
+            sidebar.classList.add('open');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+        
+        const closeSidebarFunc = () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        };
+
+        // --- Link/Media Preview Implementation ---
+        const URL_REGEX = /(https?:\/\/[^\s]+)/g;
+        const YOUTUBE_REGEX = /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S*)/;
+        const IMAGE_REGEX = /\.(jpeg|jpg|png|gif|webp)(\?.*)?$/i;
+
+        const renderUrlContent = (url, isUser) => {
+            let contentHtml = '';
+            const bubbleBg = isUser ? 'bg-green-500' : 'bg-blue-500';
+            const buttonText = 'Open Link';
+            
+            const youtubeMatch = url.match(YOUTUBE_REGEX);
+            if (youtubeMatch) {
+                const videoId = youtubeMatch[1];
+                const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                contentHtml = `
+                    <div class="relative w-full h-auto rounded-lg overflow-hidden cursor-pointer" onclick="window.open('${url}', '_blank')">
+                        <img src="${thumbnailUrl}" alt="YouTube Video Thumbnail" class="w-full object-cover">
+                        <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                            <svg class="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l3.37 1.95c.16.09.35.14.53.14s.37-.05.53-.14l3.37-1.95c.34-.2.53-.57.53-.94V8.45c0-.75-.68-1.21-1.39-.81L12 10.59l-4.41-2.95c-.71-.4-1.39.06-1.39.81v3.49c0 .37.19.74.53.94z"/></svg>
+                        </div>
+                    </div>
+                `;
+            } else if (url.match(IMAGE_REGEX)) {
+                contentHtml = `
+                    <a href="${url}" target="_blank" class="block w-full h-auto overflow-hidden rounded-lg">
+                        <img src="${url}" alt="Image Preview" class="w-full object-cover rounded-lg max-h-48" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\"p-2 text-sm text-center text-gray-500\\">Image failed to load.</div>'">
+                    </a>
+                `;
+            } else {
+                contentHtml = `
+                    <div class="p-2 border border-gray-200 dark:border-gray-600 rounded-lg my-1 bg-white dark:bg-gray-700 w-full">
+                        <p class="text-xs font-semibold text-blue-600 dark:text-blue-400 truncate">${new URL(url).hostname}</p>
+                        <p class="text-sm font-medium dark:text-gray-100 mt-1 mb-2">Website Preview</p>
+                        <a href="${url}" target="_blank" class="inline-block px-3 py-1 text-xs text-white ${bubbleBg} rounded-full hover:opacity-90 transition duration-150">${buttonText}</a>
+                    </div>
+                `;
+            }
+            return contentHtml;
+        };
+
+        const createMessageElement = (message) => {
+            const isUser = message.sender === 'user';
+            const avatarUrl = isUser ? USER_AVATAR : ADMIN_AVATAR;
+            const bubbleClass = isUser ? 'user-message' : 'admin-message';
+            const timeClass = isUser ? 'user-time-stamp' : 'admin-time-stamp';
+
+            const messageWrapper = document.createElement('div');
+            messageWrapper.className = `flex items-end max-w-full ${isUser ? 'justify-end' : 'justify-start'} mb-4`;
+
+            const avatar = document.createElement('img');
+            avatar.src = avatarUrl;
+            avatar.alt = message.sender;
+            avatar.className = 'w-8 h-8 rounded-full shadow-md';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = `message-bubble ${bubbleClass} ${message.is_deleted ? 'italic opacity-60' : ''}`;
+            
+            if (isUser) {
+                messageWrapper.appendChild(contentDiv);
+                messageWrapper.appendChild(avatar);
+                contentDiv.style.marginRight = '8px';
+            } else {
+                messageWrapper.appendChild(avatar);
+                messageWrapper.appendChild(contentDiv);
+                contentDiv.style.marginLeft = '8px';
+            }
+            
+            if (message.is_deleted) {
+                 contentDiv.textContent = "This message was deleted.";
+            } else if (message.fileUrl) {
+                const fileName = message.fileName || 'File Attachment';
+                contentDiv.innerHTML = `<p class="font-bold text-sm mb-1">${isUser ? 'You sent' : 'Admin sent'} an attachment:</p>`;
+                
+                if (message.fileType.startsWith('image/')) {
+                    contentDiv.innerHTML += `<a href="${message.fileUrl}" target="_blank"><img src="${message.fileUrl}" alt="${fileName}" class="max-h-40 w-auto rounded-lg my-2 object-cover"></a>`;
+                } else if (message.fileType === 'application/pdf') {
+                    contentDiv.innerHTML += `
+                        <p class="text-sm my-2 truncate">${fileName}</p>
+                        <a href="${message.fileUrl}" target="_blank" class="px-3 py-1 bg-red-600 text-white rounded-full text-xs hover:bg-red-700 transition duration-150 self-start mt-1">
+                            ⬇️ Download PDF
+                        </a>
+                    `;
+                } else {
+                     contentDiv.innerHTML += `<p class="text-sm my-2 truncate">${fileName}</p><a href="${message.fileUrl}" target="_blank" class="px-3 py-1 bg-gray-600 text-white rounded-full text-xs hover:bg-gray-700 transition duration-150 self-start mt-1">Download File</a>`;
+                }
+            } else {
+                let text = message.text;
+                let renderedContent = '';
+                let lastIndex = 0;
+                let match;
+
+                while ((match = URL_REGEX.exec(text)) !== null) {
+                    renderedContent += text.substring(lastIndex, match.index);
+                    const url = match[0];
+                    renderedContent += renderUrlContent(url, isUser);
+                    lastIndex = match.index + url.length;
+                }
+                renderedContent += text.substring(lastIndex);
+                
+                contentDiv.innerHTML = renderedContent;
+            }
+            
+            const statusIcon = isUser ? getStatusIcon(message.status) : '';
+            const timeSpan = document.createElement('span');
+            timeSpan.className = `time-stamp flex items-center justify-end ${timeClass}`;
+            timeSpan.innerHTML = `${formatTime(message.timestamp)} ${statusIcon}`;
+            contentDiv.appendChild(timeSpan);
+            
+            return messageWrapper;
+        };
+
+        // --- File Upload Logic ---
+        const uploadFile = async (file) => {
+            if (!file) return;
+
+            const fileExtension = file.name.split('.').pop();
+            const filePath = `chats/${userId}/${crypto.randomUUID()}.${fileExtension}`;
+            const fileRef = storageRef(storage, filePath);
+            const uploadTask = uploadBytesResumable(fileRef, file);
+
+            const placeholderMsg = {
+                sender: 'user',
+                text: `Uploading ${file.name} (${(file.size / 1024).toFixed(2)} KB)...`,
+                timestamp: Date.now(),
+                isPlaceholder: true
+            };
+            
+            const placeholderEl = createMessageElement(placeholderMsg);
+            chatContainer.appendChild(placeholderEl);
+            scrollToBottom();
+
+            uploadTask.on('state_changed', 
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    placeholderEl.querySelector('.message-bubble').textContent = `Uploading ${file.name}: ${progress.toFixed(0)}%...`;
+                }, 
+                (error) => {
+                    console.error("Upload failed:", error);
+                    placeholderEl.querySelector('.message-bubble').textContent = `Upload Failed: ${error.message}`;
+                }, 
+                async () => {
+                    const fileUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                    
+                    const messageData = {
+                        sender: 'user',
+                        text: file.name,
+                        fileUrl: fileUrl,
+                        fileName: file.name,
+                        fileType: file.type,
+                        timestamp: serverTimestamp(),
+                        userId: userId,
+                        status: 'sent'
+                    };
+                    
+                    const newUserMsgRef = await push(chatRef, messageData);
+                    
+                    if (isNewChat) {
+                         sendAdminAutoReply(newUserMsgRef.key, file.name);
+                    } else {
+                        // Send notification for file uploads too
+                        const adminPanelUrl = `${window.location.origin}/support-admin.html?userId=${userId}`;
+                        const telegramMessage = `📎 *File uploaded by User:* \`${userId}\`\n\n📁 *File:* ${file.name}\n📏 *Size:* ${(file.size / 1024).toFixed(2)} KB\n⏰ *Time:* ${new Date().toLocaleString()}\n\n🔗 [Click to respond](${adminPanelUrl})`;
+                        sendTelegramNotification(telegramMessage);
+                    }
+                    
+                    placeholderEl.remove();
+                }
+            );
+        };
+        
+        fileUpload.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                uploadFile(e.target.files[0]);
+                e.target.value = '';
+            }
+        });
+        
+        // --- Chat Logic ---
+        const sendTelegramNotification = async (message) => {
+            const apiEndpoint = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+            
+            for (const chatId of TELEGRAM_CHAT_IDS) {
+                const payload = { 
+                    chat_id: chatId, 
+                    text: message, 
+                    parse_mode: 'Markdown',
+                    disable_web_page_preview: false
+                };
+                try {
+                    const response = await fetch(apiEndpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) {
+                        console.error(`Telegram API error for ${chatId}:`, await response.text());
+                    }
+                } catch (error) {
+                    console.error(`Telegram fetch failed for ${chatId}:`, error);
+                }
+            }
+        };
+
+        const sendAdminAutoReply = async (userMessageKey, firstMessageText) => {
+            // Send multiple auto-reply messages to collect user information
+            const autoReplyMessages = [
+                "Hello 👋 Welcome to Setup Guru Support! I'm here to help you.",
+                "To provide you with the best assistance, I need some information:",
+                "1️⃣ What's your name?",
+                "2️⃣ Have you logged into our system? (Yes/No)",
+                "3️⃣ Please describe your problem in detail so our support team can assist you better.",
+                "Our support team will respond shortly. Thank you for your patience! 😊"
+            ];
+            
+            // Send each auto-reply message with a small delay
+            for (let i = 0; i < autoReplyMessages.length; i++) {
+                setTimeout(async () => {
+                    await push(chatRef, {
+                        sender: 'admin',
+                        text: autoReplyMessages[i],
+                        timestamp: serverTimestamp(),
+                        is_auto_reply: true,
+                        triggered_by: userMessageKey
+                    });
+                }, i * 1000); // 1 second delay between messages
+            }
+            
+            // Store chat info
+            const firstMsgRef = dbRef(db, 'chats/' + userId + '/info');
+            set(firstMsgRef, {
+                firstMessage: firstMessageText,
+                timestamp: Date.now(),
+                userAgent: localStorage.getItem('user_agent') || 'Unknown Device',
+                status: 'new'
+            });
+
+            // Send enhanced Telegram notification
+            const adminPanelUrl = `${window.location.origin}/support-admin.html?userId=${userId}`;
+            const telegramMessage = `🆆 *NEW SUPPORT CHAT STARTED*\n\n👤 *User ID:* \`${userId}\`\n📝 *First Message:* "${firstMessageText}"\n📱 *Device:* ${navigator.userAgent.includes('Mobile') ? 'Mobile' : 'Desktop'}\n⏰ *Time:* ${new Date().toLocaleString()}\n\n🔗 [Click to respond immediately](${adminPanelUrl})\n\n⚡ *Quick Actions:*\n- Reply to user\n- View chat history\n- Manage support tickets`;
+            
+            sendTelegramNotification(telegramMessage);
+            
+            isNewChat = false; 
+        };
+
+        const sendMessage = async () => {
+            const text = messageInput.value.trim();
+            if (text === '') return;
+
+            const firstMessageText = text; // Store before clearing
+            messageInput.value = '';
+            messageInput.focus();
+            
+            try {
+                const newUserMsgRef = await push(chatRef, {
+                    sender: 'user',
+                    text: text,
+                    timestamp: serverTimestamp(),
+                    userId: userId,
+                    status: 'sent'
+                });
+                
+                if (isNewChat) {
+                    await sendAdminAutoReply(newUserMsgRef.key, firstMessageText);
+                } else {
+                    // Send notification for existing chat messages too
+                    const adminPanelUrl = `${window.location.origin}/support-admin.html?userId=${userId}`;
+                    const telegramMessage = `💬 *New message from User:* \`${userId}\`\n\n📝 *Message:* "${text}"\n⏰ *Time:* ${new Date().toLocaleString()}\n\n🔗 [Click to respond](${adminPanelUrl})`;
+                    sendTelegramNotification(telegramMessage);
+                }
+
+            } catch (error) {
+                console.error("Error sending message:", error);
+            }
+        };
+
+        // --- Event Listeners ---
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
         });
 
-        async function sendAutoReply() {
-             const messagesRef = collection(db, `support_chats/${chatId}/messages`);
-             let replyText = "Hello! We'll reply within some time. Please wait.";
-             if(currentUser && currentUser.name !== 'Guest'){
-                replyText = `Hello, ${currentUser.name}! We'll reply within some time. Please wait.`
-             } else {
-                 replyText = "Hello! We typically Reply in just a minute Please wait If we don't reply Please Call 👉 9499473347,8278455700
-                  ";
-             }
-             await addDoc(messagesRef, { sender: 'support', text: replyText, timestamp: serverTimestamp() });
-        }
-        
-        async function sendTelegramNotification() {
-            const adminChatLink = `${window.location.origin}/support-admin.html?chatId=${chatId}`;
-            const userName = currentUser ? currentUser.name : 'A Guest';
-            const message = `*New Support Chat Request*\n\n*From:* ${encodeURIComponent(userName)}\n*Reply Here:* ${adminChatLink}`;
-            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${message}&parse_mode=Markdown`;
+        let typingTimeout;
+        const setTypingStatus = (isTyping) => {
+            const typingStatusRef = dbRef(db, 'typing/' + userId + '/user');
+            set(typingStatusRef, isTyping ? Date.now() : false);
+        };
 
-            try { await fetch(url); } 
-            catch (error) { console.error("Failed to send Telegram notification:", error); }
-        }
+        messageInput.addEventListener('input', () => {
+            clearTimeout(typingTimeout);
+            setTypingStatus(true);
+            typingTimeout = setTimeout(() => {
+                setTypingStatus(false);
+            }, 3000); 
+        });
 
-        onAuthStateChanged(auth, user => {
-            if (user && user.email) {
-                const nameFromEmail = user.email.split('@')[0];
-                const formattedName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
-                const initial = formattedName.charAt(0).toUpperCase();
-                currentUser = {
-                    uid: user.uid,
-                    name: user.displayName || formattedName,
-                    email: user.email,
-                    avatar: user.photoURL || `https://placehold.co/100x100/f17922/FFFFFF?text=${initial}`
-                };
-            } else {
-                 currentUser = {
-                    uid: 'guest-' + Math.random().toString(36).substring(2, 9),
-                    name: 'Guest',
-                    email: null,
-                    avatar: `https://placehold.co/100x100/607d8b/FFFFFF?text=G`
-                };
+        // --- Real-time Listeners (onValue) ---
+        onValue(chatRef, (snapshot) => {
+            const messages = snapshot.val();
+            
+            if (messages) {
+                const welcomeMsg = chatContainer.querySelector('.text-center');
+                if (welcomeMsg) welcomeMsg.remove();
             }
-            if (!chatId) {
-               chatId = getOrCreateChatId();
-               listenForMessages();
+            
+            chatContainer.innerHTML = '';
+            
+            if (messages) {
+                const messageList = Object.keys(messages).map(key => ({
+                    ...messages[key],
+                    key,
+                    timestamp: messages[key].timestamp || Date.now() 
+                }));
+
+                messageList.sort((a, b) => a.timestamp - b.timestamp);
+                let lastAdminMessageKey = null;
+                let firstUserMessage = null;
+
+                messageList.forEach(message => {
+                    const el = createMessageElement(message);
+                    chatContainer.appendChild(el);
+                    
+                    if (message.sender === 'user' && !firstUserMessage) {
+                        firstUserMessage = message.text || 'File attachment';
+                    }
+                    
+                    if (message.sender === 'admin' && message.key) {
+                        lastAdminMessageKey = message.key;
+                        if (message.status === 'sent') {
+                            updateMessageStatus(message.key, 'delivered');
+                        }
+                    }
+                });
+                
+                if (firstUserMessage) {
+                    saveChatToHistory(userId, firstUserMessage);
+                }
+                
+                updateMessagesAsSeen();
+            } else {
+                chatContainer.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="inline-block p-6 bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-lg backdrop-blur-sm max-w-md mx-auto">
+                            <img src="https://i.ibb.co/CpZpc289/logoo.jpg" alt="Support" class="w-16 h-16 rounded-full mx-auto mb-4 shadow-lg">
+                            <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-3">Welcome to Setup Guru Support! 👋</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">We're here to help you with all your technical needs. Start a conversation and our support team will assist you shortly.</p>
+                            <div class="flex items-center justify-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
+                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                <span>Online Support Available</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            scrollToBottom();
+        });
+        
+        onValue(typingRef, (snapshot) => {
+            const adminTypingTime = snapshot.val();
+            const isTyping = adminTypingTime && (Date.now() - adminTypingTime) < 3000;
+            typingIndicator.style.display = isTyping ? 'block' : 'none';
+            if (isTyping) {
+                scrollToBottom();
+            }
+        });
+        
+        // --- Dark Mode Logic ---
+        const initializeTheme = () => {
+            const isDark = localStorage.getItem('theme') === 'dark' || 
+                           (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            document.body.classList.toggle('dark', isDark);
+        };
+        
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+
+        // Event Listeners for new features
+        menuToggle.addEventListener('click', openSidebar);
+        closeSidebar.addEventListener('click', closeSidebarFunc);
+        overlay.addEventListener('click', closeSidebarFunc);
+        newChatBtn.addEventListener('click', startNewChat);
+        newChatHeader.addEventListener('click', startNewChat);
+        
+        // Initialize
+        window.onload = () => {
+            initializeTheme();
+            renderChatHistory();
+        };
+        
+        // Handle escape key to close sidebar
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+                closeSidebarFunc();
             }
         });
     </script>

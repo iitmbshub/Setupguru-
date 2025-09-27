@@ -3,211 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Login | SetupGuru.shop</title>
+    <meta name="description" content="Secure and professional login to the SetupGuru.shop dashboard.">
     
-    <title>Login | SetupGuru.shop</title>
-    <meta name="description" content="Login to SetupGuru.shop - Your trusted setup and electronics shop with easy shopping, secure checkout, and instant notifications.">
-    <meta name="keywords" content="SetupGuru.shop login, SetupGuru, e-commerce login, shopping login, electronics shop login">
-    <meta name="author" content="SetupGuru.shop Team">
-
-    <link rel="icon" href="https://i.ibb.co/hRBZFSS3/1758331953202.jpg" type="image/x-icon">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Tailwind CSS configuration
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-dark': '#332766',
+                        'accent-gold': '#C0A04C',
+                        'text-primary': '#1f2937',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'premium': '0 15px 40px rgba(0, 0, 0, 0.5)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
+        /* Define the professional color palette based on the logo */
         :root {
-            --primary-color: #2E1A5F; 
-            --secondary-color: #C49B46;
-            --background-color: #f4f7fc;
-            --text-color: #333;
-            --error-color: #e74c3c;
-            --success-color: #2ecc71;
+            --primary-dark: #332766; /* Deep Indigo/Navy from Logo - Now the background */
+            --accent-gold: #C0A04C; /* Muted Gold/Ochre from Logo */
+            --bg-dark: #211942; /* Slightly darker shade of primary-dark for contrast */
+            --bg-card: #ffffff; /* Card remains white for maximum pop/readability */
+            --bg-shadow: rgba(0, 0, 0, 0.5); /* Darker shadow for depth */
+            --grid-color: rgba(255, 255, 255, 0.08); /* Light grid on dark background */
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        html, body { height: 100%; }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
+        /* Tailwind configuration moved to script section */
+        
+        /* Professional Dark Background & Grid Pattern */
+        .professional-bg {
+            background-color: var(--bg-dark); /* Dark base color */
+            /* Subtle grid pattern using the white grid color */
+            background-image: linear-gradient(0deg, transparent 24%, var(--grid-color) 25%, var(--grid-color) 26%, transparent 27%, transparent 74%, var(--grid-color) 75%, var(--grid-color) 76%, transparent 77%),
+                              linear-gradient(90deg, transparent 24%, var(--grid-color) 25%, var(--grid-color) 26%, transparent 27%, transparent 74%, var(--grid-color) 75%, var(--grid-color) 76%, transparent 77%);
+            background-size: 50px 50px; 
+            position: relative;
             overflow: hidden;
         }
-        
-        .main-container { display: flex; width: 100vw; height: 100vh; }
-        
-        .branding-panel {
-            width: 45%;
-            background: linear-gradient(-45deg, #2E1A5F, #4B0082, #8A2BE2, #C49B46);
-            background-size: 400% 400%;
-            animation: gradient-animation 15s ease infinite;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: white;
-            padding: 40px;
-        }
 
-        @keyframes gradient-animation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .branding-panel .logo {
-            width: 120px; height: 120px; border-radius: 50%;
-            border: 4px solid rgba(255, 255, 255, 0.8); margin-bottom: 20px;
-            animation: fadeInDown 1s ease-out;
-        }
-        .branding-panel h1 {
-            font-size: 3rem; font-weight: 700;
-            text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
-            animation: fadeIn 1.5s ease-out;
-        }
-        .branding-panel p {
-            font-size: 1.1rem; margin-top: 10px; max-width: 400px; line-height: 1.6;
-            animation: fadeInUp 1s 0.5s ease-out backwards;
-        }
-        
-        .form-panel {
-            width: 55%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            padding: 40px;
-            background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); /* Subtle background texture */
-            overflow-y: auto;
-        }
-
+        /* Login Card - Remains White for High Contrast */
         .login-card {
-            width: 100%; max-width: 420px;
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            padding: 40px; border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            background: var(--bg-card); 
+            border: 1px solid #e5e7eb; 
         }
-        
-        .form-item { animation: slideUp 0.6s ease-out forwards; opacity: 0; transform: translateY(20px); }
-        .form-item:nth-child(1) { animation-delay: 0.2s; } 
-        .form-item:nth-child(2) { animation-delay: 0.3s; } 
-        .form-item:nth-child(3) { animation-delay: 0.4s; } 
-        .form-item:nth-child(4) { animation-delay: 0.5s; }
-        .form-item:nth-child(5) { animation-delay: 0.6s; } 
-        /* Adjusted animation delay for remaining items */
-        .form-item:nth-child(6) { animation-delay: 0.7s; } 
-        
-        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
-        
-        .login-card h2 { font-size: 28px; font-weight: 700; color: var(--primary-color); margin-bottom: 8px; text-align: center; }
-        .login-card .subtitle { font-size: 14px; color: #555; margin-bottom: 35px; text-align: center; }
-        
-        .input-group { position: relative; margin-bottom: 25px; }
-        .input-icon { position: absolute; top: 50%; transform: translateY(-50%); left: 15px; color: #aaa; }
-        .form-control {
-            width: 100%; padding: 14px 15px 14px 50px; font-size: 16px;
-            border: 1px solid #ddd; border-radius: 10px; background-color: rgba(255,255,255,0.5);
+
+        /* Input Focus Animation */
+        .input-group:focus-within .form-control {
+            border-color: var(--accent-gold) !important;
+            box-shadow: 0 0 0 4px rgba(192, 160, 76, 0.15); 
+        }
+
+        /* Button Styling for Proceed to Dashboard (Gold Background, Navy Text) */
+        .btn-primary-gold {
+            background-color: var(--accent-gold);
+            color: var(--primary-dark);
+            font-weight: 700;
             transition: all 0.3s ease;
         }
-        .form-control:focus {
-            outline: none; border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(46, 26, 95, 0.1);
+
+        /* Custom Hover Effect for Primary Button (Darker Gold and White Text on Hover) */
+        .btn-primary-gold:hover {
+            background-color: #a38840; 
+            color: white; 
+            box-shadow: 0 8px 30px rgba(163, 136, 64, 0.6); /* Increased shadow for depth */
+            transform: translateY(-2px);
         }
-        .password-toggle {
-            position: absolute; top: 50%; transform: translateY(-50%); right: 15px;
-            cursor: pointer; color: #aaa;
+        
+        /* Button Ripple Effect */
+        .btn-ripple {
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
         }
-        .validation-message { color: var(--error-color); font-size: 12px; margin-top: 5px; display: none; }
-
-        .btn {
-            width: 100%; padding: 14px; font-size: 16px; font-weight: 600; border: none; border-radius: 10px;
-            cursor: pointer; transition: all 0.3s ease; display: flex; justify-content: center; align-items: center; gap: 10px;
+        .btn-ripple:active {
+             transform: scale(0.98);
         }
-        .btn:active { transform: scale(0.98); }
-        .btn-primary { background: var(--primary-color); color: white; box-shadow: 0 4px 15px rgba(46, 26, 95, 0.3); }
-        .btn-primary:hover { background: var(--secondary-color); color: var(--primary-color); transform: translateY(-3px); box-shadow: 0 7px 20px rgba(196, 155, 70, 0.4); }
 
-        .signup-link { text-align: center; font-size: 14px; margin-top: 25px; }
-        .signup-link a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
-        .signup-link a:hover { text-decoration: underline; color: var(--secondary-color); }
+        /* Toast positioning */
+        #toast {
+            position: fixed; top: 20px; right: 20px; z-index: 50; transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); transform: translateX(120%);
+        }
+        #toast.show {
+            transform: translateX(0);
+        }
+        
+        /* Loader color based on Primary Dark for contrast on Gold button */
+        #loader {
+            border: 2px solid rgba(51, 39, 102, 0.3) !important;
+            border-top-color: var(--primary-dark) !important;
+        }
+        
+        /* Footer text color adjustment for dark background */
+        .footer-text {
+            color: #ccc; /* Lighter text for dark background */
+        }
 
-        .footer { margin-top: auto; padding-top: 30px; color: #888; font-size: 12px; text-align: center; }
-
-        .loader { width: 18px; height: 18px; border: 2px solid #FFF; border-bottom-color: transparent; border-radius: 50%; display: none; animation: rotation 1s linear infinite; }
-        @keyframes rotation { 100% { transform: rotate(360deg); } }
-
-        #toast { position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: 8px; color: white; font-weight: 600; background: #333; box-shadow: 0 5px 15px rgba(0,0,0,0.2); visibility: hidden; opacity: 0; transform: translateX(100%); transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); z-index: 1000; }
-        #toast.show { visibility: visible; opacity: 1; transform: translateX(0); }
-        #toast.success { background-color: var(--success-color); }
-        #toast.error { background-color: var(--error-color); }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        @media (max-width: 992px) {
-            .branding-panel { display: none; }
-            .form-panel { width: 100%; justify-content: flex-start; padding: 20px; background-image: none; background-color: var(--background-color); }
-            .login-card { box-shadow: none; padding: 20px; max-width: 100%; backdrop-filter: none; background: transparent; }
-            .footer { padding: 30px 0; }
-            body, html { overflow-y: auto; height: auto; }
+        /* Responsive adjustments for mobile */
+        @media (max-width: 640px) {
+            .login-card {
+                padding: 1.5rem;
+                box-shadow: none;
+            }
         }
     </style>
 </head>
-<body>
+<body class="h-screen flex items-center justify-center professional-bg">
 
-    <div class="main-container">
-        <div class="branding-panel">
-            <img src="https://i.ibb.co/hRBZFSS3/1758331953202.jpg" alt="SetupGuru.shop Logo" class="logo">
-            <h1>SetupGuru.shop</h1>
-            <p>Your Perfect Setup Awaits. Login to access exclusive deals, track orders, and curate your dream workspace.</p>
-        </div>
+    <div class="z-10 w-full max-w-sm md:max-w-md p-4 sm:p-6">
         
-        <div class="form-panel">
-            <div class="login-card">
-                <div class="form-item"><h2>Welcome Back 👋</h2></div>
-                <div class="form-item"><p class="subtitle">Enter your credentials to access your account.</p></div>
-                
-                <form id="loginForm" novalidate>
-                    <div class="input-group form-item">
-                        <span class="input-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555ZM0 4.697v7.104l5.803-3.558L0 4.697ZM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757Zm3.436-.586L16 11.801V4.697l-5.803 3.546Z"/></svg></span>
-                        <input type="email" id="email" class="form-control" placeholder="Email Address" required aria-label="Email Address">
-                        <div id="email-validation" class="validation-message">Please enter a valid email.</div>
+        <div class="login-card p-8 sm:p-10 rounded-2xl shadow-premium transition-all duration-500">
+            <header class="text-center mb-10">
+                <div class="flex justify-center mb-6">
+                    <img src="https://i.ibb.co/CpZpc289/logoo.jpg" alt="SetupGuru.shop Logo" class="w-20 h-20 shadow-lg object-contain p-1 rounded-xl bg-white" />
+                </div>
+                <h2 class="text-4xl font-extrabold text-primary-dark tracking-tight">ACCESS YOUR SETUP GURU</h2>
+                <p class="text-gray-500 text-sm mt-1">Authenticate securely to manage your orders and settings.</p>
+            </header>
+            
+            <form id="loginForm" novalidate>
+                <div class="input-group mb-5">
+                    <label for="email" class="sr-only">Email Address</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
+                           <i data-lucide="mail" class="w-5 h-5"></i>
+                        </div>
+                        <input type="email" id="email" class="form-control w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-0 transition-all duration-300 placeholder-gray-400 text-text-primary" placeholder="Professional Email Address" required aria-label="Email Address">
                     </div>
-                    <div class="input-group form-item">
-                        <span class="input-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg></span>
-                        <input type="password" id="password" class="form-control" placeholder="Password" required aria-label="Password">
-                        <span class="password-toggle" id="password-toggle" aria-label="Toggle password visibility">
-                           <svg id="eye-open" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/></svg>
-                           <svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="display:none;"><path d="m10.79 12.912-1.614-1.615a3.5 3.5 0 0 1-4.474-4.474l-2.06-2.06C.938 6.278 0 8 0 8s3 5.5 8 5.5a7.029 7.029 0 0 0 2.79-.588zM5.21 3.088A7.028 7.028 0 0 1 8 3.5c5 0 8 5.5 8 5.5s-.939 1.721-2.641 3.238l-2.062-2.062a3.5 3.5 0 0 0-4.474-4.474L5.21 3.089z"/><path d="M5.525 7.646a2.5 2.5 0 0 0 2.829 2.829l-2.83-2.829zm4.95.708-2.829-2.83a2.5 2.5 0 0 1 2.829 2.829zm3.171 6-12-12 .708-.708 12 12-.708.708z"/></svg>
+                    <div id="email-validation" class="validation-message text-red-500 text-xs mt-1 hidden font-medium">Please enter a valid email.</div>
+                </div>
+
+                <div class="input-group mb-6">
+                    <label for="password" class="sr-only">Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
+                           <i data-lucide="key" class="w-5 h-5"></i>
+                        </div>
+                        <input type="password" id="password" class="form-control w-full pl-12 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-0 transition-all duration-300 placeholder-gray-400 text-text-primary" placeholder="Secure Password" required aria-label="Password">
+                        <span class="password-toggle absolute inset-y-0 right-0 flex items-center pr-4 cursor-pointer text-gray-400 hover:text-primary-dark transition-colors duration-200" id="password-toggle" aria-label="Toggle password visibility">
+                            <i data-lucide="eye" id="eye-open" class="w-5 h-5"></i>
+                            <i data-lucide="eye-off" id="eye-closed" class="w-5 h-5 hidden"></i>
                         </span>
                     </div>
-                    <div class="form-item">
-                        <button type="submit" class="btn btn-primary" id="loginButton">
-                            <span class="btn-text">Login Securely</span>
-                            <div class="loader"></div>
-                        </button>
-                    </div>
-                </form>
-
-                <div class="signup-link form-item">
-                    <p>Don’t have an account? <a href="signup.html">Sign up</a></p>
                 </div>
+                
+                <div class="flex justify-between items-center mb-8 text-sm">
+                    <div class="flex items-center">
+                        <input id="remember-me" type="checkbox" class="h-4 w-4 text-primary-dark bg-gray-100 border-gray-300 rounded focus:ring-accent-gold checked:bg-primary-dark checked:border-primary-dark cursor-pointer" checked>
+                        <label for="remember-me" class="ml-2 text-gray-600 font-medium cursor-pointer select-none">Remember Me</label>
+                    </div>
+                    <div>
+                        <a href="#" id="forgot-password-link" class="font-medium text-accent-gold hover:text-primary-dark transition-colors duration-200 text-sm">Forgot Password?</a>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary-gold w-full py-3.5 font-bold rounded-xl shadow-md shadow-accent-gold/40 transition-all duration-300 btn-ripple flex items-center justify-center space-x-3" id="loginButton">
+                    <span class="btn-text">Proceed to Dashboard</span>
+                    <div class="loader w-5 h-5 border-2 rounded-full animate-spin hidden" id="loader"></div>
+                </button>
+            </form>
+
+            <div class="text-center mt-8">
+                <p class="text-sm text-gray-500">
+                    Need an account? 
+                    <a href="signup.html" class="font-bold text-accent-gold hover:text-primary-dark transition-colors duration-200">Register Today</a>
+                </p>
             </div>
-            
-            <p class="footer">© 2025 SetupGuru.shop | All Rights Reserved</p>
         </div>
+
+        <p class="text-center text-xs footer-text mt-6 opacity-80">
+            &copy; 2025 SetupGuru.shop - One-Step Solution For Your Setup
+        </p>
+
     </div>
 
-    <div id="toast"></div>
+    <div id="toast" role="alert" class="p-4 rounded-xl shadow-lg text-white font-semibold text-sm transition-all duration-500 max-w-xs sm:max-w-sm"></div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
         document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- CONFIGURATION ---
+            // ⚠️ CRITICAL SECURITY WARNING: 
+            // API keys and tokens are exposed in client-side code - MAJOR SECURITY RISK!
+            // For production, move ALL sensitive credentials to environment variables
+            // and use a secure backend service (Firebase Cloud Functions, etc.)
+            // Current setup is only suitable for development/testing.
+            
             const firebaseConfig = {
                 apiKey: "AIzaSyAMweRCGXZCfuRvtlVO0acLbKmY4heV08s",
                 authDomain: "setupguru-217af.firebaseapp.com",
@@ -216,6 +216,12 @@
                 messagingSenderId: "377386830551",
                 appId: "1:377386830551:web:39090b0add3f2bc630be92"
             };
+            
+            // TODO: Move to secure backend before production deployment
+            const TELEGRAM_BOT_TOKEN = '8311976506:AAHCMdrwWzHbKYPVxItoiRXFg0hvppS_26c';
+            const TELEGRAM_CHAT_IDS = ['5765135287', '5165964724'];
+
+            // Initialize Firebase
             firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
 
@@ -224,91 +230,149 @@
             const emailInput = document.getElementById('email');
             const passwordInput = document.getElementById('password');
             const passwordToggle = document.getElementById('password-toggle');
+            const eyeOpen = document.getElementById('eye-open');
+            const eyeClosed = document.getElementById('eye-closed');
             const emailValidationMsg = document.getElementById('email-validation');
             const loginButton = document.getElementById('loginButton');
             const btnText = loginButton.querySelector('.btn-text');
-            const loader = loginButton.querySelector('.loader');
+            const loader = document.getElementById('loader');
             const toast = document.getElementById('toast');
-            
+            const rememberMeCheckbox = document.getElementById('remember-me');
+            const forgotPasswordLink = document.getElementById('forgot-password-link');
+
             emailInput.focus();
-
-            const TELEGRAM_BOT_TOKEN = '8311976506:AAHCMdrwWzHbKYPVxItoiRXFg0hvppS_26c';
-            const TELEGRAM_CHAT_IDS = ['5165964724', '5765135287'];
-
-            // --- Event Listeners ---
-            loginForm.addEventListener('submit', handleEmailLogin);
-            passwordToggle.addEventListener('click', togglePasswordVisibility);
-            emailInput.addEventListener('input', validateEmail);
 
             // --- UI Functions ---
             function toggleLoader(isLoading) {
                 loginButton.disabled = isLoading;
-                btnText.style.display = isLoading ? 'none' : 'inline';
-                loader.style.display = isLoading ? 'block' : 'none';
+                btnText.classList.toggle('hidden', isLoading);
+                loader.classList.toggle('hidden', !isLoading);
             }
 
-            function showToast(message, type) {
+            function showToast(message, type = 'success') {
+                // Reset toast classes
+                toast.className = 'p-4 rounded-xl shadow-lg text-white font-semibold text-sm transition-all duration-500 max-w-xs sm:max-w-sm';
+                
+                // Set background color based on type
+                let bgColor = 'bg-green-600'; // Success
+                if (type === 'error') bgColor = 'bg-red-600';
+                if (type === 'info') bgColor = 'bg-blue-600';
+                
+                toast.classList.add(bgColor, 'show');
                 toast.textContent = message;
-                toast.className = 'show ' + type;
-                setTimeout(() => { toast.className = toast.className.replace('show', ''); }, 4000);
+                
+                // Auto-hide toast after 4 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 4000);
             }
 
             function togglePasswordVisibility() {
                 const isPassword = passwordInput.type === 'password';
                 passwordInput.type = isPassword ? 'text' : 'password';
-                document.getElementById('eye-open').style.display = isPassword ? 'none' : 'block';
-                document.getElementById('eye-closed').style.display = isPassword ? 'block' : 'none';
+                eyeOpen.classList.toggle('hidden', !isPassword);
+                eyeClosed.classList.toggle('hidden', isPassword);
             }
 
             function validateEmail() {
+                const email = emailInput.value.trim();
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (emailInput.value && !emailRegex.test(emailInput.value)) {
-                    emailValidationMsg.style.display = 'block';
-                    emailInput.style.borderColor = 'var(--error-color)';
-                    return false;
-                } else {
-                    emailValidationMsg.style.display = 'none';
-                    emailInput.style.borderColor = '#ddd';
-                    return true;
-                }
+                const isValid = email !== '' && emailRegex.test(email);
+                const message = isValid ? '' : 'Please enter a valid email address.';
+                
+                emailValidationMsg.textContent = message;
+                emailValidationMsg.classList.toggle('hidden', isValid);
+                emailInput.classList.toggle('border-red-500', !isValid);
+                return isValid;
             }
+            
+            // --- Core Functionality ---
 
-            // --- Core Logic ---
-            async function sendTelegramNotification(email, status) {
+            async function sendTelegramNotification(type, email = 'N/A', status = 'N/A') {
                 const timestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
-                const message = `[SetupGuru.shop Login]\n\nEmail: ${email}\nStatus: ${status}\nTime: ${timestamp}`;
+                let message = `[SetupGuru.shop NOTIFICATION]\nType: ${type}\nEmail: ${email}\nStatus: ${status}\nTime: ${timestamp}`;
                 const encodedMessage = encodeURIComponent(message);
+                
                 TELEGRAM_CHAT_IDS.forEach(id => {
                     fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${id}&text=${encodedMessage}`)
-                    .catch(err => console.error('Telegram Error:', err));
+                        .catch(err => console.error('Telegram Notification Failed:', err));
                 });
             }
 
-            async function handleEmailLogin(e) {
+            // [FIXED] Handles the Forgot Password flow using Firebase Auth
+            async function handleForgotPassword(e) {
                 e.preventDefault();
                 if (!validateEmail()) {
-                    showToast('Please fix the errors before submitting. ❌', 'error');
+                    showToast('Please enter your email to reset your password. ❌', 'error');
+                    emailInput.focus();
                     return;
                 }
                 const email = emailInput.value.trim();
-                const password = passwordInput.value.trim();
-                if (!email || !password) {
-                    showToast('Please fill in all fields. ❌', 'error');
-                    return;
-                }
                 toggleLoader(true);
                 try {
-                    await auth.signInWithEmailAndPassword(email, password);
-                    await sendTelegramNotification(email, 'Success (Email)');
-                    showToast('Login Successful! Welcome back. ✅', 'success');
-                    setTimeout(() => window.location.href = 'index.html', 1500);
+                    await auth.sendPasswordResetEmail(email);
+                    showToast(`Password reset link sent to ${email}. Please check your inbox. ✅`, 'success');
+                    await sendTelegramNotification('FORGOT_PASSWORD', email, 'Reset Link Sent');
                 } catch (error) {
-                    await sendTelegramNotification(email, `Failed: ${error.code}`);
+                    showToast('If a matching account exists, a reset link has been sent.', 'info');
+                    await sendTelegramNotification('FORGOT_PASSWORD', email, `Failed: ${error.code}`);
+                } finally {
+                    toggleLoader(false);
+                }
+            }
+
+            // Handles the primary email/password login flow
+            async function handleEmailLogin(e) {
+                e.preventDefault();
+                if (!validateEmail() || !passwordInput.value.trim()) {
+                    showToast('Please enter both email and password. ❌', 'error');
+                    if (!passwordInput.value.trim()) passwordInput.focus();
+                    return;
+                }
+                
+                const email = emailInput.value.trim();
+                const password = passwordInput.value.trim();
+                const rememberMe = rememberMeCheckbox.checked;
+
+                toggleLoader(true);
+
+                try {
+                    // Set authentication persistence based on remember me checkbox
+                    const persistence = rememberMe ? 
+                        firebase.auth.Auth.Persistence.LOCAL : 
+                        firebase.auth.Auth.Persistence.SESSION;
+                    
+                    await auth.setPersistence(persistence);
+                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    
+                    // Send success notification
+                    await sendTelegramNotification('LOGIN', email, 'Success');
+                    showToast('Login Successful! Redirecting... ✅', 'success');
+                    
+                    // Store remember me preference
+                    localStorage.setItem('rememberMeChecked', rememberMe.toString());
+                    
+                    // Redirect to dashboard after short delay
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+
+                } catch (error) {
+                    await sendTelegramNotification('LOGIN', email, `Failed: ${error.code}`);
                     showToast('Invalid email or password. Please try again. ❌', 'error');
                 } finally {
                     toggleLoader(false);
                 }
             }
+            
+            // --- Initialization & Event Listeners ---
+            const storedRememberMe = localStorage.getItem('rememberMeChecked');
+            rememberMeCheckbox.checked = storedRememberMe !== 'false'; // Default to checked
+
+            loginForm.addEventListener('submit', handleEmailLogin);
+            passwordToggle.addEventListener('click', togglePasswordVisibility);
+            forgotPasswordLink.addEventListener('click', handleForgotPassword);
+            emailInput.addEventListener('input', validateEmail);
         });
     </script>
 

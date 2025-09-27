@@ -10,13 +10,15 @@
         :root {
             --primary-color: #2E1A5F;
             --secondary-color: #C49B46;
-            --background-color: #f8f9fa;
-            --text-color: #212529;
+            --background-color: #f4f7fc;
+            --text-color: #333;
             --card-bg: #ffffff;
-            --shadow-light: rgba(46, 26, 95, 0.08);
-            --shadow-medium: rgba(46, 26, 95, 0.15);
+            --shadow-light: rgba(46, 26, 95, 0.06);
+            --shadow-medium: rgba(46, 26, 95, 0.12);
             --border-color: #e9ecef;
             --success-color: #198754;
+            --danger-color: #dc3545;
+            --star-color: #ffc107;
         }
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -26,44 +28,31 @@
             color: var(--text-color);
             line-height: 1.6;
         }
+
+        .preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--background-color);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999; transition: opacity 0.3s ease;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 5px solid var(--border-color);
+            border-top-color: var(--primary-color); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* --- UPDATED HEADER --- */
         .header {
-            background: var(--card-bg);
-            padding: 1rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: var(--card-bg); padding: 1rem 2rem; display: flex;
+            justify-content: space-between; align-items: center;
             box-shadow: 0 2px 10px var(--shadow-light);
             border-bottom: 3px solid var(--primary-color);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            position: sticky; top: 0; z-index: 1000;
         }
-        .header-left, .header-right {
-            display: flex;
-            align-items: center;
-            flex: 1;
-        }
-        .header-right {
-            justify-content: flex-end;
-            gap: 25px;
-        }
-        .back-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--text-color);
-            cursor: pointer;
-            padding: 0 10px 0 0;
-        }
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-            text-decoration: none;
-            color: var(--primary-color);
-            text-align: center;
-        }
+        .header-left, .header-right { display: flex; align-items: center; flex: 1; }
+        .header-right { justify-content: flex-end; gap: 25px; }
+        .back-btn { background: none; border: none; font-size: 1.5rem; color: var(--text-color); cursor: pointer; padding: 0 10px 0 0; }
+        .logo { font-size: 1.8rem; font-weight: 700; text-decoration: none; color: var(--primary-color); text-align: center; }
         .cart-icon { position: relative; text-decoration: none; color: var(--text-color); font-size: 1.5rem; }
         .cart-count {
             position: absolute; top: -8px; right: -12px;
@@ -75,11 +64,10 @@
         .profile-dropdown { position: relative; }
         .avatar { width: 45px; height: 45px; border-radius: 50%; cursor: pointer; border: 2px solid var(--primary-color); }
         .dropdown-menu {
-            display: none;
-            position: absolute; top: 60px; right: 0;
+            display: none; position: absolute; top: 60px; right: 0;
             background-color: var(--card-bg); border-radius: 8px;
-            box-shadow: var(--shadow-medium); overflow: hidden;
-            width: 220px;
+            box-shadow: 0 8px 25px var(--shadow-medium); overflow: hidden; width: 220px;
+            border: 1px solid var(--border-color);
         }
         .profile-dropdown:hover .dropdown-menu { display: block; }
         .dropdown-menu a { display: block; padding: 12px 20px; text-decoration: none; color: var(--text-color); }
@@ -91,109 +79,97 @@
         .hidden { display: none !important; }
         
         .page-header { background: linear-gradient(45deg, var(--primary-color), #4e3294); color: white; text-align: center; padding: 3rem 1rem; }
-        .container { max-width: 1400px; margin: 2.5rem auto; padding: 0 1.5rem; }
-        .controls-container { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2.5rem; align-items: center; background: var(--card-bg); padding: 1rem; border-radius: 12px; box-shadow: 0 5px 15px var(--shadow-light); }
-        #search-bar { flex-grow: 1; min-width: 250px; padding: 0.8rem 1.5rem; font-size: 1rem; border-radius: 50px; border: 1px solid var(--border-color); }
-        .category-filter { display: flex; gap: 0.5rem; overflow-x: auto; scrollbar-width: none; }
-        .category-filter::-webkit-scrollbar { display: none; }
-        .category-btn { padding: 0.6rem 1.2rem; border: none; background: var(--background-color); color: var(--text-color); cursor: pointer; border-radius: 30px; font-weight: 600; white-space: nowrap; }
-        .category-btn.active, .category-btn:hover { background-color: var(--primary-color); color: white; }
-        
-        /* Updated Grid System for Adaptive Cards */
-        #items-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); 
-            gap: 2rem;
-            grid-auto-rows: max-content; /* Allow rows to size based on content */
+        .container { max-width: 1400px; margin: 2.5rem auto; padding: 0 2rem; }
+
+        .controls-container {
+            display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2.5rem;
+            align-items: stretch; background: var(--card-bg); padding: 1.25rem;
+            border-radius: 12px; box-shadow: 0 5px 15px var(--shadow-light);
         }
+        #search-bar { flex-grow: 1; min-width: 200px; padding: 0.75rem 1.25rem; font-size: 1rem; border-radius: 50px; border: 1px solid var(--border-color); }
+        #search-bar:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(46, 26, 95, 0.1); outline: none; }
+        .sort-container { display: flex; align-items: center; gap: 0.5rem; }
+        #sort-by { padding: 0.75rem 1rem; font-size: 1rem; border-radius: 50px; border: 1px solid var(--border-color); background-color: #fff; cursor: pointer; }
+        .category-filter { display: flex; gap: 0.5rem; overflow-x: auto; scrollbar-width: none; flex-basis: 100%; }
+        .category-filter::-webkit-scrollbar { display: none; }
+        .category-btn { padding: 0.6rem 1.2rem; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); cursor: pointer; border-radius: 30px; font-weight: 500; white-space: nowrap; }
+        .category-btn.active, .category-btn:hover { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+        
+        #items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
         
         .item-card { 
-            background: var(--card-bg); 
-            border-radius: 15px; 
-            overflow: hidden; 
-            box-shadow: 0 5px 20px var(--shadow-light); 
-            transition: transform 0.3s, box-shadow 0.3s; 
-            display: flex; 
-            flex-direction: column; 
-            border: 1px solid var(--border-color); 
-            opacity: 0; 
-            transform: translateY(20px); 
-            animation: fadeIn 0.5s ease-out forwards;
-            height: fit-content; /* Let card height adapt to content */
+            background: var(--card-bg); border-radius: 15px; overflow: hidden; 
+            box-shadow: 0 5px 20px var(--shadow-light); transition: transform 0.3s, box-shadow 0.3s; 
+            display: flex; flex-direction: column; border: 1px solid transparent; 
+            opacity: 0; transform: translateY(20px); animation: fadeIn 0.5s ease-out forwards;
         }
-        
         @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
-        .item-card:hover { transform: translateY(-8px); box-shadow: 0 12px 28px var(--shadow-medium); }
+        .item-card:hover { transform: translateY(-8px); box-shadow: 0 12px 28px var(--shadow-medium); border-color: var(--primary-color);}
         
-        /* Adaptive Image Container */
         .item-image-container {
-            position: relative;
-            width: 100%;
-            overflow: hidden;
-            background-color: #f0f0f0;
+            position: relative; width: 100%; overflow: hidden;
+            background-color: #f0f0f0; aspect-ratio: 4 / 3;
         }
+        .item-image { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform 0.3s ease; }
+        .item-card:hover .item-image { transform: scale(1.05); }
         
-        .item-image {
-            width: 100%;
-            height: auto;
-            display: block;
-            object-fit: cover;
-            transition: transform 0.3s ease;
+        .badges-container { position: absolute; top: 10px; left: 10px; display: flex; flex-direction: column; gap: 5px; z-index: 2; }
+        .badge { background-color: var(--primary-color); color: white; padding: 3px 8px; font-size: 0.75rem; font-weight: 600; border-radius: 5px; }
+        .badge.sale { background-color: var(--danger-color); }
+        
+        .wishlist-btn {
+            position: absolute; top: 10px; right: 10px; z-index: 2;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none; border-radius: 50%; width: 40px; height: 40px;
+            font-size: 1.2rem; color: var(--text-color); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: color 0.2s, background-color 0.2s;
         }
+        .wishlist-btn:hover { background-color: white; }
+        .wishlist-btn.active { color: var(--danger-color); }
         
-        .item-card:hover .item-image {
-            transform: scale(1.05);
-        }
-        
-        /* Aspect ratio classes for different image types */
-        .aspect-16-9 {
-            aspect-ratio: 16/9;
-        }
-        
-        .aspect-4-3 {
-            aspect-ratio: 4/3;
-        }
-        
-        .aspect-1-1 {
-            aspect-ratio: 1/1;
-        }
-        
-        .aspect-3-4 {
-            aspect-ratio: 3/4;
-        }
-        
-        /* Default aspect ratio for unknown ratios */
-        .aspect-auto {
-            min-height: 200px;
-            max-height: 350px;
-        }
-        
-        .aspect-auto .item-image {
-            height: 100%;
-            object-fit: contain;
-        }
-        
+        .rating-container { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; font-size: 0.9rem; color: #666; }
+        .stars { color: var(--star-color); }
+
         .card-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
-        .item-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; }
+        
+        .item-title {
+            font-size: 1.2rem; font-weight: 600; margin-bottom: 0.75rem;
+            height: 3.6rem; line-height: 1.8rem; display: -webkit-box;
+            -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical;
+            overflow: hidden; text-overflow: ellipsis;
+        }
+
         .price-container { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
         .current-price { font-size: 1.6rem; font-weight: 700; color: var(--primary-color); }
         .original-price { text-decoration: line-through; color: #888; }
         .discount-badge { font-weight: 600; color: var(--success-color); }
         .btn { border: none; padding: 0.9rem; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; width: 100%; margin-top: auto; }
         .btn-primary { background-color: var(--primary-color); color: white; }
-        .message-container { grid-column: 1 / -1; text-align: center; padding: 4rem 2rem; }
+        .message-container { grid-column: 1 / -1; text-align: center; padding: 4rem 2rem; color: #777; }
         
-        @media (max-width: 600px) {
-            .logo { font-size: 1.5rem; }
-            .header { padding: 1rem; }
-            #items-grid { 
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
-                gap: 1.5rem;
-            }
+        .load-more-container { text-align: center; margin-top: 2.5rem; }
+        #load-more-btn {
+            background-color: var(--card-bg); color: var(--primary-color);
+            border: 2px solid var(--primary-color); padding: 0.8rem 2.5rem;
+            font-size: 1rem; font-weight: 600; border-radius: 50px;
+            cursor: pointer; transition: all 0.2s ease;
         }
+        #load-more-btn:hover { background-color: var(--primary-color); color: white; }
+        #load-more-btn:disabled { background-color: #ccc; border-color: #ccc; color: #666; cursor: not-allowed; }
+        
+        @media (max-width: 768px) {
+            .header { padding: 1rem; }
+            .container { padding: 0 1rem; }
+            .controls-container { flex-direction: column; align-items: stretch; }
+        }
+        @media (max-width: 600px) { .logo { font-size: 1.5rem; } }
     </style>
 </head>
 <body>
+
+    <div class="preloader" id="preloader"><div class="spinner"></div></div>
+
     <header class="header">
         <div class="header-left">
             <button class="back-btn" onclick="window.history.back()" aria-label="Go back">
@@ -233,95 +209,118 @@
 
     <div class="container">
         <div class="controls-container">
-            <div class="category-filter" id="category-filter"></div>
             <input type="text" id="search-bar" placeholder="Search for products...">
+            <div class="sort-container">
+                <label for="sort-by">Sort by:</label>
+                <select id="sort-by">
+                    <option value="newest">Newest</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                </select>
+            </div>
+            <div class="category-filter" id="category-filter"></div>
         </div>
         <div id="items-grid"></div>
+        <div class="load-more-container">
+            <button id="load-more-btn" class="hidden">Load More</button>
+        </div>
     </div>
     
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script>
-        const firebaseConfig = { apiKey: "AIzaSyAMweRCGXZCfuRvtlVO0acLbKmY4heV08s", authDomain: "setupguru-217af.firebaseapp.com", projectId: "setupguru-217af", storageBucket: "setupguru-217af.firebasestorage.app", messagingSenderId: "377386830551", appId: "1:377386830551:web:39909b0add3f2bc630be92" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-        const itemsCollection = db.collection('items');
+    <script type="module">
+        // Import Firebase v9 functions from the CDN
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { 
+            getFirestore, collection, query, where, orderBy, limit, startAfter, 
+            getDocs, getDoc, doc, updateDoc, arrayUnion, arrayRemove, onSnapshot 
+        } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMweRCGXZCfuRvtlVO0acLbKmY4heV08s",
+            authDomain: "setupguru-217af.firebaseapp.com",
+            projectId: "setupguru-217af",
+            storageBucket: "setupguru-217af.firebasestorage.app",
+            messagingSenderId: "377386830551",
+            appId: "1:377386830551:web:39909b0add3f2bc630be92"
+        };
+
+        // Initialize Firebase v9
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
         
+        // --- DOM Elements ---
         const itemsGrid = document.getElementById('items-grid');
         const categoryFilter = document.getElementById('category-filter');
         const searchBar = document.getElementById('search-bar');
+        const sortBy = document.getElementById('sort-by');
+        const preloader = document.getElementById('preloader');
+        const loadMoreBtn = document.getElementById('load-more-btn');
+
+        // --- State Management ---
+        const ITEMS_PER_PAGE = 8;
+        let lastVisible = null; 
+        let userWishlist = new Set();
+        const filters = { category: 'All', searchTerm: '', sortBy: 'newest' };
         
-        // --- AUTH & HEADER LOGIC ---
-        auth.onAuthStateChanged(async user => {
+        // --- AUTH & HEADER LOGIC (v9 Syntax) ---
+        onAuthStateChanged(auth, async (user) => {
             const loggedInElements = document.querySelector('.logged-in-content');
             const loggedOutElements = document.querySelector('.logged-out-content');
-            const dropdownUserName = document.getElementById('dropdown-user-name');
-            const dropdownUserEmail = document.getElementById('dropdown-user-email');
-            
             if (user) {
                 loggedInElements.classList.remove('hidden');
                 loggedOutElements.classList.add('hidden');
                 
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
-                    dropdownUserName.textContent = userData.fullName || 'User';
-                } else {
-                    dropdownUserName.textContent = user.displayName || 'User';
+                const userRef = doc(db, 'users', user.uid);
+                const userDocSnap = await getDoc(userRef);
+
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    document.getElementById('dropdown-user-name').textContent = userData.fullName || 'User';
+                    userWishlist = new Set(userData.wishlist || []);
                 }
-                dropdownUserEmail.textContent = user.email;
+                document.getElementById('dropdown-user-email').textContent = user.email;
                 updateCartCount(user.uid);
+                resetAndLoadItems(); 
             } else {
                 loggedInElements.classList.add('hidden');
                 loggedOutElements.classList.remove('hidden');
                 document.getElementById('header-cart-count').textContent = '0';
+                userWishlist.clear(); 
+                resetAndLoadItems();
             }
         });
 
-        document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
+        document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
 
-        async function updateCartCount(uid) {
-            try {
-                const cartRef = db.collection('users').doc(uid).collection('cart');
-                cartRef.onSnapshot(snapshot => {
-                    document.getElementById('header-cart-count').textContent = snapshot.size;
-                });
-            } catch(e) { console.error("Error updating cart count", e); }
-        }
-
-        // Function to detect image aspect ratio
-        function getAspectRatioClass(img) {
-            return new Promise((resolve) => {
-                const tempImg = new Image();
-                tempImg.onload = function() {
-                    const ratio = this.width / this.height;
-                    let aspectClass = 'aspect-auto';
-                    
-                    if (Math.abs(ratio - 16/9) < 0.1) {
-                        aspectClass = 'aspect-16-9';
-                    } else if (Math.abs(ratio - 4/3) < 0.1) {
-                        aspectClass = 'aspect-4-3';
-                    } else if (Math.abs(ratio - 1) < 0.1) {
-                        aspectClass = 'aspect-1-1';
-                    } else if (Math.abs(ratio - 3/4) < 0.1) {
-                        aspectClass = 'aspect-3-4';
-                    }
-                    
-                    resolve(aspectClass);
-                };
-                tempImg.onerror = function() {
-                    resolve('aspect-auto');
-                };
-                tempImg.src = img;
+        function updateCartCount(uid) {
+            const cartRef = collection(db, 'users', uid, 'cart');
+            onSnapshot(cartRef, (snapshot) => {
+                document.getElementById('header-cart-count').textContent = snapshot.size;
             });
+        }
+        
+        // --- Helper function for generating star ratings ---
+        function getStarRatingHTML(avgRating = 0, count = 0) {
+            let html = '<div class="stars">';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= avgRating) html += '<i class="fas fa-star"></i>';
+                else if (i - 0.5 <= avgRating) html += '<i class="fas fa-star-half-alt"></i>';
+                else html += '<i class="far fa-star"></i>';
+            }
+            html += `</div><span class="rating-count">(${count})</span>`;
+            return html;
         }
 
         // --- ITEM RENDERING LOGIC ---
-        const renderItemCard = async (item) => {
+        const renderItemCard = (item) => {
             const card = document.createElement('div');
             card.className = 'item-card';
+            card.dataset.itemId = item.id;
+            const isWishlisted = userWishlist.has(item.id);
+            const badgesHTML = (item.tags || []).map(tag => `<span class="badge ${tag.toLowerCase().includes('sale') ? 'sale' : ''}">${tag}</span>`).join('');
+            const ratingHTML = getStarRatingHTML(item.rating?.average, item.rating?.count);
             const discountPercent = item.discountPercent || 0;
             const originalPrice = item.price;
             const currentPrice = originalPrice * (1 - discountPercent / 100);
@@ -330,92 +329,160 @@
                     ${discountPercent > 0 ? `<span class="original-price">₹${Math.floor(originalPrice)}</span>` : ''}
                     ${discountPercent > 0 ? `<span class="discount-badge">${discountPercent}% OFF</span>` : ''}
                 </div>`;
-            const imageUrl = (item.imageURLs && item.imageURLs.length > 0) ? item.imageURLs[0] : 'https://placehold.co/400x300';
-            
-            // Get aspect ratio class for the image
-            const aspectClass = await getAspectRatioClass(imageUrl);
+            const imageUrl = item.imageURLs?.[0] || 'https://placehold.co/400x300';
             
             card.innerHTML = `
-                <div class="item-image-container ${aspectClass}">
-                    <img src="${imageUrl}" alt="${item.title}" class="item-image">
+                <div class="item-image-container">
+                    <div class="badges-container">${badgesHTML}</div>
+                    <button class="wishlist-btn ${isWishlisted ? 'active' : ''}" data-item-id="${item.id}" aria-label="Add to wishlist">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                    <img src="${imageUrl}" alt="${item.title}" class="item-image" loading="lazy">
                 </div>
                 <div class="card-content">
+                    <div class="rating-container">${ratingHTML}</div>
                     <h3 class="item-title">${item.title}</h3>
                     ${priceHtml}
                     <button class="btn btn-primary know-more-btn" data-item-id="${item.id}">Know More</button>
                 </div>`;
             return card;
         };
-
-        const loadItems = async (category = 'All', searchTerm = '') => {
-            itemsGrid.innerHTML = '<div class="message-container"><p>Loading Items...</p></div>';
-            try {
-                let query = itemsCollection.orderBy('timestamp', 'desc');
-                if (category.toLowerCase() !== 'all') {
-                    query = query.where('category', '==', category);
-                }
-                const snapshot = await query.get();
-                let items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-                if (searchTerm) {
-                    items = items.filter(item => item.title.toLowerCase().includes(searchTerm));
-                }
-                
+        
+        // --- DATA LOADING (v9 Syntax) ---
+        const loadItems = async (isInitialLoad = false) => {
+            if (isInitialLoad) {
                 itemsGrid.innerHTML = '';
-                if (items.length === 0) {
-                    itemsGrid.innerHTML = `<div class="message-container"><h3>No Items Found</h3></div>`;
-                    return;
+                lastVisible = null;
+            }
+            preloader.style.display = 'flex';
+            loadMoreBtn.disabled = true;
+
+            try {
+                const itemsCollectionRef = collection(db, 'items');
+                const queryConstraints = [];
+
+                if (filters.category.toLowerCase() !== 'all') {
+                    queryConstraints.push(where('category', '==', filters.category));
+                }
+
+                if (filters.sortBy === 'price-asc') queryConstraints.push(orderBy('price', 'asc'));
+                else if (filters.sortBy === 'price-desc') queryConstraints.push(orderBy('price', 'desc'));
+                else queryConstraints.push(orderBy('timestamp', 'desc'));
+
+                if (lastVisible) {
+                    queryConstraints.push(startAfter(lastVisible));
                 }
                 
-                // Render items with proper aspect ratios
-                for (let i = 0; i < items.length; i++) {
-                    const item = items[i];
-                    const card = await renderItemCard(item);
-                    card.style.animationDelay = `${i * 0.05}s`;
-                    itemsGrid.appendChild(card);
+                queryConstraints.push(limit(ITEMS_PER_PAGE));
+                
+                const q = query(itemsCollectionRef, ...queryConstraints);
+                const documentSnapshots = await getDocs(q);
+                
+                let items = documentSnapshots.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                lastVisible = documentSnapshots.docs[documentSnapshots.docs.length - 1];
+                
+                if (documentSnapshots.docs.length < ITEMS_PER_PAGE) {
+                    loadMoreBtn.classList.add('hidden');
+                } else {
+                    loadMoreBtn.classList.remove('hidden');
                 }
+                
+                if (filters.searchTerm) {
+                    items = items.filter(item => item.title.toLowerCase().includes(filters.searchTerm));
+                }
+
+                if (items.length === 0 && isInitialLoad) {
+                    itemsGrid.innerHTML = `<div class="message-container"><h3>No Items Found</h3></div>`;
+                }
+                
+                items.forEach((item, index) => {
+                    const card = renderItemCard(item);
+                    card.style.animationDelay = `${index * 0.05}s`;
+                    itemsGrid.appendChild(card);
+                });
             } catch (error) {
-                itemsGrid.innerHTML = `<div class="message-container"><h3>Error Loading Items</h3><p>Please check if the Firestore index is created correctly.</p></div>`;
+                console.error("Error loading items:", error);
+                itemsGrid.innerHTML = `<div class="message-container"><h3>Error Loading Items</h3><p>Please check the browser console for Firestore index errors.</p></div>`;
+            } finally {
+                preloader.style.display = 'none';
+                loadMoreBtn.disabled = false;
             }
         };
 
         const loadCategories = async () => {
-            try {
-                const snapshot = await itemsCollection.get();
-                const categories = ['All', ...new Set(snapshot.docs.map(doc => doc.data().category).filter(Boolean).sort())];
-                categoryFilter.innerHTML = categories.map(cat => `<button class="category-btn ${cat === 'All' ? 'active' : ''}" data-category="${cat}">${cat}</button>`).join('');
-            } catch (error) { console.error("Could not load categories", error); }
+             const itemsCollectionRef = collection(db, 'items');
+             const snapshot = await getDocs(itemsCollectionRef);
+             const categories = ['All', ...new Set(snapshot.docs.map(doc => doc.data().category).filter(Boolean).sort())];
+             categoryFilter.innerHTML = categories.map(cat => `<button class="category-btn ${cat === 'All' ? 'active' : ''}" data-category="${cat}">${cat}</button>`).join('');
         };
+
+        // --- Wishlist toggle function (v9 Syntax) ---
+        async function toggleWishlist(itemId) {
+            const user = auth.currentUser;
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const userRef = doc(db, 'users', user.uid);
+            const button = document.querySelector(`.wishlist-btn[data-item-id="${itemId}"]`);
+            
+            try {
+                if (userWishlist.has(itemId)) {
+                    await updateDoc(userRef, { wishlist: arrayRemove(itemId) });
+                    userWishlist.delete(itemId);
+                    button?.classList.remove('active');
+                } else {
+                    await updateDoc(userRef, { wishlist: arrayUnion(itemId) });
+                    userWishlist.add(itemId);
+                    button?.classList.add('active');
+                }
+            } catch (error) {
+                console.error("Error updating wishlist:", error);
+                // If user document doesn't exist, you might need to create it with .set() first
+            }
+        }
         
         // --- EVENT LISTENERS ---
-        itemsGrid.addEventListener('click', function(event) {
-            const button = event.target.closest('.know-more-btn');
-            if (button) {
-                const itemId = button.dataset.itemId;
-                if (itemId) window.location.href = `card.html?id=${itemId}`;
-            }
+        function resetAndLoadItems() {
+            loadItems(true);
+        }
+
+        itemsGrid.addEventListener('click', (event) => {
+            const knowMoreBtn = event.target.closest('.know-more-btn');
+            const wishlistBtn = event.target.closest('.wishlist-btn');
+            if (knowMoreBtn) window.location.href = `card.html?id=${knowMoreBtn.dataset.itemId}`;
+            if (wishlistBtn) toggleWishlist(wishlistBtn.dataset.itemId);
         });
 
         categoryFilter.addEventListener('click', (e) => {
             if (e.target.tagName === 'BUTTON') {
                 document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
                 e.target.classList.add('active');
-                loadItems(e.target.dataset.category, searchBar.value.toLowerCase());
+                filters.category = e.target.dataset.category;
+                resetAndLoadItems();
             }
         });
+
+        sortBy.addEventListener('change', (e) => {
+            filters.sortBy = e.target.value;
+            resetAndLoadItems();
+        });
+
+        loadMoreBtn.addEventListener('click', () => loadItems(false));
         
         let debounceTimer;
         searchBar.addEventListener('input', () => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
-                const activeCategory = document.querySelector('.category-btn.active')?.dataset.category || 'All';
-                loadItems(activeCategory, searchBar.value.toLowerCase());
-            }, 300);
+                filters.searchTerm = searchBar.value.toLowerCase();
+                resetAndLoadItems();
+            }, 400);
         });
         
         document.addEventListener('DOMContentLoaded', () => {
             loadCategories();
-            loadItems();
+            resetAndLoadItems();
         });
     </script>
 </body>

@@ -24,6 +24,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* =================================================================
+           1. Root Variables & Global Styles
+           ================================================================= */
         :root {
             --primary: #2E1A5F;
             --secondary: #C49B46;
@@ -97,7 +100,123 @@
             color: var(--primary);
         }
 
-        /* Header Styles */
+        /* =================================================================
+           2. NEW GEN-Z PRELOADER STYLES
+           ================================================================= */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.75s ease, visibility 0.75s ease;
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .preloader-hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-content {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .loader-logo-container {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            background-color: var(--white);
+            animation: pulse-glow 2s infinite ease-in-out;
+            box-shadow: 0 0 0 0 rgba(46, 26, 95, 0.7);
+        }
+        
+        .loader-logo {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .orbit-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 160px; /* Diameter of orbit */
+            height: 160px;
+            margin-top: -80px;
+            margin-left: -80px;
+            animation: spin 5s linear infinite;
+        }
+
+        .orbiting-icon {
+            position: absolute;
+            font-size: 1.5rem;
+            color: var(--primary);
+            animation: anti-spin 5s linear infinite; /* Keeps icons upright */
+        }
+        
+        .orbiting-icon.icon-laptop {
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .orbiting-icon.icon-bag {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .loading-text {
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            color: var(--text-light);
+            letter-spacing: 1px;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes anti-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(-360deg); }
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(46, 26, 95, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 15px rgba(46, 26, 95, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(46, 26, 95, 0);
+            }
+        }
+        
+        /* =================================================================
+           3. Header & Navigation Styles
+           ================================================================= */
         header {
             position: fixed;
             top: 0;
@@ -149,10 +268,14 @@
             gap: 10px;
         }
 
-        .logo-img {
-            height: 40px;
-            width: auto;
-        }
+        /* Upar wale CSS ko isse badal dein */
+.logo-img {
+    height: 45px; /* Thoda size badhaya hai */
+    width: 45px;  /* Square shape di hai */
+    border-radius: 50%; /* Ye line isko circle banati hai */
+    object-fit: cover; /* Ye image ko stretch hone se bachata hai */
+    border: 2px solid var(--white); /* Header scroll hone par border dikhega */
+}
 
         .logo span {
             color: var(--secondary);
@@ -222,7 +345,6 @@
             margin-top: 10px; /* Space between avatar and menu */
         }
 
-        /* NEW: Class to show dropdown via JS */
         .dropdown-menu.show {
             opacity: 1;
             visibility: visible;
@@ -247,6 +369,10 @@
             align-items: center;
             gap: 15px;
         }
+
+        /* =================================================================
+           4. Page Section Styles
+           ================================================================= */
 
         /* Hero Section */
         #hero {
@@ -342,6 +468,7 @@
             text-align: center;
             box-shadow: var(--shadow);
             transition: var(--transition);
+            cursor: pointer;
         }
 
         .category-card:hover {
@@ -368,13 +495,13 @@
         }
 
         .slider-container {
-    position: relative;
-    max-width: 1000px; /* Adjusted for 16:9 ratio */
-    margin: 0 auto;
-    overflow: hidden;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
 
         .slider {
             display: flex;
@@ -386,12 +513,11 @@
             position: relative;
         }
         
-        /* MODIFIED: Image is now square */
         .slide img {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-}
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+        }
 
         .slide-content {
             position: absolute;
@@ -474,6 +600,8 @@
             box-shadow: var(--shadow);
             transition: var(--transition);
             position: relative;
+            display: flex;
+            flex-direction: column;
         }
 
         .product-card:hover {
@@ -481,20 +609,31 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
         }
 
+        .product-image-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+        }
+
         .product-image {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-}
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
         .product-info {
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; /* Allows this to take up remaining space */
         }
 
         .product-title {
             font-size: 1.1rem;
             margin-bottom: 10px;
             font-weight: 600;
+            flex-grow: 1; /* Pushes price and button to bottom */
         }
 
         .product-price {
@@ -526,6 +665,7 @@
             border-radius: 4px;
             font-size: 0.8rem;
             font-weight: 600;
+            z-index: 2;
         }
 
         .view-details {
@@ -534,9 +674,10 @@
             background-color: var(--primary);
             color: var(--white);
             text-align: center;
-            padding: 10px;
+            padding: 12px;
             border-radius: 4px;
             font-weight: 500;
+            margin-top: auto; /* Pushes button to bottom */
             opacity: 0;
             transform: translateY(10px);
             transition: var(--transition);
@@ -651,7 +792,9 @@
             transform: translateY(-3px);
         }
 
-        /* Footer */
+        /* =================================================================
+           5. Footer & Bottom Navigation
+           ================================================================= */
         footer {
             background-color: var(--text-dark);
             color: var(--white);
@@ -691,7 +834,6 @@
             color: #999;
         }
 
-        /* Bottom Navigation Bar */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -730,33 +872,9 @@
             color: var(--primary);
         }
 
-        /* Floating Support Button - Moved to bottom nav */
-        .support-nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 8px 15px;
-            font-size: 0.8rem;
-            color: var(--text-light);
-            transition: var(--transition);
-            border-radius: 10px;
-        }
-
-        .support-nav-item.active {
-            color: var(--primary);
-            background-color: rgba(46, 26, 95, 0.1);
-        }
-
-        .support-nav-item i {
-            font-size: 1.3rem;
-            margin-bottom: 5px;
-        }
-
-        .support-nav-item:hover {
-            color: var(--primary);
-        }
-
-        /* Responsive Styles */
+        /* =================================================================
+           6. Responsive Styles
+           ================================================================= */
         @media (max-width: 1024px) {
             .footer-content {
                 grid-template-columns: repeat(2, 1fr);
@@ -853,7 +971,9 @@
             }
         }
 
-        /* Utility Classes */
+        /* =================================================================
+           7. Utility Classes
+           ================================================================= */
         .text-center {
             text-align: center;
         }
@@ -871,6 +991,20 @@
     </style>
 </head>
 <body>
+
+    <div class="preloader">
+        <div class="loader-content">
+            <div class="orbit-container">
+                <i class="fas fa-laptop orbiting-icon icon-laptop" aria-hidden="true"></i>
+                <i class="fas fa-shopping-bag orbiting-icon icon-bag" aria-hidden="true"></i>
+            </div>
+            <div class="loader-logo-container">
+                <img src="https://i.ibb.co/hRBZFSS3/1758331953202.jpg" alt="SetupGuru Loading Logo" class="loader-logo">
+            </div>
+            <div class="loading-text">Building your setup...</div>
+        </div>
+    </div>
+
     <header class="transparent">
         <div class="container">
             <div class="header-content">
@@ -901,7 +1035,7 @@
     </header>
 
     <section id="hero">
-        <video autoplay muted loop class="hero-video">
+        <video autoplay muted loop playsinline class="hero-video">
             <source src="video.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
@@ -954,29 +1088,8 @@
                             <p>Declutter your space, declutter your mind.</p>
                         </div>
                     </div>
-                    <div class="slide">
-                        <img src="https://i.ibb.co/8Dz2Vw2z/Picsart-25-09-23-07-55-05-552.jpg" alt="Lighting Solutions">
-                        <div class="slide-content">
-                            <h3 class="slide-title">Perfect Lighting</h3>
-                            <p>Illuminate your success with our lighting solutions.</p>
-                        </div>
-                    </div>
-                    <div class="slide">
-                        <img src="https://i.ibb.co/6Rh1KxD1/Picsart-25-09-23-07-52-07-352.jpg" alt="Comfortable Accessories">
-                        <div class="slide-content">
-                            <h3 class="slide-title">Stay Comfortable</h3>
-                            <p>Ergonomic accessories for long hours of work.</p>
-                        </div>
-                    </div>
-                    <div class="slide">
-                        <img src="https://i.ibb.co/svgktfVh/Picsart-25-09-23-07-50-56-035.jpg" alt="Modern Desk Setups">
-                        <div class="slide-content">
-                            <h3 class="slide-title">Modern Setups</h3>
-                            <p>Aesthetically pleasing and functional products.</p>
-                        </div>
-                    </div>
                 </div>
-                </div>
+            </div>
         </div>
     </section>
 
@@ -1012,9 +1125,9 @@
             <div class="story-content">
                 <div class="story-text fade-in">
                     <h2>Our Story</h2>
-                    <p><p>At SetupGuru, we believe that your workspace should be a reflection of your ambitions. Founded in 2025 by <strong>Aryan Soni</strong> and <strong>Rao Jatin</strong>, our mission is to provide premium, thoughtfully designed products that transform ordinary spaces into extraordinary environments.</p>
-<p>Every item in our collection is carefully curated to enhance productivity, inspire creativity, and elevate your daily routine. Discover tools that blend beautiful design with seamless functionality, and build the extraordinary workspace you deserve.</p>
-<p>Explore the collection at <a href="https://setupguru.shop">setupguru.shop</a></p>
+                    <p>At SetupGuru, we believe that your workspace should be a reflection of your ambitions. Founded in 2025 by <strong>Aryan Soni</strong> and <strong>Rao Jatin</strong>, our mission is to provide premium, thoughtfully designed products that transform ordinary spaces into extraordinary environments.</p>
+                    <p>Every item in our collection is carefully curated to enhance productivity, inspire creativity, and elevate your daily routine. Discover tools that blend beautiful design with seamless functionality, and build the extraordinary workspace you deserve.</p>
+                    <p>Explore the collection at <a href="https://setupguru.shop">setupguru.shop</a></p>
                 </div>
                 
                 <div class="stats-grid fade-in">
@@ -1096,23 +1209,23 @@
 
     <nav class="bottom-nav">
         <a href="index.html" class="nav-item active">
-            <i class="fas fa-home"></i>
+            <i class="fas fa-home" aria-hidden="true"></i>
             <span>Home</span>
         </a>
-        <a href="items.html" class="nav-item">
-            <i class="fas fa-store"></i>
-            <span>Shop</span>
-        </a>
         <a href="cart.html" class="nav-item">
-            <i class="fas fa-shopping-cart"></i>
+            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
             <span>Cart</span>
         </a>
+        <a href="items.html" class="nav-item">
+            <i class="fas fa-store" aria-hidden="true"></i>
+            <span>Shop</span>
+        </a>
         <a href="track.html" class="nav-item">
-            <i class="fas fa-truck"></i>
+            <i class="fas fa-truck" aria-hidden="true"></i>
             <span>Track</span>
         </a>
-        <a href="support.html" class="support-nav-item">
-            <i class="fas fa-headset"></i>
+        <a href="support.html" class="nav-item">
+            <i class="fas fa-headset" aria-hidden="true"></i>
             <span>Support</span>
         </a>
     </nav>
@@ -1122,7 +1235,13 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
-        // Firebase configuration
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // =================================================================
+        // 1. Firebase Configuration
+        // =================================================================
+        // IMPORTANT: Make sure your Firestore security rules are set up correctly
+        // to prevent unauthorized access to your data.
         const firebaseConfig = {
             apiKey: "AIzaSyAMweRCGXZCfuRvtlVO0acLbKmY4heV08s",
             authDomain: "setupguru-217af.firebaseapp.com",
@@ -1137,7 +1256,9 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // DOM Elements
+        // =================================================================
+        // 2. DOM Element Selectors
+        // =================================================================
         const header = document.querySelector('header');
         const loggedOutState = document.querySelector('.logged-out-state');
         const loggedInState = document.querySelector('.logged-in-state');
@@ -1150,223 +1271,40 @@
         const tabContents = document.querySelectorAll('.tab-content');
         const statNumbers = document.querySelectorAll('.stat-number');
         const slider = document.getElementById('slider');
-        const navItems = document.querySelectorAll('.nav-item');
-        const supportNavItem = document.querySelector('.support-nav-item');
-        const sliderContainer = document.querySelector('.slider-container');
         const profileDropdown = document.querySelector('.profile-dropdown');
         const dropdownMenu = document.querySelector('.dropdown-menu');
+        const preloader = document.querySelector('.preloader');
 
+        // =================================================================
+        // 3. UI Interactions & Effects
+        // =================================================================
+
+        // Preloader hiding logic
+        window.onload = function() {
+            preloader.classList.add('preloader-hidden');
+        };
 
         // Header scroll effect
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 100) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
+            header.classList.toggle('scrolled', window.scrollY > 50);
         });
         
-        // MODIFIED: Profile dropdown on click
+        // Profile dropdown menu toggle
         if (profileDropdown) {
             profileDropdown.addEventListener('click', (event) => {
-                event.stopPropagation();
+                event.stopPropagation(); // Prevent window click from closing it immediately
                 dropdownMenu.classList.toggle('show');
             });
         }
-        // Close dropdown if clicking outside
+        
+        // Close dropdown if clicking anywhere else on the page
         window.addEventListener('click', () => {
             if (dropdownMenu && dropdownMenu.classList.contains('show')) {
                 dropdownMenu.classList.remove('show');
             }
         });
-
-
-        // Authentication state observer
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                // User is signed in
-                loggedOutState.style.display = 'none';
-                loggedInState.style.display = 'flex';
-                
-                // Set profile avatar image (already set in HTML, but can be updated here if needed)
-                const profileAvatar = document.querySelector('.profile-avatar');
-                // If user has a photoURL in their profile, you can use it:
-                // if (user.photoURL) {
-                //     profileAvatar.src = user.photoURL;
-                // }
-
-            } else {
-                // User is signed out
-                loggedOutState.style.display = 'flex';
-                loggedInState.style.display = 'none';
-            }
-        });
-
-        // Logout function
-        if(logoutBtn) {
-            logoutBtn.addEventListener('click', () => {
-                auth.signOut().then(() => {
-                    console.log('User signed out');
-                    window.location.reload(); // Reload page to reflect logged out state
-                }).catch((error) => {
-                    console.error('Sign out error:', error);
-                });
-            });
-        }
-
-
-        // Load categories from Firestore
-        function loadCategories() {
-            db.collection('categories').orderBy('order', 'asc').get()
-                .then((querySnapshot) => {
-                    categoriesContainer.innerHTML = '';
-                    querySnapshot.forEach((doc) => {
-                        const category = doc.data();
-                        const categoryCard = document.createElement('div');
-                        categoryCard.className = 'category-card fade-in';
-                        categoryCard.innerHTML = `
-                            <div class="category-icon">
-                                <i class="${category.icon}"></i>
-                            </div>
-                            <h3 class="category-name">${category.name}</h3>
-                        `;
-                        categoryCard.addEventListener('click', () => {
-                            window.location.href = `items.html?category=${encodeURIComponent(category.name)}`;
-                        });
-                        categoriesContainer.appendChild(categoryCard);
-                    });
-                    
-                    animateOnScroll();
-                })
-                .catch((error) => {
-                    console.error('Error loading categories:', error);
-                    const fallbackCategories = [
-                        { name: 'Tech Gadgets', icon: 'fas fa-laptop' },
-                        { name: 'Desk Organization', icon: 'fas fa-pen-fancy' },
-                        { name: 'Ergonomic Accessories', icon: 'fas fa-chair' },
-                        { name: 'Lighting Solutions', icon: 'fas fa-lightbulb' },
-                        { name: 'Audio Equipment', icon: 'fas fa-headphones' },
-                        { name: 'Cable Management', icon: 'fas fa-plug' }
-                    ];
-                    
-                    categoriesContainer.innerHTML = '';
-                    fallbackCategories.forEach((category, index) => {
-                        const categoryCard = document.createElement('div');
-                        categoryCard.className = 'category-card fade-in';
-                        categoryCard.style.animationDelay = `${index * 0.1}s`;
-                        categoryCard.innerHTML = `
-                            <div class="category-icon">
-                                <i class="${category.icon}"></i>
-                            </div>
-                            <h3 class="category-name">${category.name}</h3>
-                        `;
-                        categoryCard.addEventListener('click', () => {
-                            window.location.href = `items.html?category=${encodeURIComponent(category.name)}`;
-                        });
-                        categoriesContainer.appendChild(categoryCard);
-                    });
-                    
-                    animateOnScroll();
-                });
-        }
-
-        // Load products for each section
-        function loadProducts() {
-            db.collection('products')
-                .where('status', '==', 'active')
-                .where('isNewArrival', '==', true)
-                .orderBy('createdAt', 'desc')
-                .limit(8)
-                .get()
-                .then((querySnapshot) => {
-                    newArrivalsGrid.innerHTML = '';
-                    if (querySnapshot.empty) {
-                        newArrivalsGrid.innerHTML = '<p class="text-center">No new arrivals found.</p>';
-                    } else {
-                        querySnapshot.forEach((doc) => {
-                            const product = doc.data();
-                            displayProduct(product, newArrivalsGrid);
-                        });
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error loading new arrivals:', error);
-                    newArrivalsGrid.innerHTML = '<p class="text-center">Error loading products.</p>';
-                });
-
-            db.collection('products')
-                .where('status', '==', 'active')
-                .where('isBestSeller', '==', true)
-                .orderBy('soldCount', 'desc')
-                .limit(8)
-                .get()
-                .then((querySnapshot) => {
-                    bestSellersGrid.innerHTML = '';
-                    if (querySnapshot.empty) {
-                        bestSellersGrid.innerHTML = '<p class="text-center">No best sellers found.</p>';
-                    } else {
-                        querySnapshot.forEach((doc) => {
-                            const product = doc.data();
-                            displayProduct(product, bestSellersGrid);
-                        });
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error loading best sellers:', error);
-                    bestSellersGrid.innerHTML = '<p class="text-center">Error loading products.</p>';
-                });
-
-            db.collection('products')
-                .where('status', '==', 'active')
-                .where('isOnSale', '==', true)
-                .where('salePrice', '>', 0)
-                .orderBy('salePrice', 'asc')
-                .limit(8)
-                .get()
-                .then((querySnapshot) => {
-                    onSaleGrid.innerHTML = '';
-                    if (querySnapshot.empty) {
-                        onSaleGrid.innerHTML = '<p class="text-center">No products on sale found.</p>';
-                    } else {
-                        querySnapshot.forEach((doc) => {
-                            const product = doc.data();
-                            displayProduct(product, onSaleGrid);
-                        });
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error loading on sale products:', error);
-                    onSaleGrid.innerHTML = '<p class="text-center">Error loading products.</p>';
-                });
-        }
-
-        function displayProduct(product, container) {
-            const productCard = document.createElement('div');
-            productCard.className = 'product-card fade-in';
-            
-            const discountPercent = product.originalPrice && product.salePrice 
-                ? Math.round(((product.originalPrice - product.salePrice) / product.originalPrice) * 100)
-                : 0;
-            
-            productCard.innerHTML = `
-                <img src="${product.imageUrl || 'https://via.placeholder.com/300x200'}" alt="${product.name}" class="product-image">
-                ${discountPercent > 0 ? `<div class="discount-badge">-${discountPercent}%</div>` : ''}
-                <div class="product-info">
-                    <h3 class="product-title">${product.name}</h3>
-                    <div class="product-price">
-                        <span class="current-price">$${product.salePrice || product.price}</span>
-                        ${product.originalPrice && product.originalPrice > product.salePrice 
-                            ? `<span class="original-price">$${product.originalPrice}</span>` 
-                            : ''}
-                    </div>
-                    <a href="product-details.html?id=${product.id || ''}" class="view-details">View Details</a>
-                </div>
-            `;
-            
-            container.appendChild(productCard);
-        }
-
-        // Tab switching functionality
+        
+        // Product tabs switching logic
         tabBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 tabBtns.forEach(b => b.classList.remove('active'));
@@ -1378,57 +1316,202 @@
             });
         });
 
-        // MODIFIED: Image slider functionality for autoplay only
+        // Image slider autoplay functionality
         let currentSlide = 0;
         const slides = document.querySelectorAll('.slide');
         const totalSlides = slides.length;
 
         if (totalSlides > 0) {
-            function goToSlide(slideIndex) {
-                if (slider) {
-                   slider.style.transform = `translateX(-${slideIndex * 100}%)`;
-                }
-            }
-
-            function nextSlideFunc() {
+            const nextSlide = () => {
                 currentSlide = (currentSlide + 1) % totalSlides;
-                goToSlide(currentSlide);
-            }
-            
-            // Auto slide change
-            setInterval(nextSlideFunc, 4000); // 4 seconds per slide
+                if (slider) {
+                   slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+                }
+            };
+            setInterval(nextSlide, 4000); // Change slide every 4 seconds
         }
 
-        // Animate statistics counters
-        function animateCounters() {
-            statNumbers.forEach(stat => {
-                const target = parseInt(stat.getAttribute('data-target'));
-                const duration = 2000;
-                let start = 0;
-                const stepTime = 16;
-                const totalSteps = duration / stepTime;
-                const increment = target / totalSteps;
-                
-                const timer = setInterval(() => {
-                    start += increment;
-                    if (start >= target) {
-                        stat.textContent = target;
-                        clearInterval(timer);
-                    } else {
-                        stat.textContent = Math.floor(start);
-                    }
-                }, stepTime);
+        // =================================================================
+        // 4. Authentication Logic
+        // =================================================================
+
+        // Observer for authentication state changes
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // User is signed in
+                loggedOutState.style.display = 'none';
+                loggedInState.style.display = 'flex';
+                // Optional: Update avatar if user has a profile picture
+                // const profileAvatar = document.querySelector('.profile-avatar');
+                // if (user.photoURL) profileAvatar.src = user.photoURL;
+            } else {
+                // User is signed out
+                loggedOutState.style.display = 'flex';
+                loggedInState.style.display = 'none';
+            }
+        });
+
+        // Logout button functionality
+        if(logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                auth.signOut().then(() => {
+                    window.location.reload();
+                }).catch((error) => {
+                    console.error('Sign out error:', error);
+                });
             });
         }
 
-        // Animate elements on scroll
-        function animateOnScroll() {
+        // =================================================================
+        // 5. Firestore Data Loading
+        // =================================================================
+
+        // Load categories from Firestore
+        function loadCategories() {
+            db.collection('categories').orderBy('order', 'asc').get()
+                .then((querySnapshot) => {
+                    if (querySnapshot.empty) {
+                        displayFallbackCategories();
+                        return;
+                    }
+                    categoriesContainer.innerHTML = '';
+                    querySnapshot.forEach((doc) => {
+                        const category = doc.data();
+                        const categoryCard = document.createElement('div');
+                        categoryCard.className = 'category-card fade-in';
+                        categoryCard.setAttribute('role', 'button');
+                        categoryCard.setAttribute('tabindex', '0');
+                        categoryCard.innerHTML = `
+                            <div class="category-icon">
+                                <i class="${category.icon}" aria-hidden="true"></i>
+                            </div>
+                            <h3 class="category-name">${category.name}</h3>
+                        `;
+                        categoryCard.addEventListener('click', () => {
+                            window.location.href = `items.html?category=${encodeURIComponent(category.name)}`;
+                        });
+                        categoriesContainer.appendChild(categoryCard);
+                    });
+                    initializeScrollAnimations();
+                })
+                .catch((error) => {
+                    console.error('Error loading categories:', error);
+                    displayFallbackCategories();
+                });
+        }
+
+        function displayFallbackCategories() {
+            const fallbackCategories = [
+                { name: 'Tech Gadgets', icon: 'fas fa-laptop' },
+                { name: 'Desk Organization', icon: 'fas fa-pen-fancy' },
+                { name: 'Ergonomics', icon: 'fas fa-chair' },
+                { name: 'Lighting', icon: 'fas fa-lightbulb' },
+            ];
+            categoriesContainer.innerHTML = '';
+            fallbackCategories.forEach(category => {
+                const categoryCard = document.createElement('div');
+                categoryCard.className = 'category-card fade-in';
+                categoryCard.setAttribute('role', 'button');
+                categoryCard.setAttribute('tabindex', '0');
+                categoryCard.innerHTML = `
+                    <div class="category-icon">
+                        <i class="${category.icon}" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="category-name">${category.name}</h3>
+                `;
+                categoryCard.addEventListener('click', () => {
+                    window.location.href = `items.html?category=${encodeURIComponent(category.name)}`;
+                });
+                categoriesContainer.appendChild(categoryCard);
+            });
+            initializeScrollAnimations();
+        }
+
+        // Load products for each showcase tab
+        function loadProducts() {
+            // New Arrivals
+            db.collection('products').where('status', '==', 'active').where('isNewArrival', '==', true).orderBy('createdAt', 'desc').limit(8).get()
+                .then(snapshot => displayProducts(snapshot, newArrivalsGrid, 'No new arrivals found.'))
+                .catch(err => console.error('Error loading new arrivals:', err));
+
+            // Best Sellers
+            db.collection('products').where('status', '==', 'active').where('isBestSeller', '==', true).orderBy('soldCount', 'desc').limit(8).get()
+                .then(snapshot => displayProducts(snapshot, bestSellersGrid, 'No best sellers found.'))
+                .catch(err => console.error('Error loading best sellers:', err));
+
+            // On Sale
+            db.collection('products').where('status', '==', 'active').where('isOnSale', '==', true).orderBy('createdAt', 'desc').limit(8).get()
+                .then(snapshot => displayProducts(snapshot, onSaleGrid, 'No products on sale found.'))
+                .catch(err => console.error('Error loading sale products:', err));
+        }
+
+        function displayProducts(querySnapshot, container, emptyMessage) {
+            container.innerHTML = '';
+            if (querySnapshot.empty) {
+                container.innerHTML = `<p class="text-center" style="grid-column: 1 / -1;">${emptyMessage}</p>`;
+                return;
+            }
+            querySnapshot.forEach((doc) => {
+                const product = doc.data();
+                const productId = doc.id; // <-- FIX: Get the document ID here
+                const discountPercent = product.originalPrice && product.salePrice 
+                    ? Math.round(((product.originalPrice - product.salePrice) / product.originalPrice) * 100)
+                    : 0;
+                
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card fade-in';
+                productCard.innerHTML = `
+                    <div class="product-image-container">
+                        ${discountPercent > 0 ? `<div class="discount-badge">-${discountPercent}%</div>` : ''}
+                        <img src="${product.imageUrl || 'https://via.placeholder.com/300'}" alt="${product.name}" class="product-image">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">${product.name}</h3>
+                        <div class="product-price">
+                            <span class="current-price">$${product.salePrice || product.price}</span>
+                            ${product.originalPrice && product.originalPrice > product.salePrice 
+                                ? `<span class="original-price">$${product.originalPrice}</span>` 
+                                : ''}
+                        </div>
+                        <a href="product-details.html?id=${productId}" class="view-details">View Details</a>
+                    </div>
+                `;
+                container.appendChild(productCard);
+            });
+        }
+
+        // =================================================================
+        // 6. Animations
+        // =================================================================
+
+        // Animate statistic counters on scroll
+        function animateCounters() {
+            statNumbers.forEach(stat => {
+                const target = parseInt(stat.getAttribute('data-target'));
+                let current = 0;
+                const increment = target / 100;
+                
+                const updateCounter = () => {
+                    if (current < target) {
+                        current += increment;
+                        stat.textContent = Math.ceil(current);
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        stat.textContent = target;
+                    }
+                };
+                updateCounter();
+            });
+        }
+
+        // Animate elements fading in on scroll
+        function initializeScrollAnimations() {
             const fadeElements = document.querySelectorAll('.fade-in');
-            
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('visible');
+                        observer.unobserve(entry.target); // Stop observing after animation
                     }
                 });
             }, { threshold: 0.1 });
@@ -1436,40 +1519,30 @@
             fadeElements.forEach(el => observer.observe(el));
         }
 
-        // Bottom navigation active state
-        navItems.forEach(item => {
-            item.addEventListener('click', function() {
-                navItems.forEach(i => i.classList.remove('active'));
-                supportNavItem.classList.remove('active');
-                this.classList.add('active');
+        // =================================================================
+        // 7. Initializer
+        // =================================================================
+
+        // Initial function calls
+        loadCategories();
+        loadProducts();
+        initializeScrollAnimations();
+        
+        // Setup observer for the statistics counter animation
+        const storySection = document.getElementById('story');
+        const storyObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    storyObserver.unobserve(entry.target);
+                }
             });
-        });
-
-        supportNavItem.addEventListener('click', function() {
-            navItems.forEach(i => i.classList.remove('active'));
-            this.classList.add('active');
-        });
-
-        // Initialize everything when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            loadCategories();
-            loadProducts();
-            animateOnScroll();
-            
-            const storySection = document.getElementById('story');
-            const storyObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        animateCounters();
-                        storyObserver.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.5 });
-            
-            if(storySection) {
-               storyObserver.observe(storySection);
-            }
-        });
+        }, { threshold: 0.5 });
+        
+        if(storySection) {
+           storyObserver.observe(storySection);
+        }
+    });
     </script>
 </body>
 </html>

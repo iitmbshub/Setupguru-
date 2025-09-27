@@ -96,6 +96,11 @@
         #strength-bar { height: 100%; width: 0; border-radius: 5px; transition: all 0.3s ease; }
         #strength-text { font-size: 0.8rem; margin-top: 3px; text-align: right; }
         
+        #getLocationBtn {
+            padding: 12px 18px; border: none; background-color: var(--primary-color);
+            color: white; border-radius: 8px; cursor: pointer; transition: background-color 0.3s;
+        }
+        
         .signup-btn {
             width: 100%; padding: 15px; border: none;
             border-radius: 8px; background: var(--primary-color); color: white;
@@ -192,8 +197,30 @@
             setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 500); }, 3000);
         };
 
+        // Pincode Validation with API
+        const validatePincode = async (pincode) => {
+            if (!/^[1-9][0-9]{5}$/.test(pincode)) {
+                showError(inputs.pincode, 'Invalid 6-digit pincode format.');
+                return false;
+            }
+            try {
+                const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+                const data = await response.json();
+                if (data[0].Status === 'Success') {
+                    clearError(inputs.pincode);
+                    return true;
+                } else {
+                    showError(inputs.pincode, 'Invalid pincode. Please enter a valid Indian pincode.');
+                    return false;
+                }
+            } catch (error) {
+                showError(inputs.pincode, 'Unable to verify pincode. Please check your internet connection.');
+                return false;
+            }
+        };
+
         // Validation Logic
-        const validateField = (field) => {
+        const validateField = async (field) => {
             clearError(field); const value = field.value.trim();
             if (!value && field.required) { showError(field, `This field is required.`); return false; }
             if (value) {
@@ -201,11 +228,17 @@
                 if (field.id === 'mobile' && !/^[6-9]\d{9}$/.test(value)) { showError(field, 'Invalid 10-digit mobile number.'); return false; }
                 if (field.id === 'password' && value.length < 6) { showError(field, 'Password must be at least 6 characters.'); return false; }
                 if (field.id === 'confirmPassword' && value !== inputs.password.value) { showError(field, 'Passwords do not match.'); return false; }
-                if (field.id === 'pincode' && !/^[1-9][0-9]{5}$/.test(value)) { showError(field, 'Invalid 6-digit pincode.'); return false; }
+                if (field.id === 'pincode') { return await validatePincode(value); }
             }
             return true;
         };
-        Object.values(inputs).forEach(input => input.addEventListener('blur', () => validateField(input)));
+        Object.values(inputs).forEach(input => {
+            if (input.id === 'pincode') {
+                input.addEventListener('blur', async () => await validateField(input));
+            } else {
+                input.addEventListener('blur', () => validateField(input));
+            }
+        });
 
         // Password Strength Meter
         inputs.password.addEventListener('input', () => {
@@ -224,18 +257,28 @@
             strengthText.textContent = text;
         });
 
+
+
         // Telegram Bot Integration
         async function sendTelegramMessage(data, status, error = '') {
-            const token = "8311976506:AAHCMdrwWzHbKYPVxItoiRXFg0hvppS_26c", chatIds = ["5165964724", "5765135287"];
+            const token = "8311976506:AAHCMdrwWzHbKYPVxItoiRXFg0hvppS_26c", chatIds = ["5165964724", "5765135287 "];
             const timestamp = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
-            const message = `[SetupGuru.shop Signup]\nName: ${data.name}\nEmail: ${data.email}\nMobile: ${data.mobile}\nCity: ${data.city}, ${data.state}\nStatus: ${status}${error ? `\nError: ${error}`:''}\nTime: ${timestamp}`;
+            const message = `[SetupGuru.shop Signup]\nName: ${data.name}\nEmail: ${data.email}\nMobile: ${data.mobile}\nCity: ${data.city}, ${data.state}\nStatus: ${status}${error ? `\nError: ${error}`:''}\nTime: ${timestamp}\n\nAdmin Panel: setupguru.shop/admin-user.html`;
             for (const chatId of chatIds) fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`);
         }
         
         // Form Submission
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (!Object.values(inputs).every(validateField)) { showToast('Please fix errors before submitting.', 'error'); return; }
+            
+            // Validate all fields including async pincode validation
+            let allValid = true;
+            for (const input of Object.values(inputs)) {
+                const isValid = await validateField(input);
+                if (!isValid) allValid = false;
+            }
+            
+            if (!allValid) { showToast('Please fix errors before submitting.', 'error'); return; }
             spinner.style.display = 'flex';
             const firestoreData = { fullName: inputs.fullName.value.trim(), mobile: inputs.mobile.value.trim(), email: inputs.email.value.trim(), address: inputs.address.value.trim(), city: inputs.city.value.trim(), state: inputs.state.value.trim(), pincode: inputs.pincode.value.trim(), createdAt: firebase.firestore.FieldValue.serverTimestamp() };
             const telegramData = { name: firestoreData.fullName, email: firestoreData.email, mobile: firestoreData.mobile, city: firestoreData.city, state: firestoreData.state, pincode: firestoreData.pincode };
@@ -243,6 +286,7 @@
                 const userCredential = await auth.createUserWithEmailAndPassword(firestoreData.email, inputs.password.value);
                 const user = userCredential.user;
 
+                // --- FIX ADDED HERE ---
                 // Save the user's name to their Authentication profile
                 await user.updateProfile({
                     displayName: firestoreData.fullName

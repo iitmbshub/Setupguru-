@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coupon Code Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .delete-coupon-btn {
+            transition: color 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <h1 class="text-3xl font-bold text-center mb-8 text-indigo-700">Coupon Management</h1>
+
+        <!-- Coupon Creation Form -->
+        <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-700">Create New Coupon</h2>
+            <form id="couponForm" class="space-y-4">
+                <div>
+                    <label for="couponCode" class="block text-sm font-medium text-gray-600">Coupon Code</label>
+                    <input type="text" id="couponCode" placeholder="e.g., NAVRATRI25" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="discountPercent" class="block text-sm font-medium text-gray-600">Discount Percentage (%)</label>
+                    <input type="number" id="discountPercent" placeholder="e.g., 25" required min="1" max="100" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <button type="submit" id="submitBtn" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400 disabled:cursor-not-allowed" disabled>
+                    <span id="btnText">Generate Coupon</span>
+                    <span id="btnSpinner" class="hidden animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
+                </button>
+            </form>
+            <div id="formMessage" class="mt-4 text-center text-sm font-medium"></div>
+        </div>
+
+        <!-- Existing Coupons List -->
+        <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-700">Active Coupons</h2>
+            <div id="couponList" class="space-y-3">
+                <p class="text-center text-gray-500">Authenticating with Firebase...</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDocs, collection, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+
+        // --- Firebase Config ---
+        const firebaseConfig = { apiKey: "AIzaSyAMweRCGXZCfuRvtlVO0acLbKmY4heV08s", authDomain: "setupguru-217af.firebaseapp.com", projectId: "setupguru-217af", storageBucket: "setupguru-217af.appspot.com", messagingSenderId: "377386830551", appId: "1:377386830551:web:39909b0add3f2bc630be92" };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // --- DOM Elements ---
+        const couponForm = document.getElementById('couponForm');
+        const couponCodeInput = document.getElementById('couponCode');
+        const discountPercentInput = document.getElementById('discountPercent');
+        const formMessage = document.getElementById('formMessage');
+        const couponList = document.getElementById('couponList');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+
+        // --- Functions ---
+        
+        function showLoading(isLoading) {
+            btnText.classList.toggle('hidden', isLoading);
+            btnSpinner.classList.toggle('hidden', !isLoading);
+            submitBtn.disabled = isLoading;
+        }
+
+        function showMessage(message, isError = false) {
+            formMessage.textContent = message;
+            formMessage.className = `mt-4 text-center text-sm font-medium ${isError ? 'text-red-600' : 'text-green-600'}`;
+            setTimeout(() => formMessage.textContent = '', 4000);
+        }
+
+        async function deleteCoupon(couponId) {
+            // Simple confirmation before deleting
+            const userIsSure = window.confirm(`Are you sure you want to delete the coupon "${couponId}"?`);
+            if (!userIsSure) return;
+
+            try {
+                await deleteDoc(doc(db, "coupons", couponId));
+                showMessage(`Coupon "${couponId}" successfully deleted.`);
+                fetchCoupons(); // Refresh the list
+            } catch (error) {
+                console.error("Error deleting coupon:", error);
+                showMessage(`Failed to delete coupon ${couponId}.`, true);
+            }
+        }
+
+        async function fetchCoupons() {
+            couponList.innerHTML = '<p class="text-center text-gray-500">Loading coupons...</p>';
+            try {
+                const couponSnapshot = await getDocs(collection(db, 'coupons'));
+                if (couponSnapshot.empty) {
+                    couponList.innerHTML = '<p class="text-center text-gray-500">No active coupons found.</p>';
+                    return;
+                }
+                couponList.innerHTML = '';
+                couponSnapshot.forEach(docSnap => {
+                    const coupon = docSnap.data();
+                    const couponElement = document.createElement('div');
+                    couponElement.className = 'flex justify-between items-center bg-gray-50 p-3 rounded-lg border';
+                    couponElement.innerHTML = `
+                        <div class="flex items-center">
+                            <span class="font-bold text-indigo-600">${docSnap.id}</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="font-semibold text-green-600">${coupon.discountPercent}% OFF</span>
+                            <button data-id="${docSnap.id}" class="delete-coupon-btn text-gray-400 hover:text-red-600" title="Delete Coupon">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    `;
+                    couponList.appendChild(couponElement);
+                });
+            } catch (error) {
+                console.error("Error fetching coupons: ", error);
+                couponList.innerHTML = '<p class="text-center text-red-500">Could not load coupons. Check Firestore rules.</p>';
+            }
+        }
+
+        // --- Event Listeners ---
+
+        couponForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showLoading(true);
+            const couponCode = couponCodeInput.value.trim().toUpperCase();
+            const discountPercent = parseInt(discountPercentInput.value);
+
+            if (!couponCode || !discountPercent) {
+                showMessage('Please fill out all fields.', true);
+                showLoading(false);
+                return;
+            }
+
+            try {
+                await setDoc(doc(db, 'coupons', couponCode), {
+                    code: couponCode,
+                    discountPercent: discountPercent,
+                    createdAt: serverTimestamp()
+                });
+                showMessage('Coupon created successfully!');
+                couponForm.reset();
+                fetchCoupons();
+            } catch (error) {
+                console.error("Error adding coupon: ", error);
+                showMessage('Failed to create coupon. Check Firestore rules.', true);
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        couponList.addEventListener('click', (e) => {
+            const deleteBtn = e.target.closest('.delete-coupon-btn');
+            if (deleteBtn) {
+                const couponId = deleteBtn.dataset.id;
+                deleteCoupon(couponId);
+            }
+        });
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    // User is signed in.
+                    console.log("Authenticated anonymously:", user.uid);
+                    submitBtn.disabled = false; // Enable form submission
+                    fetchCoupons();
+                } else {
+                    // User is signed out. Try to sign in.
+                    signInAnonymously(auth).catch((error) => {
+                        console.error("Anonymous sign-in failed:", error);
+                        couponList.innerHTML = '<p class="text-center text-red-500">Authentication failed. Cannot manage coupons.</p>';
+                        submitBtn.disabled = true;
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
