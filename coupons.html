@@ -12,26 +12,68 @@
             font-family: 'Poppins', sans-serif;
         }
         .delete-coupon-btn {
-            transition: color 0.2s ease-in-out;
+            transition: all 0.2s ease-in-out;
+        }
+        .coupon-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .coupon-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(45deg);
+            transition: all 0.3s ease;
+        }
+        .coupon-card:hover::before {
+            right: -30%;
         }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
 
+    <!-- Back to Home Button -->
+    <div class="fixed top-4 left-4 z-50">
+        <a href="index.html" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-all duration-200">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Home
+        </a>
+    </div>
+
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
         <h1 class="text-3xl font-bold text-center mb-8 text-indigo-700">Coupon Management</h1>
 
         <!-- Coupon Creation Form -->
-        <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6 mb-8">
+        <div class="max-w-lg mx-auto bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 class="text-2xl font-semibold mb-4 text-gray-700">Create New Coupon</h2>
             <form id="couponForm" class="space-y-4">
-                <div>
-                    <label for="couponCode" class="block text-sm font-medium text-gray-600">Coupon Code</label>
-                    <input type="text" id="couponCode" placeholder="e.g., NAVRATRI25" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="couponCode" class="block text-sm font-medium text-gray-600">Coupon Code</label>
+                        <input type="text" id="couponCode" placeholder="e.g., NAVRATRI25" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="discountPercent" class="block text-sm font-medium text-gray-600">Discount (%)</label>
+                        <input type="number" id="discountPercent" placeholder="e.g., 25" required min="1" max="100" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
                 </div>
-                <div>
-                    <label for="discountPercent" class="block text-sm font-medium text-gray-600">Discount Percentage (%)</label>
-                    <input type="number" id="discountPercent" placeholder="e.g., 25" required min="1" max="100" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="maxUses" class="block text-sm font-medium text-gray-600">Max Uses</label>
+                        <input type="number" id="maxUses" placeholder="e.g., 100" required min="1" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="expiryDate" class="block text-sm font-medium text-gray-600">Expiry Date</label>
+                        <input type="date" id="expiryDate" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
                 </div>
                 <button type="submit" id="submitBtn" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400 disabled:cursor-not-allowed" disabled>
                     <span id="btnText">Generate Coupon</span>
@@ -41,18 +83,57 @@
             <div id="formMessage" class="mt-4 text-center text-sm font-medium"></div>
         </div>
 
+        <!-- Test Coupon Usage -->
+        <div class="max-w-lg mx-auto bg-yellow-50 border border-yellow-200 rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-yellow-800">Test Coupon Usage</h2>
+            <div class="space-y-3">
+                <div class="flex gap-2">
+                    <input type="text" id="testCouponCode" placeholder="Enter coupon code" class="flex-1 px-3 py-2 border border-yellow-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                    <input type="email" id="testUserEmail" placeholder="User email" class="flex-1 px-3 py-2 border border-yellow-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                </div>
+                <button id="testUseBtn" class="w-full py-2 px-4 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors">
+                    <i class="fas fa-test-tube mr-2"></i>Test Use Coupon
+                </button>
+                <p class="text-xs text-yellow-700">This simulates a user applying a coupon code</p>
+            </div>
+        </div>
+
         <!-- Existing Coupons List -->
-        <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-2xl font-semibold mb-4 text-gray-700">Active Coupons</h2>
+        <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-semibold text-gray-700">Active Coupons</h2>
+                <div class="flex gap-2">
+                    <button id="refreshBtn" class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm">
+                        <i class="fas fa-sync-alt mr-1"></i>Refresh
+                    </button>
+                </div>
+            </div>
             <div id="couponList" class="space-y-3">
                 <p class="text-center text-gray-500">Authenticating with Firebase...</p>
+            </div>
+        </div>
+
+        <!-- Usage Details Modal -->
+        <div id="usageModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-96 overflow-hidden">
+                    <div class="flex justify-between items-center p-4 border-b">
+                        <h3 class="text-lg font-semibold">Coupon Usage Details</h3>
+                        <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div id="modalContent" class="p-4 overflow-y-auto max-h-80">
+                        <!-- Usage details will be loaded here -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDocs, collection, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDocs, collection, deleteDoc, serverTimestamp, updateDoc, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 
         // --- Firebase Config ---
@@ -65,11 +146,20 @@
         const couponForm = document.getElementById('couponForm');
         const couponCodeInput = document.getElementById('couponCode');
         const discountPercentInput = document.getElementById('discountPercent');
+        const maxUsesInput = document.getElementById('maxUses');
+        const expiryDateInput = document.getElementById('expiryDate');
         const formMessage = document.getElementById('formMessage');
         const couponList = document.getElementById('couponList');
         const submitBtn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
         const btnSpinner = document.getElementById('btnSpinner');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const usageModal = document.getElementById('usageModal');
+        const modalContent = document.getElementById('modalContent');
+        const closeModal = document.getElementById('closeModal');
+        const testCouponCodeInput = document.getElementById('testCouponCode');
+        const testUserEmailInput = document.getElementById('testUserEmail');
+        const testUseBtn = document.getElementById('testUseBtn');
 
         // --- Functions ---
         
@@ -86,14 +176,13 @@
         }
 
         async function deleteCoupon(couponId) {
-            // Simple confirmation before deleting
-            const userIsSure = window.confirm(`Are you sure you want to delete the coupon "${couponId}"?`);
+            const userIsSure = window.confirm(`Are you sure you want to delete the coupon "${couponId}"?\n\nThis action cannot be undone.`);
             if (!userIsSure) return;
 
             try {
                 await deleteDoc(doc(db, "coupons", couponId));
                 showMessage(`Coupon "${couponId}" successfully deleted.`);
-                fetchCoupons(); // Refresh the list
+                fetchCoupons();
             } catch (error) {
                 console.error("Error deleting coupon:", error);
                 showMessage(`Failed to delete coupon ${couponId}.`, true);
@@ -111,17 +200,41 @@
                 couponList.innerHTML = '';
                 couponSnapshot.forEach(docSnap => {
                     const coupon = docSnap.data();
+                    const usedCount = coupon.usedBy ? coupon.usedBy.length : 0;
+                    const isExpired = coupon.expiryDate && new Date(coupon.expiryDate) < new Date();
+                    const isMaxedOut = usedCount >= coupon.maxUses;
+                    const status = isExpired ? 'Expired' : isMaxedOut ? 'Max Used' : 'Active';
+                    const statusColor = isExpired || isMaxedOut ? 'text-red-600' : 'text-green-600';
+                    
                     const couponElement = document.createElement('div');
-                    couponElement.className = 'flex justify-between items-center bg-gray-50 p-3 rounded-lg border';
+                    couponElement.className = `bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg border ${isExpired || isMaxedOut ? 'opacity-75' : ''}`;
                     couponElement.innerHTML = `
-                        <div class="flex items-center">
-                            <span class="font-bold text-indigo-600">${docSnap.id}</span>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <span class="font-semibold text-green-600">${coupon.discountPercent}% OFF</span>
-                            <button data-id="${docSnap.id}" class="delete-coupon-btn text-gray-400 hover:text-red-600" title="Delete Coupon">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-start gap-4">
+                                <div class="bg-indigo-100 p-3 rounded-lg">
+                                    <i class="fas fa-ticket-alt text-indigo-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="font-bold text-indigo-700 text-xl">${docSnap.id}</span>
+                                        <span class="px-2 py-1 text-xs rounded-full ${statusColor} bg-gray-100">${status}</span>
+                                    </div>
+                                    <div class="text-sm text-gray-600 space-y-1">
+                                        <p><i class="fas fa-percentage mr-1"></i> ${coupon.discountPercent}% Discount</p>
+                                        <p><i class="fas fa-users mr-1"></i> Used: ${usedCount}/${coupon.maxUses}</p>
+                                        <p><i class="fas fa-calendar mr-1"></i> Expires: ${coupon.expiryDate ? new Date(coupon.expiryDate).toLocaleDateString() : 'N/A'}</p>
+                                        <p><i class="fas fa-clock mr-1"></i> Created: ${coupon.createdAt ? new Date(coupon.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <button data-id="${docSnap.id}" class="view-usage-btn px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm" title="View Usage Details">
+                                    <i class="fas fa-eye mr-1"></i>Usage
+                                </button>
+                                <button data-id="${docSnap.id}" class="delete-coupon-btn px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm" title="Delete Coupon">
+                                    <i class="fas fa-trash-alt mr-1"></i>Delete
+                                </button>
+                            </div>
                         </div>
                     `;
                     couponList.appendChild(couponElement);
@@ -134,13 +247,63 @@
 
         // --- Event Listeners ---
 
+        async function viewUsageDetails(couponId) {
+            try {
+                const couponDoc = await getDoc(doc(db, 'coupons', couponId));
+                if (!couponDoc.exists()) {
+                    showMessage('Coupon not found!', true);
+                    return;
+                }
+                
+                const coupon = couponDoc.data();
+                const usedBy = coupon.usedBy || [];
+                
+                modalContent.innerHTML = `
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-lg mb-2">Coupon: ${couponId}</h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div><strong>Discount:</strong> ${coupon.discountPercent}%</div>
+                            <div><strong>Max Uses:</strong> ${coupon.maxUses}</div>
+                            <div><strong>Used:</strong> ${usedBy.length}</div>
+                            <div><strong>Remaining:</strong> ${coupon.maxUses - usedBy.length}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <h5 class="font-medium mb-2">Usage History:</h5>
+                        ${usedBy.length > 0 ? `
+                            <div class="space-y-2 max-h-40 overflow-y-auto">
+                                ${usedBy.map((usage, index) => `
+                                    <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                                        <div>
+                                            <span class="font-medium">${usage.userEmail || 'Anonymous User'}</span>
+                                            <div class="text-xs text-gray-500">User ID: ${usage.userId}</div>
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            ${usage.usedAt ? new Date(usage.usedAt.toDate()).toLocaleString() : 'N/A'}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<p class="text-gray-500 text-sm">No usage history yet.</p>'}
+                    </div>
+                `;
+                
+                usageModal.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error fetching usage details:', error);
+                showMessage('Failed to load usage details.', true);
+            }
+        }
+
         couponForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             showLoading(true);
             const couponCode = couponCodeInput.value.trim().toUpperCase();
             const discountPercent = parseInt(discountPercentInput.value);
+            const maxUses = parseInt(maxUsesInput.value);
+            const expiryDate = expiryDateInput.value;
 
-            if (!couponCode || !discountPercent) {
+            if (!couponCode || !discountPercent || !maxUses || !expiryDate) {
                 showMessage('Please fill out all fields.', true);
                 showLoading(false);
                 return;
@@ -150,6 +313,9 @@
                 await setDoc(doc(db, 'coupons', couponCode), {
                     code: couponCode,
                     discountPercent: discountPercent,
+                    maxUses: maxUses,
+                    expiryDate: expiryDate,
+                    usedBy: [],
                     createdAt: serverTimestamp()
                 });
                 showMessage('Coupon created successfully!');
@@ -165,22 +331,104 @@
 
         couponList.addEventListener('click', (e) => {
             const deleteBtn = e.target.closest('.delete-coupon-btn');
+            const viewBtn = e.target.closest('.view-usage-btn');
+            
             if (deleteBtn) {
                 const couponId = deleteBtn.dataset.id;
                 deleteCoupon(couponId);
+            } else if (viewBtn) {
+                const couponId = viewBtn.dataset.id;
+                viewUsageDetails(couponId);
             }
         });
 
+        refreshBtn.addEventListener('click', fetchCoupons);
+        
+        closeModal.addEventListener('click', () => {
+            usageModal.classList.add('hidden');
+        });
+        
+        usageModal.addEventListener('click', (e) => {
+            if (e.target === usageModal) {
+                usageModal.classList.add('hidden');
+            }
+        });
+        
+        testUseBtn.addEventListener('click', () => {
+            const couponCode = testCouponCodeInput.value.trim();
+            const userEmail = testUserEmailInput.value.trim();
+            
+            if (!couponCode || !userEmail) {
+                alert('Please enter both coupon code and user email');
+                return;
+            }
+            
+            useCoupon(couponCode, userEmail);
+        });
+
+        // Function to simulate coupon usage (for testing)
+        window.useCoupon = async function(couponCode, userEmail = 'test@example.com') {
+            try {
+                const couponRef = doc(db, 'coupons', couponCode.toUpperCase());
+                const couponDoc = await getDoc(couponRef);
+                
+                if (!couponDoc.exists()) {
+                    alert('Coupon not found!');
+                    return false;
+                }
+                
+                const coupon = couponDoc.data();
+                const usedBy = coupon.usedBy || [];
+                
+                // Check if expired
+                if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) {
+                    alert('Coupon has expired!');
+                    return false;
+                }
+                
+                // Check if max uses reached
+                if (usedBy.length >= coupon.maxUses) {
+                    alert('Coupon usage limit reached!');
+                    return false;
+                }
+                
+                // Check if user already used this coupon
+                if (usedBy.some(usage => usage.userEmail === userEmail)) {
+                    alert('You have already used this coupon!');
+                    return false;
+                }
+                
+                // Add usage record
+                await updateDoc(couponRef, {
+                    usedBy: arrayUnion({
+                        userId: `user_${Date.now()}`,
+                        userEmail: userEmail,
+                        usedAt: serverTimestamp()
+                    })
+                });
+                
+                alert(`Coupon applied! ${coupon.discountPercent}% discount`);
+                fetchCoupons(); // Refresh the list
+                return true;
+            } catch (error) {
+                console.error('Error using coupon:', error);
+                alert('Failed to apply coupon!');
+                return false;
+            }
+        };
+
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            expiryDateInput.min = today;
+            
             onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    // User is signed in.
                     console.log("Authenticated anonymously:", user.uid);
-                    submitBtn.disabled = false; // Enable form submission
+                    submitBtn.disabled = false;
                     fetchCoupons();
                 } else {
-                    // User is signed out. Try to sign in.
                     signInAnonymously(auth).catch((error) => {
                         console.error("Anonymous sign-in failed:", error);
                         couponList.innerHTML = '<p class="text-center text-red-500">Authentication failed. Cannot manage coupons.</p>';

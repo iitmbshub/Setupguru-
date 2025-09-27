@@ -209,32 +209,207 @@
             margin-top: 2rem;
         }
 
-        .previous-orders {
-            margin-top: 2rem;
+        .user-info {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
             text-align: center;
         }
+        
+        .order-details {
+            background: var(--background-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .order-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-item {
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .info-item h5 {
+            color: var(--light-text);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-item p {
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .estimated-delivery {
+            background: linear-gradient(135deg, #e8f5e8, #d4edda);
+            border: 1px solid var(--success-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .estimated-delivery h4 {
+            color: var(--success-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .delivery-date {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+        
+        .previous-orders {
+            margin-top: 2rem;
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
         .previous-orders h4 {
             color: var(--primary-color);
             margin-bottom: 1rem;
+            text-align: center;
         }
-        .order-history-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
+        
+        .order-history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
         }
-        .order-history-btn {
-            padding: 8px 15px;
-            background-color: var(--light-text);
-            color: white;
-            border: none;
+        
+        .order-history-card {
+            background: var(--background-color);
+            padding: 1rem;
             border-radius: 8px;
-            font-weight: 500;
+            border: 1px solid var(--border-color);
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
         }
-        .order-history-btn:hover {
-            background-color: var(--primary-color);
+        
+        .order-history-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-color: var(--primary-color);
+        }
+        
+        .order-history-card h5 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .order-history-card p {
+            color: var(--light-text);
+            font-size: 0.85rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .order-status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--primary-color);
+            background: transparent;
+            color: var(--primary-color);
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .action-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .timeline-item .timestamp {
+            font-size: 0.8rem;
+            color: var(--light-text);
+            margin-top: 0.25rem;
+        }
+        
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .suggestion-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+        }
+        
+        .suggestion-item:hover {
+            background: var(--background-color);
+        }
+        
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        
+        .input-container {
+            position: relative;
         }
         
         @media (max-width: 600px) {
@@ -256,9 +431,19 @@
     <div class="container">
         <div class="track-card">
             <h1>Track Your Order</h1>
+            <div id="userInfo" class="user-info" style="display: none;">
+                <h3>Welcome back, <span id="userName"></span>!</h3>
+                <p>Track your orders and view order history</p>
+            </div>
+            
             <div class="input-group">
-                <input type="text" id="orderIdInput" placeholder="Enter your Order ID">
-                <button id="trackBtn" class="track-btn">Track Order</button>
+                <div class="input-container">
+                    <input type="text" id="orderIdInput" placeholder="Enter your Order ID (e.g., ORD123456)" autocomplete="off">
+                    <div id="searchSuggestions" class="search-suggestions" style="display: none;"></div>
+                </div>
+                <button id="trackBtn" class="track-btn">
+                    <i class="fas fa-search"></i> Track Order
+                </button>
             </div>
             
             <div id="track-results" style="display: none;">
@@ -267,19 +452,66 @@
                     <span id="orderStatusSpan" class="order-status"></span>
                 </div>
 
+                <div class="order-details">
+                    <div class="order-info-grid">
+                        <div class="info-item">
+                            <h5>Order Date</h5>
+                            <p id="orderDate">-</p>
+                        </div>
+                        <div class="info-item">
+                            <h5>Total Amount</h5>
+                            <p id="orderAmount">-</p>
+                        </div>
+                        <div class="info-item">
+                            <h5>Payment Method</h5>
+                            <p id="paymentMethod">-</p>
+                        </div>
+                        <div class="info-item">
+                            <h5>Delivery Address</h5>
+                            <p id="deliveryAddress">-</p>
+                        </div>
+                    </div>
+                    
+                    <div id="estimatedDelivery" class="estimated-delivery" style="display: none;">
+                        <h4><i class="fas fa-calendar-alt"></i> Estimated Delivery</h4>
+                        <div class="delivery-date" id="deliveryDate"></div>
+                    </div>
+                </div>
+
                 <div class="status-timeline">
                     <div class="timeline-item" id="confirmedStatus">
                         <i class="fas fa-check-circle icon"></i>
-                        Order Confirmed
+                        <div>
+                            Order Confirmed
+                            <div class="timestamp" id="confirmedTime"></div>
+                        </div>
                     </div>
                     <div class="timeline-item" id="shippedStatus">
                         <i class="fas fa-truck icon"></i>
-                        Shipped Out for Delivery
+                        <div>
+                            Shipped Out for Delivery
+                            <div class="timestamp" id="shippedTime"></div>
+                        </div>
                     </div>
                     <div class="timeline-item" id="deliveredStatus">
                         <i class="fas fa-box-open icon"></i>
-                        Delivered
+                        <div>
+                            Delivered
+                            <div class="timestamp" id="deliveredTime"></div>
+                        </div>
                     </div>
+                </div>
+                
+                <div class="quick-actions">
+                    <button class="action-btn" onclick="window.print()">
+                        <i class="fas fa-print"></i> Print Details
+                    </button>
+                    <a href="mailto:support@setupguru.com" class="action-btn">
+                        <i class="fas fa-envelope"></i> Contact Support
+                    </a>
+                    <button class="action-btn" onclick="shareOrder()">
+                        <i class="fas fa-share"></i> Share
+                    </button>
                 </div>
                 
                 <div id="noteSection" style="display: none;">
@@ -293,9 +525,9 @@
             <p id="not-found-message" style="display: none;"></p>
 
             <div class="previous-orders">
-                <h4>Previous Order IDs</h4>
-                <div id="orderHistoryButtons" class="order-history-buttons">
-                    <p id="no-history-message" style="color: var(--light-text);">No recent orders found. Please enter an ID to start tracking.</p>
+                <h4><i class="fas fa-history"></i> Order History</h4>
+                <div id="orderHistoryGrid" class="order-history-grid">
+                    <p id="no-history-message" style="color: var(--light-text); text-align: center; grid-column: 1 / -1;">No recent orders found. Please enter an ID to start tracking.</p>
                 </div>
             </div>
 
@@ -338,22 +570,47 @@
         const orderHistoryButtonsDiv = document.getElementById('orderHistoryButtons');
         const noHistoryMessage = document.getElementById('no-history-message');
 
+        // Additional DOM elements
+        const userInfoDiv = document.getElementById('userInfo');
+        const userNameSpan = document.getElementById('userName');
+        const orderHistoryGrid = document.getElementById('orderHistoryGrid');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        
+        // Order detail elements
+        const orderDate = document.getElementById('orderDate');
+        const orderAmount = document.getElementById('orderAmount');
+        const paymentMethod = document.getElementById('paymentMethod');
+        const deliveryAddress = document.getElementById('deliveryAddress');
+        const estimatedDelivery = document.getElementById('estimatedDelivery');
+        const deliveryDate = document.getElementById('deliveryDate');
+        const confirmedTime = document.getElementById('confirmedTime');
+        const shippedTime = document.getElementById('shippedTime');
+        const deliveredTime = document.getElementById('deliveredTime');
+
+        let currentUser = null;
+        let orderHistory = [];
+
         // Initial setup and event listeners
         document.addEventListener('DOMContentLoaded', () => {
-            loadPreviousOrderIds();
+            loadOrderHistory();
             const urlParams = new URLSearchParams(window.location.search);
             const orderIdFromUrl = urlParams.get('orderId');
             
             if (orderIdFromUrl) {
                 orderIdInput.value = orderIdFromUrl;
                 trackOrder();
-            } else {
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        fetchLastOrder(user.uid);
-                    }
-                });
             }
+            
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user;
+                if (user) {
+                    userInfoDiv.style.display = 'block';
+                    userNameSpan.textContent = user.displayName || user.email.split('@')[0];
+                    fetchUserOrders(user.uid);
+                } else {
+                    userInfoDiv.style.display = 'none';
+                }
+            });
         });
 
         trackBtn.addEventListener('click', trackOrder);
@@ -363,35 +620,57 @@
             }
         });
 
-        // Add event listener to previous order buttons
-        orderHistoryButtonsDiv.addEventListener('click', (e) => {
-            if (e.target.classList.contains('order-history-btn')) {
-                const orderId = e.target.dataset.orderId;
+        // Enhanced event listeners
+        orderHistoryGrid.addEventListener('click', (e) => {
+            const card = e.target.closest('.order-history-card');
+            if (card) {
+                const orderId = card.dataset.orderId;
                 orderIdInput.value = orderId;
                 trackOrder();
+            }
+        });
+        
+        // Search suggestions
+        orderIdInput.addEventListener('input', (e) => {
+            const value = e.target.value.trim();
+            if (value.length > 2) {
+                showSearchSuggestions(value);
+            } else {
+                searchSuggestions.style.display = 'none';
+            }
+        });
+        
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.input-container')) {
+                searchSuggestions.style.display = 'none';
             }
         });
 
         // --- Core Functions ---
 
-        async function fetchLastOrder(userId) {
+        async function fetchUserOrders(userId) {
             try {
                 const ordersRef = collection(db, 'orders');
-                const q = query(ordersRef, where('userId', '==', userId), orderBy('createdAt', 'desc'), limit(1));
+                const q = query(ordersRef, where('userId', '==', userId), orderBy('createdAt', 'desc'), limit(10));
                 const querySnapshot = await getDocs(q);
 
-                if (!querySnapshot.empty) {
-                    const lastOrder = querySnapshot.docs[0].data();
-                    // Add this order ID to history
-                    saveOrderIdToHistory(lastOrder.orderId);
-                    // Fill the input and track automatically
-                    orderIdInput.value = lastOrder.orderId;
+                const userOrders = [];
+                querySnapshot.forEach((doc) => {
+                    userOrders.push({ id: doc.id, ...doc.data() });
+                });
+                
+                orderHistory = userOrders;
+                renderOrderHistory(userOrders);
+                
+                // Auto-track the latest order if no specific order is requested
+                if (userOrders.length > 0 && !orderIdInput.value) {
+                    const latestOrder = userOrders[0];
+                    orderIdInput.value = latestOrder.orderId;
                     trackOrder();
-                } else {
-                    displayNotFound('No previous orders found for this user. Please enter your order ID manually.');
                 }
             } catch (error) {
-                console.error("Error fetching last order:", error);
+                console.error("Error fetching user orders:", error);
             }
         }
 
@@ -404,65 +683,133 @@
             }
 
             try {
-                trackBtn.textContent = 'Tracking...';
+                trackBtn.innerHTML = '<span class="loading-spinner"></span> Tracking...';
                 const orderDocRef = doc(db, 'orders', orderId);
                 const orderDoc = await getDoc(orderDocRef);
 
                 if (orderDoc.exists()) {
                     const orderData = orderDoc.data();
                     displayOrderDetails(orderData);
-                    saveOrderIdToHistory(orderId); // Save to history on successful track
+                    saveOrderToLocalHistory(orderData);
+                    
+                    // Update URL without page reload
+                    const newUrl = new URL(window.location);
+                    newUrl.searchParams.set('orderId', orderId);
+                    window.history.pushState({}, '', newUrl);
                 } else {
-                    displayNotFound('Order not found. Please check your Order ID.');
+                    displayNotFound('Order not found. Please check your Order ID and try again.');
                 }
             } catch (error) {
                 console.error("Error fetching order:", error);
-                displayNotFound('An error occurred. Please try again later.');
+                displayNotFound('Network error. Please check your connection and try again.');
             } finally {
-                trackBtn.textContent = 'Track Order';
+                trackBtn.innerHTML = '<i class="fas fa-search"></i> Track Order';
             }
         }
         
-        // --- History Management Functions ---
+        // --- Enhanced History Management ---
 
-        function loadPreviousOrderIds() {
+        function loadOrderHistory() {
             try {
-                const history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
-                renderHistoryButtons(history);
+                const history = JSON.parse(localStorage.getItem('orderTrackingHistory') || '[]');
+                if (history.length > 0) {
+                    renderOrderHistory(history);
+                }
             } catch (e) {
                 console.error("Error loading order history:", e);
-                // In case of corrupted data, clear it.
-                localStorage.removeItem('orderHistory');
+                localStorage.removeItem('orderTrackingHistory');
             }
         }
 
-        function saveOrderIdToHistory(orderId) {
-            let history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
-            // Add to the beginning of the array if not already present
-            if (!history.includes(orderId)) {
-                history.unshift(orderId);
-                // Keep only the last 5 IDs
-                if (history.length > 5) {
-                    history = history.slice(0, 5);
-                }
-                localStorage.setItem('orderHistory', JSON.stringify(history));
-                renderHistoryButtons(history);
-            }
-        }
-
-        function renderHistoryButtons(history) {
-            orderHistoryButtonsDiv.innerHTML = '';
-            if (history.length > 0) {
-                history.forEach(id => {
-                    const btn = document.createElement('button');
-                    btn.className = 'order-history-btn';
-                    btn.textContent = id;
-                    btn.dataset.orderId = id;
-                    orderHistoryButtonsDiv.appendChild(btn);
+        function saveOrderToLocalHistory(orderData) {
+            try {
+                let history = JSON.parse(localStorage.getItem('orderTrackingHistory') || '[]');
+                
+                // Remove existing entry if present
+                history = history.filter(order => order.orderId !== orderData.orderId);
+                
+                // Add to beginning
+                history.unshift({
+                    orderId: orderData.orderId,
+                    status: orderData.status,
+                    createdAt: orderData.createdAt,
+                    totalAmount: orderData.totalAmount,
+                    lastTracked: new Date().toISOString()
                 });
-            } else {
-                orderHistoryButtonsDiv.appendChild(noHistoryMessage);
+                
+                // Keep only last 8 orders
+                if (history.length > 8) {
+                    history = history.slice(0, 8);
+                }
+                
+                localStorage.setItem('orderTrackingHistory', JSON.stringify(history));
+                
+                // Re-render if user is not logged in (logged in users get real data)
+                if (!currentUser) {
+                    renderOrderHistory(history);
+                }
+            } catch (e) {
+                console.error("Error saving to history:", e);
             }
+        }
+
+        function renderOrderHistory(orders) {
+            orderHistoryGrid.innerHTML = '';
+            
+            if (orders.length === 0) {
+                orderHistoryGrid.appendChild(noHistoryMessage);
+                return;
+            }
+            
+            orders.forEach(order => {
+                const card = document.createElement('div');
+                card.className = 'order-history-card';
+                card.dataset.orderId = order.orderId;
+                
+                const statusClass = `status-${order.status?.toLowerCase().replace(/\s/g, '-') || 'confirmed'}`;
+                const orderDate = order.createdAt ? new Date(order.createdAt.seconds * 1000).toLocaleDateString() : 'N/A';
+                const amount = order.totalAmount ? `₹${order.totalAmount}` : 'N/A';
+                
+                card.innerHTML = `
+                    <h5>#${order.orderId}</h5>
+                    <p><i class="fas fa-calendar"></i> ${orderDate}</p>
+                    <p><i class="fas fa-rupee-sign"></i> ${amount}</p>
+                    <span class="order-status-badge ${statusClass}">${order.status || 'Confirmed'}</span>
+                `;
+                
+                orderHistoryGrid.appendChild(card);
+            });
+        }
+        
+        function showSearchSuggestions(searchTerm) {
+            const suggestions = orderHistory.filter(order => 
+                order.orderId.toLowerCase().includes(searchTerm.toLowerCase())
+            ).slice(0, 5);
+            
+            if (suggestions.length === 0) {
+                searchSuggestions.style.display = 'none';
+                return;
+            }
+            
+            searchSuggestions.innerHTML = '';
+            suggestions.forEach(order => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.innerHTML = `
+                    <strong>#${order.orderId}</strong>
+                    <small style="display: block; color: var(--light-text);">
+                        ${order.status || 'Confirmed'} • ₹${order.totalAmount || 'N/A'}
+                    </small>
+                `;
+                item.addEventListener('click', () => {
+                    orderIdInput.value = order.orderId;
+                    searchSuggestions.style.display = 'none';
+                    trackOrder();
+                });
+                searchSuggestions.appendChild(item);
+            });
+            
+            searchSuggestions.style.display = 'block';
         }
 
         // --- UI Display Functions ---
@@ -476,10 +823,61 @@
             orderStatusSpan.textContent = status;
             orderStatusSpan.className = `order-status status-${status.toLowerCase().replace(/\s/g, '-')}`;
 
-            confirmedStatus.classList.remove('active');
-            shippedStatus.classList.remove('active');
-            deliveredStatus.classList.remove('active');
+            // Populate order details
+            orderDate.textContent = orderData.createdAt ? 
+                new Date(orderData.createdAt.seconds * 1000).toLocaleDateString('en-IN', {
+                    year: 'numeric', month: 'long', day: 'numeric'
+                }) : 'N/A';
+            
+            orderAmount.textContent = orderData.totalAmount ? `₹${orderData.totalAmount}` : 'N/A';
+            paymentMethod.textContent = orderData.paymentMethod || 'Cash on Delivery';
+            deliveryAddress.textContent = orderData.shippingAddress ? 
+                `${orderData.shippingAddress.street}, ${orderData.shippingAddress.city}` : 'N/A';
 
+            // Show estimated delivery
+            if (status !== 'Delivered' && status !== 'Cancelled') {
+                estimatedDelivery.style.display = 'block';
+                const estimatedDate = new Date();
+                estimatedDate.setDate(estimatedDate.getDate() + (status === 'Confirmed' ? 5 : 2));
+                deliveryDate.textContent = estimatedDate.toLocaleDateString('en-IN', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                });
+            } else {
+                estimatedDelivery.style.display = 'none';
+            }
+
+            // Update timeline
+            updateTimeline(status, orderData);
+
+            // Show admin note if exists
+            if (orderData.trackingNote && orderData.trackingNote.trim() !== '') {
+                noteSection.style.display = 'block';
+                adminNote.textContent = orderData.trackingNote;
+            } else {
+                noteSection.style.display = 'none';
+            }
+        }
+        
+        function updateTimeline(status, orderData) {
+            // Reset timeline
+            [confirmedStatus, shippedStatus, deliveredStatus].forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Set timestamps
+            if (orderData.createdAt) {
+                confirmedTime.textContent = new Date(orderData.createdAt.seconds * 1000).toLocaleString('en-IN');
+            }
+            
+            if (orderData.shippedAt) {
+                shippedTime.textContent = new Date(orderData.shippedAt.seconds * 1000).toLocaleString('en-IN');
+            }
+            
+            if (orderData.deliveredAt) {
+                deliveredTime.textContent = new Date(orderData.deliveredAt.seconds * 1000).toLocaleString('en-IN');
+            }
+
+            // Activate timeline items based on status
             if (status === 'Confirmed' || status === 'Shipped Out for Delivery' || status === 'Delivered') {
                 confirmedStatus.classList.add('active');
             }
@@ -489,20 +887,51 @@
             if (status === 'Delivered') {
                 deliveredStatus.classList.add('active');
             }
-
-            if (orderData.trackingNote && orderData.trackingNote.trim() !== '') {
-                noteSection.style.display = 'block';
-                adminNote.textContent = orderData.trackingNote;
-            } else {
-                noteSection.style.display = 'none';
-            }
         }
 
         function displayNotFound(message) {
             trackResultsDiv.style.display = 'none';
             notFoundMessage.style.display = 'block';
-            notFoundMessage.textContent = message;
+            notFoundMessage.innerHTML = `
+                <i class="fas fa-exclamation-triangle" style="color: #e74c3c; margin-right: 0.5rem;"></i>
+                ${message}
+            `;
         }
+        
+        // --- Additional Utility Functions ---
+        
+        function shareOrder() {
+            const orderId = orderIdInput.value.trim();
+            if (!orderId) return;
+            
+            const shareUrl = `${window.location.origin}${window.location.pathname}?orderId=${orderId}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: `Track Order #${orderId}`,
+                    text: `Track your SetupGuru order #${orderId}`,
+                    url: shareUrl
+                });
+            } else {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    alert('Order tracking link copied to clipboard!');
+                });
+            }
+        }
+        
+        // Auto-refresh order status every 30 seconds if order is active
+        setInterval(() => {
+            const orderId = orderIdInput.value.trim();
+            if (orderId && trackResultsDiv.style.display === 'block') {
+                const currentStatus = orderStatusSpan.textContent;
+                if (currentStatus !== 'Delivered' && currentStatus !== 'Cancelled') {
+                    trackOrder();
+                }
+            }
+        }, 30000);
+        
+        // Make functions globally available
+        window.shareOrder = shareOrder;
     </script>
 </body>
 </html>

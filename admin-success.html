@@ -45,17 +45,106 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.5rem 1rem;
-            background-color: var(--primary-color);
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
             border-radius: 12px;
             margin-bottom: 2rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
         }
 
         .header h1 {
             font-size: 2rem;
             font-weight: 700;
+        }
+        
+        .header-stats {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+        
+        .dashboard-controls {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        
+        .controls-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--light-text);
+        }
+        
+        .filter-select {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .refresh-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
         }
 
         .order-list {
@@ -71,7 +160,30 @@
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
+            border-left: 4px solid var(--secondary-color);
+            transition: all 0.3s ease;
+            position: relative;
         }
+        
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .priority-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .priority-high { background: #ff6b6b; color: white; }
+        .priority-medium { background: #feca57; color: white; }
+        .priority-low { background: #48dbfb; color: white; }
 
         .order-card-header {
             display: flex;
@@ -84,6 +196,15 @@
         .order-card-header h3 {
             font-size: 1.5rem;
             color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .order-time {
+            font-size: 0.85rem;
+            color: var(--light-text);
+            font-weight: 400;
         }
 
         .order-status {
@@ -102,8 +223,46 @@
 
         .card-section {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.5rem;
+        }
+        
+        .info-box {
+            background: var(--background-color);
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .coupon-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .coupon-info h5 {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .coupon-code {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .payment-info {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
         }
 
         .info-box h4 {
@@ -115,11 +274,13 @@
         .info-box p {
             font-size: 0.95rem;
             color: var(--light-text);
+            margin-bottom: 0.5rem;
         }
         
         .info-box p strong {
             display: inline-block;
             margin-right: 5px;
+            color: var(--text-color);
         }
 
         .items-list-section ul {
@@ -147,6 +308,7 @@
         .summary-section p {
             font-size: 1rem;
             font-weight: 500;
+            margin-bottom: 0.25rem;
         }
 
         .summary-section p strong {
@@ -171,6 +333,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            text-decoration: none;
         }
         
         .action-btn:hover {
@@ -229,8 +392,14 @@
             margin-top: 5rem;
         }
         
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
         @media (max-width: 768px) {
             .header h1 { font-size: 1.5rem; }
+            .header-stats { flex-direction: column; gap: 1rem; }
             .container { padding: 1rem; }
             .order-card { padding: 1rem; }
             .order-card-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
@@ -246,9 +415,47 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Admin Dashboard</h1>
-            <button id="logoutBtn" class="action-btn" style="background-color: white; color: var(--primary-color);">Logout</button>
+            <div>
+                <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalOrders">0</span>
+                        <span class="stat-label">Total Orders</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="pendingOrders">0</span>
+                        <span class="stat-label">Pending</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalRevenue">₹0</span>
+                        <span class="stat-label">Revenue</span>
+                    </div>
+                </div>
+            </div>
+            <button id="logoutBtn" class="action-btn" style="background-color: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
         </div>
+        
+        <div class="dashboard-controls">
+            <div class="controls-row">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search by Order ID, Name, Phone, Email...">
+                </div>
+                <select id="statusFilter" class="filter-select">
+                    <option value="all">All Orders</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Shipped Out for Delivery">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+                <button id="refreshBtn" class="refresh-btn">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
+        
         <div id="orderList" class="order-list">
             <p class="loading-text">Loading orders... Please wait.</p>
         </div>
@@ -276,9 +483,19 @@
         const logoutBtn = document.getElementById('logoutBtn');
         const ADMIN_EMAIL = 'raojatin@gmail.com';
 
+        let allOrders = [];
+        let filteredOrders = [];
+
+        // Enhanced event listeners
+        document.getElementById('searchInput').addEventListener('input', filterOrders);
+        document.getElementById('statusFilter').addEventListener('change', filterOrders);
+        document.getElementById('refreshBtn').addEventListener('click', fetchOrders);
+        
         onAuthStateChanged(auth, (user) => {
             if (user && user.email === ADMIN_EMAIL) {
                 fetchOrders();
+                // Auto-refresh every 30 seconds
+                setInterval(fetchOrders, 30000);
             } else {
                 window.location.href = 'login.html';
             }
@@ -314,11 +531,45 @@
         }
 
         function renderOrders(orders) {
+            allOrders = orders;
+            filteredOrders = orders;
+            updateDashboardStats(orders);
+            
             if (orders.length === 0) {
                 orderListElement.innerHTML = `<p class="loading-text">No orders found.</p>`;
                 return;
             }
             orderListElement.innerHTML = orders.map(order => createOrderCard(order)).join('');
+            attachEventListeners();
+        }
+        
+        function updateDashboardStats(orders) {
+            const totalOrders = orders.length;
+            const pendingOrders = orders.filter(order => order.status !== 'Delivered' && order.status !== 'Cancelled').length;
+            const totalRevenue = orders.reduce((sum, order) => sum + (order.grandTotal || 0), 0);
+            
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('pendingOrders').textContent = pendingOrders;
+            document.getElementById('totalRevenue').textContent = `₹${totalRevenue.toLocaleString('en-IN')}`;
+        }
+        
+        function filterOrders() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            filteredOrders = allOrders.filter(order => {
+                const matchesSearch = !searchTerm || 
+                    (order.orderId || '').toLowerCase().includes(searchTerm) ||
+                    (order.shippingDetails?.fullName || '').toLowerCase().includes(searchTerm) ||
+                    (order.shippingDetails?.mobile || '').includes(searchTerm) ||
+                    (order.shippingDetails?.email || '').toLowerCase().includes(searchTerm);
+                    
+                const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+                
+                return matchesSearch && matchesStatus;
+            });
+            
+            orderListElement.innerHTML = filteredOrders.map(order => createOrderCard(order)).join('');
             attachEventListeners();
         }
 
@@ -334,10 +585,23 @@
             const grandTotal = order.grandTotal || 0;
             const deliveryCharge = 19;
             const subtotal = grandTotal - deliveryCharge;
+            const discount = order.discountAmount || 0;
             
             const userPhone = order.shippingDetails?.mobile || '';
             const userEmail = order.shippingDetails?.email || '';
             const userLocation = order.shippingDetails?.location || '';
+            
+            // Calculate order priority based on time and status
+            const orderTime = order.createdAt ? order.createdAt.toDate() : new Date();
+            const hoursSinceOrder = (new Date() - orderTime) / (1000 * 60 * 60);
+            let priority = 'low';
+            if (order.status === 'Confirmed' && hoursSinceOrder > 24) priority = 'high';
+            else if (order.status === 'Confirmed' && hoursSinceOrder > 12) priority = 'medium';
+            
+            const orderDate = orderTime.toLocaleDateString('en-IN', {
+                year: 'numeric', month: 'short', day: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
 
             const message = encodeURIComponent(`Hello, ${order.shippingDetails?.fullName || ''}
 We are from Setupguru.shop. Your order has been confirmed. Here are your order details:
@@ -349,27 +613,49 @@ Thank you
 Team Setupguru.shop`);
 
             return `
-                <div class="order-card" data-order-id="${order.orderId || ''}">
+                <div class="order-card" data-order-id="${order.orderId || ''}" data-status="${order.status || 'Confirmed'}" data-customer="${order.shippingDetails?.fullName || ''} ${userPhone} ${userEmail}">
+                    <div class="priority-badge priority-${priority}">${priority.toUpperCase()}</div>
                     <div class="order-card-header">
-                        <h3>Order ID: <span style="color: var(--secondary-color);">${order.orderId || 'N/A'}</span></h3>
+                        <h3>
+                            Order ID: <span style="color: var(--secondary-color);">${order.orderId || 'N/A'}</span>
+                            <span class="order-time">${orderDate}</span>
+                        </h3>
                         <div class="order-status ${statusClass}">${order.status || 'Confirmed'}</div>
                     </div>
+                    
                     <div class="card-section">
                         <div class="info-box">
-                            <h4>User Information</h4>
+                            <h4><i class="fas fa-user"></i> Customer Information</h4>
                             <p><strong>Name:</strong> ${order.shippingDetails?.fullName || 'N/A'}</p>
-                            <p><strong>Mobile:</strong> ${userPhone || 'N/A'}</p>
-                            <p><strong>Email:</strong> ${userEmail || 'N/A'}</p>
+                            <p><strong>Mobile:</strong> <a href="tel:${userPhone}">${userPhone || 'N/A'}</a></p>
+                            <p><strong>Email:</strong> <a href="mailto:${userEmail}">${userEmail || 'N/A'}</a></p>
                             <p><strong>Address:</strong> ${order.shippingDetails?.address || 'N/A'}, ${order.shippingDetails?.city || ''}, ${order.shippingDetails?.state || ''} - ${order.shippingDetails?.pincode || ''}</p>
-                            <p><strong>Live Location:</strong> <a href="https://google.com/maps?q=${userLocation}" target="_blank">${userLocation || 'N/A'}</a></p>
+                            <p><strong>Live Location:</strong> <a href="https://google.com/maps?q=${userLocation}" target="_blank" style="color: var(--primary-color);"><i class="fas fa-map-marker-alt"></i> View on Map</a></p>
+                            
+                            ${order.couponCode ? `
+                                <div class="coupon-info">
+                                    <h5><i class="fas fa-ticket-alt"></i> Coupon Applied</h5>
+                                    <div class="coupon-code">${order.couponCode}</div>
+                                    <p style="margin-top: 0.5rem; font-size: 0.9rem;">Discount: ₹${discount}</p>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="payment-info">
+                                <h5><i class="fas fa-credit-card"></i> Payment Details</h5>
+                                <p><strong>Method:</strong> ${order.paymentMethod || 'Cash on Delivery'}</p>
+                                <p><strong>Status:</strong> ${order.paymentStatus || 'Pending'}</p>
+                                ${order.transactionId ? `<p><strong>Transaction ID:</strong> ${order.transactionId}</p>` : ''}
+                            </div>
                         </div>
+                        
                         <div class="info-box items-list-section">
-                            <h4>Order Details</h4>
+                            <h4><i class="fas fa-shopping-cart"></i> Order Items</h4>
                             <ul>${itemsHtml}</ul>
                             <div class="summary-section">
-                                <p><strong>Subtotal:</strong> ₹${subtotal}</p>
+                                <p><strong>Subtotal:</strong> ₹${subtotal + discount}</p>
+                                ${discount > 0 ? `<p style="color: #e74c3c;"><strong>Discount:</strong> -₹${discount}</p>` : ''}
                                 <p><strong>Delivery Charge:</strong> ₹${deliveryCharge}</p>
-                                <p><strong>Grand Total:</strong> ₹${grandTotal}</p>
+                                <p style="font-size: 1.1rem; color: var(--primary-color);"><strong>Grand Total:</strong> ₹${grandTotal}</p>
                             </div>
                         </div>
                     </div>
@@ -426,35 +712,71 @@ Team Setupguru.shop`);
 
         async function updateOrderStatus(orderId, newStatus, buttonElement) {
             try {
+                const updateData = { status: newStatus };
+                
+                // Add timestamp for status changes
+                const now = new Date();
+                if (newStatus === 'Confirmed') updateData.confirmedAt = now;
+                else if (newStatus === 'Shipped Out for Delivery') updateData.shippedAt = now;
+                else if (newStatus === 'Delivered') updateData.deliveredAt = now;
+                
                 const orderRef = doc(db, "orders", orderId);
-                await updateDoc(orderRef, { status: newStatus });
+                await updateDoc(orderRef, updateData);
                 
                 const card = buttonElement.closest('.order-card');
                 const statusSpan = card.querySelector('.order-status');
                 
                 card.querySelectorAll('.status-btn-group .action-btn').forEach(btn => btn.classList.remove('active'));
-                
                 buttonElement.classList.add('active');
 
                 statusSpan.textContent = newStatus;
                 statusSpan.className = `order-status status-${newStatus.toLowerCase().replace(/\s/g, '-')}`;
 
-                alert(`Status for Order ${orderId} updated to: ${newStatus}`);
+                // Show success notification
+                showNotification(`Order ${orderId} status updated to: ${newStatus}`, 'success');
+                
+                // Refresh the order list to show updated data
+                setTimeout(fetchOrders, 1000);
             } catch (e) {
                 console.error("Error updating document: ", e);
-                alert("Failed to update status. Please try again.");
+                showNotification("Failed to update status. Please try again.", 'error');
             }
         }
 
         async function updateOrderNote(orderId, newNote) {
             try {
                 const orderRef = doc(db, "orders", orderId);
-                await updateDoc(orderRef, { trackingNote: newNote });
-                alert(`Tracking note for Order ${orderId} saved successfully.`);
+                await updateDoc(orderRef, { 
+                    trackingNote: newNote,
+                    noteUpdatedAt: new Date()
+                });
+                showNotification(`Tracking note for Order ${orderId} saved successfully.`, 'success');
             } catch (e) {
                 console.error("Error updating document: ", e);
-                alert("Failed to save note. Please try again.");
+                showNotification("Failed to save note. Please try again.", 'error');
             }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                color: white;
+                font-weight: 600;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                background: ${type === 'success' ? '#2ecc71' : type === 'error' ? '#e74c3c' : '#3498db'};
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
         }
     </script>
 </body>
