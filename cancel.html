@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Cancellation Request</title>
+    <!-- Load Tailwind CSS from CDN for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles and configuration for a clean, modern look */
+        :root {
+            --primary-color: #4f46e5; /* Indigo-600 */
+            --primary-hover: #4338ca; /* Indigo-700 */
+            --success-color: #10b981; /* Emerald-500 */
+            --gray-light: #f9fafb; /* Gray-50 */
+        }
+
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            background-color: var(--gray-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .card {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Custom spinner animation */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 1.5rem;
+            height: 1.5rem;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal animation styles */
+        .modal-enter-active, .modal-leave-active {
+            transition: opacity 0.3s ease;
+        }
+        .modal-enter-from, .modal-leave-to {
+            opacity: 0;
+        }
+        .modal-content-enter-active, .modal-content-leave-active {
+            transition: transform 0.3s ease;
+        }
+        .modal-enter-from .modal-content, .modal-leave-to .modal-content {
+            transform: translateY(20px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="w-full max-w-lg">
+        <div class="card bg-white p-6 md:p-8 rounded-xl">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Order Cancellation</h1>
+            <p class="text-gray-500 mb-6">Enter your details to request an order cancellation.</p>
+
+            <form id="cancellationForm" class="space-y-6">
+                
+                <!-- Full Name Field -->
+                <div>
+                    <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <input type="text" id="fullName" name="fullName" required 
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"
+                           placeholder="">
+                </div>
+
+                <!-- Mobile Number Field -->
+                <div>
+                    <label for="mobileNumber" class="block text-sm font-medium text-gray-700 mb-1">10-Digit Mobile Number</label>
+                    <input type="tel" id="mobileNumber" name="mobileNumber" required 
+                           pattern="[0-9]{10}" maxlength="10" minlength="10"
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"
+                           placeholder="">
+                </div>
+
+                <!-- Confirmation Checkbox -->
+                <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                        <input id="confirmation" name="confirmation" type="checkbox" required
+                               class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="confirmation" class="font-medium text-gray-700 select-none">I confirm that I want to cancel my order.</label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submitButton"
+                        class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200 disabled:opacity-50"
+                        data-state="idle">
+                    <span id="buttonText">Request Cancellation</span>
+                    <div id="loadingSpinner" class="spinner hidden"></div>
+                </button>
+            </form>
+
+            <!-- Back to Home Link -->
+            <div class="mt-8 text-center">
+                <a href="index.html" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                    ← Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Pop-up Modal -->
+    <div id="successModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 hidden modal-enter-from flex items-center justify-center p-4 z-50">
+        <div class="modal-content bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 transform modal-content-enter-from">
+            <div class="text-center">
+                <!-- Success Icon (SVG) -->
+                <svg class="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3 class="mt-2 text-xl font-bold text-gray-900">Request Sent!</h3>
+                
+                <!-- Bilingual Message -->
+                <div class="mt-4 text-sm text-gray-500 text-left space-y-3">
+                    <p>
+                        Your cancellation request has been successfully sent to the SETUP GURU team.
+                    </p>
+                    <p class="font-semibold text-gray-700">
+                        Please note: Cancellation is possible if the request is made within 2 hours of order processing. Otherwise, cancellation may not be possible.
+                    </p>
+                    <p class="text-xs italic text-gray-400">
+                         (कृपया ध्यान दें: अगर ऑर्डर की प्रोसेसिंग के 2 घंटे के भीतर अनुरोध किया जाता है तो रद्दीकरण संभव है। अन्यथा रद्दीकरण संभव नहीं हो सकता है।)
+                    </p>
+                </div>
+            </div>
+            
+            <div class="mt-6 space-y-3">
+                <!-- Call Support Button -->
+                <a href="tel:8278455700" id="callSupportBtn"
+                   class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-200">
+                   Call Support (8278455700)
+                </a>
+                
+                <!-- Close Button -->
+                <button type="button" id="closeModalBtn"
+                        class="w-full py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Configuration & Elements ---
+        const BOT_TOKEN = '8311976506:AAHCMdrwWzHbKYPVxItoiRXFg0hvppS_26c';
+        // List of Chat IDs to send the message to
+        const CHAT_IDS = ['5765135287', '5165964724']; 
+        const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+        const MAX_RETRIES = 3;
+
+        const form = document.getElementById('cancellationForm');
+        const submitButton = document.getElementById('submitButton');
+        const buttonText = document.getElementById('buttonText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const successModal = document.getElementById('successModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+
+        // --- Utility Functions ---
+
+        /**
+         * Sets the button state to loading or idle.
+         * @param {boolean} isLoading - true for loading, false for idle.
+         */
+        function setButtonState(isLoading) {
+            submitButton.disabled = isLoading;
+            if (isLoading) {
+                buttonText.textContent = 'Sending...';
+                loadingSpinner.classList.remove('hidden');
+            } else {
+                buttonText.textContent = 'Request Cancellation';
+                loadingSpinner.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Retries a fetch request with exponential backoff.
+         * @param {string} url - The URL to fetch.
+         * @param {Object} options - Fetch request options.
+         * @param {number} maxRetries - Maximum number of retries.
+         * @returns {Promise<Object>} The JSON response if successful.
+         */
+        async function fetchWithRetryAndBackoff(url, options, maxRetries = MAX_RETRIES) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) {
+                        return await response.json();
+                    } else {
+                        // Log and retry on non-OK response
+                        console.error(`Attempt ${i + 1} failed with status: ${response.status}`);
+                    }
+                } catch (error) {
+                    // Log and retry on network error
+                    console.error(`Attempt ${i + 1} failed due to network error:`, error);
+                }
+
+                // Wait before retrying (exponential backoff with jitter)
+                if (i < maxRetries - 1) {
+                    const delay = Math.pow(2, i) * 1000 + (Math.random() * 500); // 1s, 2s, 4s + jitter
+                    console.log(`Retrying in ${delay.toFixed(0)}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+            throw new Error('All fetch attempts failed after multiple retries.');
+        }
+
+        // --- Telegram Integration Function ---
+
+        /**
+         * Sends the cancellation request message to all configured chat IDs.
+         * @param {string} name - User's full name.
+         * @param {string} mobile - User's mobile number.
+         */
+        async function sendTelegramMessage(name, mobile) {
+            const messageText = `🚨 **New Order Cancellation Request** 🚨\n\n` +
+                                `👤 **Full Name:** ${name}\n` +
+                                `📞 **Mobile:** ${mobile}\n\n` +
+                                `_Action required by SETUP GURU Team._`;
+
+            const results = [];
+
+            for (const chatId of CHAT_IDS) {
+                const payload = {
+                    chat_id: chatId,
+                    text: messageText,
+                    parse_mode: 'Markdown'
+                };
+                
+                try {
+                    const response = await fetchWithRetryAndBackoff(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (response && response.ok) {
+                        results.push({ chatId, status: 'Success' });
+                    } else {
+                        results.push({ chatId, status: 'Failed', error: response });
+                    }
+
+                } catch (error) {
+                    console.error(`Error sending message to chat ID ${chatId}:`, error);
+                    results.push({ chatId, status: 'Failed', error: error.message });
+                }
+            }
+
+            // Check if at least one message was successfully sent
+            if (results.some(r => r.status === 'Success')) {
+                console.log('Telegram messages sent successfully to at least one chat ID.');
+                return true;
+            } else {
+                console.error('All Telegram message attempts failed:', results);
+                return false;
+            }
+        }
+
+        // --- Modal Control Functions ---
+
+        function showModal() {
+            successModal.classList.remove('hidden');
+            // Force reflow for transition
+            requestAnimationFrame(() => {
+                successModal.classList.remove('modal-enter-from');
+                successModal.querySelector('.modal-content').classList.remove('modal-content-enter-from');
+            });
+        }
+
+        function hideModal() {
+            successModal.classList.add('modal-leave-to');
+            successModal.querySelector('.modal-content').classList.add('modal-content-leave-to');
+            
+            // Hide fully after transition
+            setTimeout(() => {
+                successModal.classList.add('hidden');
+                successModal.classList.remove('modal-leave-to');
+                successModal.querySelector('.modal-content').classList.remove('modal-content-leave-to');
+            }, 300); // Duration matches CSS transition
+        }
+
+        // --- Event Listeners ---
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Basic client-side validation check (in case native validation fails)
+            if (!form.checkValidity()) {
+                console.error('Form validation failed.');
+                return;
+            }
+
+            const fullName = document.getElementById('fullName').value.trim();
+            const mobileNumber = document.getElementById('mobileNumber').value.trim();
+
+            setButtonState(true); // Start loading state
+
+            try {
+                const isSuccess = await sendTelegramMessage(fullName, mobileNumber);
+                
+                if (isSuccess) {
+                    // Show success modal
+                    showModal();
+                    // Optionally reset form after successful submission
+                    form.reset();
+                } else {
+                    // Handle critical failure (e.g., all retries failed)
+                    console.error('Failed to send cancellation request after all attempts.');
+                    // In a real app, display a custom error message here, not an alert
+                    // For simplicity, we just log the failure.
+                    alert('CRITICAL ERROR: Could not submit request. Please try again or call support.');
+                }
+            } catch (error) {
+                console.error('An unhandled error occurred during submission:', error);
+                 // Display a general error to the user
+                alert('An unexpected error occurred. Please check your connection and try again.');
+            } finally {
+                setButtonState(false); // End loading state
+            }
+        });
+
+        // Event listener for closing the modal
+        closeModalBtn.addEventListener('click', hideModal);
+
+        // Close modal when clicking outside (on the overlay)
+        successModal.addEventListener('click', (e) => {
+            if (e.target === successModal) {
+                hideModal();
+            }
+        });
+
+    </script>
+</body>
+</html>
