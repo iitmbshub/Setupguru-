@@ -1280,10 +1280,32 @@
         // 3. UI Interactions & Effects
         // =================================================================
 
-        // Preloader hiding logic
-        window.onload = function() {
-            preloader.classList.add('preloader-hidden');
-        };
+        // Improved preloader hiding logic  
+let preloaderHidden = false;
+
+function hidePreloader() {
+    if (!preloaderHidden) {
+        preloader.classList.add('preloader-hidden');
+        preloaderHidden = true;
+    }
+}
+
+// Multiple fallbacks to ensure preloader always hides:
+
+// 1. Hide after minimum display time (good UX)
+setTimeout(hidePreloader, 1500);
+
+// 2. Fallback: Force hide after 3 seconds maximum
+setTimeout(hidePreloader, 3000);
+
+// 3. Hide when DOM is ready (faster than window.onload)  
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(hidePreloader, 800);
+    });
+} else {
+    setTimeout(hidePreloader, 800);
+}
 
         // Header scroll effect
         window.addEventListener('scroll', () => {
