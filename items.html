@@ -208,22 +208,56 @@
             }
             
             .sort-container {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
             }
             
             #sort-by {
-                width: 100%;
+                width: auto;
+                flex-grow: 1;
+                margin-left: 10px;
             }
             
             .category-filter {
                 padding-bottom: 0.5rem;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                max-height: 40px;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
+            }
+            
+            .category-filter.expanded {
+                max-height: 200px;
             }
             
             .category-btn {
                 padding: 0.5rem 1rem;
                 font-size: 0.9rem;
+            }
+            
+            .category-toggle {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.5rem 1rem;
+                border: 1px solid var(--border-color);
+                background: var(--card-bg);
+                color: var(--text-color);
+                cursor: pointer;
+                border-radius: 30px;
+                font-weight: 500;
+                white-space: nowrap;
+                width: 40px;
+                height: 40px;
+            }
+            
+            .category-toggle:hover {
+                background-color: var(--primary-color);
+                color: white;
+                border-color: var(--primary-color);
             }
             
             #items-grid {
@@ -439,6 +473,17 @@
             .item-title {
                 font-size: 0.95rem;
             }
+            
+            .sort-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            #sort-by {
+                width: 100%;
+                margin-left: 0;
+            }
         }
     </style>
 </head>
@@ -483,7 +528,7 @@
         <p>Find the perfect gear to elevate your workspace.</p>
     </section>
 
-    <div class="container">
+   <div class="container">
         <div class="controls-container">
             <input type="text" id="search-bar" placeholder="Search for products...">
             <div class="sort-container">
@@ -539,6 +584,7 @@
         let lastVisible = null; 
         let userWishlist = new Set();
         const filters = { category: 'All', searchTerm: '', sortBy: 'newest' };
+        let allCategories = [];
         
         // --- AUTH & HEADER LOGIC (v9 Syntax) ---
         onAuthStateChanged(auth, async (user) => {
@@ -688,9 +734,42 @@
         const loadCategories = async () => {
              const itemsCollectionRef = collection(db, 'items');
              const snapshot = await getDocs(itemsCollectionRef);
-             const categories = ['All', ...new Set(snapshot.docs.map(doc => doc.data().category).filter(Boolean).sort())];
-             categoryFilter.innerHTML = categories.map(cat => `<button class="category-btn ${cat === 'All' ? 'active' : ''}" data-category="${cat}">${cat}</button>`).join('');
+             allCategories = ['All', ...new Set(snapshot.docs.map(doc => doc.data().category).filter(Boolean).sort())];
+             renderCategories();
         };
+
+        // --- Category Rendering Logic ---
+        function renderCategories() {
+            const isMobile = window.innerWidth <= 768;
+            let categoriesToShow = allCategories;
+            
+            if (isMobile && allCategories.length > 3) {
+                categoriesToShow = allCategories.slice(0, 3);
+                categoriesToShow.push('...');
+            }
+            
+            categoryFilter.innerHTML = categoriesToShow.map(cat => {
+                if (cat === '...') {
+                    return `<button class="category-toggle" id="category-toggle" aria-label="Show more categories">...</button>`;
+                }
+                return `<button class="category-btn ${cat === 'All' ? 'active' : ''}" data-category="${cat}">${cat}</button>`;
+            }).join('');
+            
+            // Add event listener to toggle button if it exists
+            const toggleBtn = document.getElementById('category-toggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', () => {
+                    categoryFilter.classList.toggle('expanded');
+                    if (categoryFilter.classList.contains('expanded')) {
+                        categoryFilter.innerHTML = allCategories.map(cat => 
+                            `<button class="category-btn ${cat === 'All' ? 'active' : ''}" data-category="${cat}">${cat}</button>`
+                        ).join('');
+                    } else {
+                        renderCategories();
+                    }
+                });
+            }
+        }
 
         // --- Wishlist toggle function (v9 Syntax) ---
         async function toggleWishlist(itemId) {
@@ -732,7 +811,7 @@
         });
 
         categoryFilter.addEventListener('click', (e) => {
-            if (e.target.tagName === 'BUTTON') {
+            if (e.target.tagName === 'BUTTON' && e.target.dataset.category) {
                 document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
                 e.target.classList.add('active');
                 filters.category = e.target.dataset.category;
@@ -754,6 +833,11 @@
                 filters.searchTerm = searchBar.value.toLowerCase();
                 resetAndLoadItems();
             }, 400);
+        });
+        
+        // Handle window resize to update category display
+        window.addEventListener('resize', () => {
+            renderCategories();
         });
         
         document.addEventListener('DOMContentLoaded', () => {
