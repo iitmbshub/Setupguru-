@@ -15,7 +15,7 @@
             --border-color: #e9ecef; --error-color: #e74c3c; --success-color: #28a745;
         }
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--background-color); font-family: 'Poppins', sans-serif; color: var(--text-color); }
+        body { background-color: var(--background-color); font-family: 'Poppins', sans-serif; color: var(--text-color); line-height: 1.6; }
 
         #loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--background-color); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s ease-out; opacity: 1; gap: 1rem; }
         .spinner { width: 50px; height: 50px; border: 5px solid var(--border-color); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; }
@@ -24,68 +24,129 @@
         
         #main-container, #statusContainer { display: none; }
 
-        .header { background: var(--card-bg); padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px var(--shadow-color); position: sticky; top: 0; z-index: 1000; }
-        .back-btn { background: none; border: none; font-size: 1.5rem; color: var(--text-color); cursor: pointer; }
-        .logo-text { font-size: 1.8rem; font-weight: 700; color: var(--primary-color); text-decoration: none; position: absolute; left: 50%; transform: translateX(-50%); }
-        .user-info { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-        #user-name { font-weight: 600; color: var(--primary-color); text-transform: uppercase; }
-        .profile-avatar { width: 45px; height: 45px; border-radius: 50%; background-image: url('https://i.ibb.co/zT8W3ZhL/pngtree-user-profile-avatar-png-image-10211467.png'); background-size: cover; background-position: center; border: 2px solid var(--secondary-color); }
+        .header { background: var(--card-bg); padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px var(--shadow-color); position: sticky; top: 0; z-index: 1000; min-height: 60px; }
+        .back-btn { background: none; border: none; font-size: 1.5rem; color: var(--text-color); cursor: pointer; padding: 0.5rem; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+        .logo-text { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); text-decoration: none; position: absolute; left: 50%; transform: translateX(-50%); }
+        .user-info { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+        #user-name { font-weight: 600; color: var(--primary-color); text-transform: uppercase; font-size: 0.9rem; }
+        .profile-avatar { width: 40px; height: 40px; border-radius: 50%; background-image: url('https://i.ibb.co/zT8W3ZhL/pngtree-user-profile-avatar-png-image-10211467.png'); background-size: cover; background-position: center; border: 2px solid var(--secondary-color); }
 
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
-        .checkout-layout { display: grid; grid-template-columns: 2fr 1.25fr; gap: 2rem; align-items: start; }
-        .checkout-card { background: var(--card-bg); padding: 2rem; border-radius: 12px; box-shadow: 0 5px 15px var(--shadow-color); margin-bottom: 2rem; }
+        .container { max-width: 1200px; margin: 1rem auto; padding: 0 1rem; }
+        .checkout-layout { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+        .checkout-card { background: var(--card-bg); padding: 1.5rem; border-radius: 12px; box-shadow: 0 5px 15px var(--shadow-color); margin-bottom: 1rem; }
         h1, h2 { color: var(--primary-color); }
-        h1 { margin-bottom: 2rem; }
-        h2 { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+        h1 { margin-bottom: 1.5rem; font-size: 1.8rem; }
+        h2 { margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; font-size: 1.3rem; }
 
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-        .form-group { grid-column: span 2; position: relative; }
-        .form-group.half { grid-column: span 1; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
-        .form-group input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; transition: border-color 0.2s; }
-        .form-group input:focus { border-color: var(--primary-color); outline: none; }
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        .form-group { position: relative; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.95rem; }
+        .form-group input { width: 100%; padding: 14px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; transition: border-color 0.2s; min-height: 48px; }
+        .form-group input:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 0 2px rgba(46, 26, 95, 0.1); }
         .error-message { color: var(--error-color); font-size: 0.8rem; margin-top: 4px; display: none; }
         .form-group input.invalid { border-color: var(--error-color); }
         
-        .summary-item { display: flex; align-items: center; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border-color); }
+        .summary-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 0; border-bottom: 1px solid var(--border-color); }
         .summary-item:last-child { border-bottom: none; }
-        .summary-item img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
-        .summary-item-details h4 { font-size: 1rem; margin: 0; font-weight: 500; }
-        .price-details .summary-row { display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1rem; }
-        .price-details .summary-row.total { font-weight: 700; font-size: 1.3rem; border-top: 2px solid var(--border-color); padding-top: 1rem; margin-top: 1rem; }
+        .summary-item img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+        .summary-item h4 { font-size: 0.9rem; margin: 0; font-weight: 500; line-height: 1.4; }
+        .price-details .summary-row { display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.95rem; }
+        .price-details .summary-row.total { font-weight: 700; font-size: 1.2rem; border-top: 2px solid var(--border-color); padding-top: 0.75rem; margin-top: 0.75rem; }
         
-        .payment-option { border: 2px solid var(--border-color); border-radius: 8px; padding: 1rem; display: flex; align-items: center; cursor: pointer; transition: all 0.2s; margin-bottom: 1rem; }
+        .payment-option { border: 2px solid var(--border-color); border-radius: 8px; padding: 1rem; display: flex; align-items: flex-start; cursor: pointer; transition: all 0.2s; margin-bottom: 1rem; min-height: 60px; }
         .payment-option input[type="radio"] { display: none; }
-        .payment-option .radio-circle { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border-color); margin-right: 1rem; position: relative; transition: border-color 0.2s; flex-shrink: 0; }
+        .payment-option .radio-circle { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border-color); margin-right: 1rem; position: relative; transition: border-color 0.2s; flex-shrink: 0; margin-top: 2px; }
         .payment-option input:checked + .radio-circle { border-color: var(--primary-color); }
         .payment-option input:checked + .radio-circle::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; background: var(--primary-color); border-radius: 50%; }
         .payment-option:hover { border-color: var(--primary-color); }
-        .option-label { font-weight: 600; }
-        .option-desc { font-size: 0.85rem; color: #777; }
-        .payment-logos { display: flex; gap: 1.25rem; margin-top: 0.75rem; align-items: center; min-height: 30px; }
-        .payment-logos img { height: 20px; object-fit: contain; max-width: 80px; }
+        .option-label { font-weight: 600; font-size: 1rem; }
+        .option-desc { font-size: 0.85rem; color: #777; margin-top: 2px; }
+        .payment-logos { display: flex; gap: 0.75rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap; }
+        .payment-logos img { height: 18px; object-fit: contain; max-width: 60px; }
         .payment-option.disabled { opacity: 0.6; cursor: not-allowed; background-color: #f9f9f9; border-color: var(--border-color) !important; }
         .payment-option.disabled .option-desc { color: var(--error-color); font-weight: 500; }
         
-        .place-order-btn { width: 100%; padding: 1rem; border: none; background: var(--secondary-color); color: var(--primary-color); font-size: 1.2rem; font-weight: 700; border-radius: 8px; cursor: pointer; margin-top: 1rem; transition: all 0.3s ease; }
+        .place-order-btn { width: 100%; padding: 1rem; border: none; background: var(--secondary-color); color: var(--primary-color); font-size: 1.1rem; font-weight: 700; border-radius: 8px; cursor: pointer; margin-top: 1rem; transition: all 0.3s ease; min-height: 50px; }
         .place-order-btn:disabled { background-color: #ccc; color: #666; cursor: not-allowed; }
-        .status-container { text-align: center; padding: 4rem; background: var(--card-bg); border-radius: 12px; }
-        .status-container a { text-decoration: none; padding: 10px 20px; background: var(--primary-color); color: white; border-radius: 8px; display: inline-block; margin-top: 1rem; }
+        .status-container { text-align: center; padding: 2rem 1rem; background: var(--card-bg); border-radius: 12px; }
+        .status-container a { text-decoration: none; padding: 12px 24px; background: var(--primary-color); color: white; border-radius: 8px; display: inline-block; margin-top: 1rem; min-height: 44px; }
 
-        .coupon-section { display: flex; gap: 10px; margin-top: 1.5rem; }
-        .coupon-section input { flex-grow: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; }
-        .coupon-section button { padding: 10px 15px; border: none; background: var(--primary-color); color: white; border-radius: 8px; cursor: pointer; font-weight: 600; flex-shrink: 0; }
+        .coupon-section { display: flex; flex-direction: column; gap: 10px; margin-top: 1rem; }
+        .coupon-section input { padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; min-height: 48px; }
+        .coupon-section .coupon-buttons { display: flex; gap: 8px; }
+        .coupon-section button { padding: 12px 16px; border: none; background: var(--primary-color); color: white; border-radius: 8px; cursor: pointer; font-weight: 600; flex: 1; min-height: 48px; font-size: 0.95rem; }
         .coupon-section button:disabled { background-color: #aaa; cursor: wait; }
         .coupon-section button.remove-btn { background-color: var(--error-color); }
-        #couponMessage { font-size: 0.9rem; margin-top: 10px; font-weight: 500; }
+        #couponMessage { font-size: 0.9rem; margin-top: 8px; font-weight: 500; }
         #couponMessage.success { color: var(--success-color); }
         #couponMessage.error { color: var(--error-color); }
 
-        #deliveryDate { font-weight: 600; color: var(--success-color); text-align: center; margin-top: 1rem; padding: 10px; background: #e8f5e9; border-radius: 8px; }
-        #selectedPaymentMethod { text-align: center; margin-top: 1rem; font-weight: 600; color: var(--primary-color); }
+        #deliveryDate { font-weight: 600; color: var(--success-color); text-align: center; margin-top: 1rem; padding: 12px; background: #e8f5e9; border-radius: 8px; font-size: 0.9rem; }
+        #selectedPaymentMethod { text-align: center; margin-top: 1rem; font-weight: 600; color: var(--primary-color); font-size: 0.9rem; }
 
-        @media (max-width: 900px) { .checkout-layout { grid-template-columns: 1fr; } }
-        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } .form-group.half { grid-column: span 1; } .logo-text { display: none; } }
+        /* Tablet styles */
+        @media (min-width: 768px) {
+            .container { margin: 1.5rem auto; }
+            .checkout-card { padding: 2rem; }
+            .form-grid { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+            .form-group.half { grid-column: span 1; }
+            .form-group { grid-column: span 2; }
+            .coupon-section { flex-direction: row; align-items: flex-end; }
+            .coupon-section input { flex-grow: 1; }
+            .coupon-section .coupon-buttons { flex-shrink: 0; }
+            .summary-item img { width: 60px; height: 60px; }
+            .summary-item h4 { font-size: 1rem; }
+        }
+
+        /* Desktop styles */
+        @media (min-width: 1024px) {
+            .container { margin: 2rem auto; }
+            .checkout-layout { grid-template-columns: 2fr 1.25fr; gap: 2rem; }
+            .header { padding: 1rem 1.5rem; }
+            .logo-text { font-size: 1.8rem; }
+            .user-info { gap: 12px; }
+            #user-name { font-size: 1rem; }
+            .profile-avatar { width: 45px; height: 45px; }
+            h1 { font-size: 2rem; margin-bottom: 2rem; }
+            h2 { font-size: 1.5rem; margin-bottom: 1.5rem; padding-bottom: 1rem; }
+            .checkout-card aside { position: sticky; top: 100px; }
+        }
+
+        /* Mobile-specific improvements */
+        @media (max-width: 480px) {
+            .header { padding: 0.5rem 0.75rem; }
+            .logo-text { display: none; }
+            .container { padding: 0 0.75rem; margin: 0.75rem auto; }
+            .checkout-card { padding: 1rem; margin-bottom: 0.75rem; }
+            h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+            h2 { font-size: 1.2rem; }
+            .form-group input { padding: 12px 10px; }
+            .payment-option { padding: 0.75rem; }
+            .payment-logos { gap: 0.5rem; }
+            .payment-logos img { height: 16px; max-width: 50px; }
+            .place-order-btn { font-size: 1rem; }
+            .summary-item { gap: 0.5rem; padding: 0.5rem 0; }
+            .summary-item img { width: 45px; height: 45px; }
+            .summary-item h4 { font-size: 0.85rem; }
+            .price-details .summary-row { font-size: 0.9rem; margin-bottom: 0.5rem; }
+            .price-details .summary-row.total { font-size: 1.1rem; }
+            #deliveryDate, #selectedPaymentMethod { font-size: 0.85rem; }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .back-btn, .place-order-btn, .coupon-section button {
+                min-height: 48px;
+                min-width: 48px;
+            }
+            .form-group input {
+                min-height: 48px;
+            }
+            .payment-option {
+                min-height: 64px;
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -143,8 +204,10 @@
                     <div id="selectedPaymentMethod"></div>
                     <div class="coupon-section">
                         <input type="text" id="couponCodeInput" placeholder="Enter Coupon Code" maxlength="10" pattern="[A-Za-z]{1,10}" style="text-transform: uppercase;">
-                        <button type="button" id="applyCouponBtn">Apply</button>
-                        <button type="button" id="removeCouponBtn" class="remove-btn" style="display: none;">Remove</button>
+                        <div class="coupon-buttons">
+                            <button type="button" id="applyCouponBtn">Apply</button>
+                            <button type="button" id="removeCouponBtn" class="remove-btn" style="display: none;">Remove</button>
+                        </div>
                     </div>
                     <div id="couponMessage"></div>
                     <button type="submit" class="place-order-btn" id="placeOrderBtn" disabled>Place Order</button>
