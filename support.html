@@ -371,7 +371,7 @@
             transform: translateY(-2px);
         }
         
-        /* Tablet Styles */
+        /* Responsive Design */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -411,7 +411,6 @@
             }
         }
         
-        /* Mobile Styles */
         @media (max-width: 480px) {
             body {
                 padding: 0;
@@ -518,96 +517,6 @@
                 font-size: 0.8rem;
             }
         }
-        
-        /* Small Mobile Styles */
-        @media (max-width: 360px) {
-            .chat-header h1 {
-                font-size: 1.2rem;
-            }
-            
-            .chat-header p {
-                font-size: 0.8rem;
-            }
-            
-            .message-content {
-                font-size: 0.8rem;
-                padding: 10px 14px;
-            }
-            
-            #messageInput {
-                font-size: 0.85rem;
-                padding: 8px 12px;
-            }
-            
-            .action-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 0.8rem;
-            }
-            
-            .quick-btn {
-                font-size: 0.7rem;
-                padding: 6px 8px;
-            }
-        }
-        
-        /* Large Desktop Styles */
-        @media (min-width: 1200px) {
-            .chat-container {
-                max-width: 480px;
-                height: 700px;
-            }
-            
-            .chat-header {
-                padding: 30px;
-            }
-            
-            .chat-header h1 {
-                font-size: 2rem;
-            }
-            
-            .chat-messages {
-                padding: 30px;
-            }
-            
-            .message-content {
-                font-size: 1rem;
-                padding: 18px 22px;
-            }
-            
-            .chat-input {
-                padding: 30px;
-            }
-        }
-        
-        /* Landscape Mobile */
-        @media (max-height: 500px) and (orientation: landscape) {
-            .chat-container {
-                height: 100vh;
-                border-radius: 0;
-            }
-            
-            .chat-header {
-                padding: 10px 15px;
-            }
-            
-            .chat-header h1 {
-                font-size: 1.2rem;
-                margin-bottom: 2px;
-            }
-            
-            .status-indicator {
-                margin-top: 4px;
-            }
-            
-            .chat-messages {
-                padding: 10px 15px;
-            }
-            
-            .chat-input {
-                padding: 10px 15px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -665,6 +574,20 @@
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
 
+        // Company data embedded in JavaScript
+        const companyData = [
+            {"question": "What is your name?", "answer": "I am the Setup Guru Support AI. Our company is SetupGuru.shop, founded by Rao Jatin and Aryan Soni. You can reach us at our helpline 9499473347 or visit www.setupguru.shop."},
+            {"question": "Who are the founders of this company?", "answer": "The founders of SetupGuru.shop are Rao Jatin and Aryan Soni."},
+            {"question": "What is the company's name?", "answer": "The company name is SetupGuru.shop."},
+            {"question": "What is the website address?", "answer": "Our website is www.setupguru.shop. You can browse all our products and place your order there."},
+            {"question": "What is the helpline number?", "answer": "Our customer support helpline number is 9499473347."},
+            {"question": "Is there a coupon code I can use?", "answer": "Yes! You can use the coupon code WELCOME to get a 10% discount on each product."},
+            {"question": "What do you sell?", "answer": "We sell a wide variety of items to enhance your desk setup, including Laptop & Computer Accessories, Desk Organization items, Lighting, Ergonomic products, and many more smart gadgets."},
+            {"question": "How do I place an order?", "answer": "You can place an order directly from our website, www.setupguru.shop. Just add items to your cart and follow the checkout process."},
+            {"question": "What are the payment options?", "answer": "We accept all major online payment methods, including credit/debit cards, UPI, and net banking."},
+            {"question": "How long will delivery take?", "answer": "Typically, orders are delivered within 5-7 working days depending on your location."}
+        ];
+
         // Set welcome message time
         document.getElementById('welcomeTime').textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
@@ -678,10 +601,7 @@
             
             const contentDiv = document.createElement('div');
             contentDiv.className = 'message-content';
-            
-            // Add emoji support and formatting
-            const formattedContent = formatMessage(content);
-            contentDiv.innerHTML = formattedContent;
+            contentDiv.innerHTML = content;
             
             const timeDiv = document.createElement('div');
             timeDiv.className = 'message-time';
@@ -692,22 +612,12 @@
             messageDiv.appendChild(contentDiv);
             chatMessages.appendChild(messageDiv);
             
-            // Smooth scroll with animation
             setTimeout(() => {
                 chatMessages.scrollTo({
                     top: chatMessages.scrollHeight,
                     behavior: 'smooth'
                 });
             }, 100);
-        }
-
-        function formatMessage(content) {
-            // Add basic formatting and emoji support
-            return content
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                .replace(/`(.*?)`/g, '<code style="background: rgba(0,0,0,0.1); padding: 2px 4px; border-radius: 4px;">$1</code>')
-                .replace(/\n/g, '<br>');
         }
 
         function showTyping() {
@@ -755,7 +665,39 @@
             }
         }
 
-        async function sendMessage(messageText = null) {
+        function findResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            // Search in company data
+            for (let item of companyData) {
+                if (lowerMessage.includes(item.question.toLowerCase()) || 
+                    item.question.toLowerCase().includes(lowerMessage)) {
+                    return item.answer;
+                }
+            }
+            
+            // Keyword-based responses with business focus
+            if (lowerMessage.includes('product') || lowerMessage.includes('sell') || lowerMessage.includes('buy')) {
+                return "We offer premium desk setup products including ergonomic accessories, lighting solutions, and smart gadgets. Use WELCOME code for 10% off at www.setupguru.shop";
+            }
+            
+            if (lowerMessage.includes('contact') || lowerMessage.includes('help') || lowerMessage.includes('support')) {
+                return "Contact our support team at 9499473347 or visit www.setupguru.shop for immediate assistance.";
+            }
+            
+            if (lowerMessage.includes('discount') || lowerMessage.includes('coupon') || lowerMessage.includes('offer')) {
+                return "Use coupon code WELCOME for 10% discount on all products. Limited time offer at www.setupguru.shop";
+            }
+            
+            if (lowerMessage.includes('founder') || lowerMessage.includes('owner') || lowerMessage.includes('about')) {
+                return "SetupGuru.shop was founded by Rao Jatin and Aryan Soni. Contact us at 9499473347 for more information.";
+            }
+            
+            // Default business response
+            return "I can help you with SetupGuru.shop products and services. Our desk setup accessories improve productivity significantly. Use WELCOME code for 10% off. Visit www.setupguru.shop or call 9499473347.";
+        }
+
+        function sendMessage(messageText = null) {
             const message = messageText || messageInput.value.trim();
             if (!message) return;
 
@@ -763,46 +705,19 @@
             if (!messageText) messageInput.value = '';
             sendButton.disabled = true;
             
-            // Add haptic feedback on mobile
             if (navigator.vibrate) {
                 navigator.vibrate(50);
             }
             
             showTyping();
 
-            try {
-                const response = await fetch('/index.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message: message })
-                });
-
-                const data = await response.json();
-                
-                // Simulate realistic typing delay
-                setTimeout(() => {
-                    hideTyping();
-                    
-                    if (data.status === 'success') {
-                        addMessage(data.response);
-                    } else {
-                        addMessage('Error occurred. Please try again or contact support at 9499473347.');
-                    }
-                    
-                    sendButton.disabled = false;
-                    messageInput.focus();
-                }, 1000 + Math.random() * 1000);
-                
-            } catch (error) {
-                setTimeout(() => {
-                    hideTyping();
-                    addMessage('Connection failed. Please try again or contact support at 9499473347.');
-                    sendButton.disabled = false;
-                    messageInput.focus();
-                }, 1000);
-            }
+            setTimeout(() => {
+                hideTyping();
+                const response = findResponse(message);
+                addMessage(response);
+                sendButton.disabled = false;
+                messageInput.focus();
+            }, 1000 + Math.random() * 1000);
         }
 
         function sendQuickMessage(message) {
@@ -825,33 +740,13 @@
             const maxHeight = window.innerWidth <= 480 ? 80 : 120;
             this.style.height = Math.min(this.scrollHeight, maxHeight) + 'px';
         });
-        
-        // Handle orientation change
-        window.addEventListener('orientationchange', function() {
-            setTimeout(() => {
-                chatMessages.scrollTo({
-                    top: chatMessages.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }, 100);
-        });
-        
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            setTimeout(() => {
-                chatMessages.scrollTo({
-                    top: chatMessages.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }, 100);
-        });
 
         // Focus input on load
         window.addEventListener('load', () => {
             messageInput.focus();
         });
 
-        // Add some interactive effects
+        // Interactive effects
         document.addEventListener('mousemove', (e) => {
             const shapes = document.querySelectorAll('.shape');
             shapes.forEach((shape, index) => {
