@@ -35,6 +35,16 @@ def support():
 def test():
     return jsonify({'message': 'Server is working!', 'status': 'success'})
 
+@app.route('/debug')
+def debug():
+    import sys
+    return jsonify({
+        'python_version': sys.version,
+        'flask_working': True,
+        'gemini_key_set': bool(api_key),
+        'data_file_exists': os.path.exists('my_data.jsonl')
+    })
+
 @app.route('/chat', methods=['POST'])
 def chat():
     print(f"Received chat request")  # Debug log
@@ -92,6 +102,14 @@ def chat():
         
         try:
             print("Calling Gemini API...")  # Debug log
+            
+            # Test without Gemini first
+            if user_message.lower() == 'test':
+                return jsonify({
+                    'response': 'Test successful! Server and chat endpoint working.',
+                    'status': 'success'
+                })
+            
             model = genai.GenerativeModel('gemini-2.5-flash')
             response = model.generate_content(prompt)
             print(f"Gemini response received")  # Debug log
@@ -104,7 +122,7 @@ def chat():
         except Exception as gemini_error:
             print(f"Gemini API error: {gemini_error}")  # Debug log
             return jsonify({
-                'response': "Technical issue occurred. Contact our support at 9499473347 or visit www.setupguru.shop for immediate assistance.",
+                'response': f"API Error: {str(gemini_error)}. Contact support at 9499473347.",
                 'status': 'error'
             }), 500
             
