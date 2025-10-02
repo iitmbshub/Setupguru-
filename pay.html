@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secure Payment - SetupGuru</title>
     
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -141,7 +142,7 @@
                 </div>
                 <div class="security-info">
                     <div class="icon"><i class="fas fa-lock"></i></div>
-                    <p><b>100% Secure Payment:</b> All transactions are secured with 256-bit SSL encryption and processed by Razorpay.</p>
+                    <p><b>100% Secure Payment:</b> All transactions are secured and processed by Cashfree Payments.</p>
                 </div>
             </div>
             <div class="payment-summary">
@@ -188,28 +189,23 @@
             if (user) {
                 initializePayment(user);
             } else {
+                // Fallback for anonymous or custom token auth
                 const __initial_auth_token = typeof window.__initial_auth_token !== 'undefined' ? window.__initial_auth_token : null;
-                
                 if (__initial_auth_token) {
-                    auth.signInWithCustomToken(__initial_auth_token)
-                        .then(() => initializePayment(auth.currentUser))
-                        .catch(error => {
-                            loader.innerHTML = '<h1>Authentication Error. Please <a href="login.html">log in</a>.</h1><p>Error: ' + error.message + '</p>';
-                        });
+                    auth.signInWithCustomToken(__initial_auth_token).then(() => initializePayment(auth.currentUser)).catch(handleAuthError);
                 } else {
-                    auth.signInAnonymously()
-                        .then(() => initializePayment(auth.currentUser))
-                        .catch(error => {
-                             loader.innerHTML = '<h1>Authentication Error. Please <a href="login.html">log in</a>.</h1><p>Error: ' + error.message + '</p>';
-                        });
+                    auth.signInAnonymously().then(() => initializePayment(auth.currentUser)).catch(handleAuthError);
                 }
             }
         });
 
+        function handleAuthError(error) {
+            loader.innerHTML = '<h1>Authentication Error. Please <a href="login.html">log in</a>.</h1><p>Error: ' + error.message + '</p>';
+        }
+
         async function initializePayment(user) {
             const shippingDetails = JSON.parse(localStorage.getItem('pendingOrderDetails'));
             const cartItems = JSON.parse(localStorage.getItem('cartItems'));
-            // NEW: Applied coupon ko localStorage se get karna
             const appliedCoupon = JSON.parse(localStorage.getItem('appliedCoupon'));
 
             if (!shippingDetails || !cartItems || cartItems.length === 0) {
@@ -217,7 +213,6 @@
                 return;
             }
             
-            // --- Populate UI ---
             userNameDisplay.textContent = shippingDetails.fullName.split(' ')[0] || 'USER';
             
             document.getElementById('shippingAddressBox').innerHTML = `
@@ -231,24 +226,18 @@
                 <div class="item"><span>${item.title} (x${item.quantity})</span> <strong>₹${Math.floor(item.price * (1-(item.discountPercent||0)/100) * item.quantity)}</strong></div>
             `).join('');
 
-            // NEW: Calculation ko coupon discount ke saath update karna
             const subtotal = cartItems.reduce((total, item) => total + (item.price * (1 - (item.discountPercent || 0) / 100) * item.quantity), 0);
-
             let couponDiscountAmount = 0;
             if (appliedCoupon) {
                 couponDiscountAmount = subtotal * (appliedCoupon.discountPercent / 100);
             }
             const subtotalAfterCoupon = subtotal - couponDiscountAmount;
-            
-            // NEW: Delivery fee ko bhi checkout page ki tarah dynamic karna
             const deliveryFee = subtotalAfterCoupon >= 1000 ? 0 : 19;
             const grandTotal = Math.floor(subtotalAfterCoupon + deliveryFee);
 
-            // NEW: Summary UI ko update karna
             document.getElementById('subtotalValue').textContent = `₹${Math.floor(subtotal)}`;
             document.getElementById('deliveryFeeValue').textContent = deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`;
 
-            // NEW: Coupon row ko dynamically add karna agar coupon applied hai
             if (appliedCoupon) {
                 const breakdownList = document.querySelector('.order-breakdown');
                 const totalRow = breakdownList.querySelector('.total');
@@ -261,52 +250,121 @@
 
             paymentData = {
                 totalAmount: grandTotal,
-                user: { name: shippingDetails.fullName, email: shippingDetails.email, contact: shippingDetails.mobile }
+                orderId: `order_${Date.now()}`, // Generate a unique order id
+                user: { name: shippingDetails.fullName, email: shippingDetails.email, contact: shippingDetails.mobile },
+                shipping: shippingDetails
             };
             
             loader.style.display = 'none';
             paymentLayout.style.display = 'grid';
         }
 
-        payBtn.addEventListener('click', () => {
+        // --- START: CASHFREE INTEGRATION ---
+
+        // Initialize Cashfree SDK
+        const cashfree = new cashfree.Cashfree({
+            mode: "production" // Use "sandbox" for testing
+        });
+
+        // IMPORTANT: This function is a placeholder.
+        // You MUST implement this logic on your backend server.
+        // The server will call Cashfree's Order API and return the payment_session_id.
+        async function getCashfreeSessionId() {
+            // =======================================================================
+            // !! SECURITY WARNING !!
+            // DO NOT expose your Secret Key in client-side code (HTML/JS).
+            // This backend call is ESSENTIAL to keep your credentials secure.
+            // =======================================================================
+
+            // EXAMPLE BACKEND CALL (using fetch API)
+            // Replace 'https://your-backend.com/create-cashfree-order' with your actual server endpoint.
+            /*
+            try {
+                const response = await fetch('https://your-backend.com/create-cashfree-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: paymentData.totalAmount,
+                        order_id: paymentData.orderId,
+                        customer_details: {
+                            customer_id: auth.currentUser.uid,
+                            customer_email: paymentData.user.email,
+                            customer_phone: paymentData.user.contact,
+                            customer_name: paymentData.user.name
+                        }
+                    })
+                });
+                const data = await response.json();
+                if (data.payment_session_id) {
+                    return data.payment_session_id;
+                } else {
+                    throw new Error('Failed to create payment session');
+                }
+            } catch (error) {
+                console.error("Cashfree session creation failed:", error);
+                return null;
+            }
+            */
+
+            // For now, returning null as we don't have a backend.
+            // You MUST replace this with your actual server call.
+            console.error("Backend function `getCashfreeSessionId` is not implemented.");
+            statusMessage.textContent = 'Error: Payment backend is not configured.';
+            statusMessage.classList.add('error');
+            return null;
+        }
+
+
+        payBtn.addEventListener('click', async () => {
             statusMessage.textContent = '';
             payBtn.classList.add('processing');
             payBtn.disabled = true;
 
-            const options = {
-                "key": "rzp_test_RKZP5o0K6VbR63",
-                "amount": paymentData.totalAmount * 100,
-                "currency": "INR",
-                "name": "SetupGuru.shop",
-                "description": "Order Payment",
-                "image": "https://i.ibb.co/hRBZFSS3/1758331953202.jpg",
-                "handler": function (response){
-                    localStorage.setItem('transactionId', response.razorpay_payment_id);
-                    // NEW: Payment ke baad coupon ko clear kar dena
+            const paymentSessionId = await getCashfreeSessionId();
+
+            if (!paymentSessionId) {
+                payBtn.classList.remove('processing');
+                payBtn.disabled = false;
+                return; // Stop if session ID couldn't be fetched
+            }
+
+            const checkoutOptions = {
+                paymentSessionId: paymentSessionId,
+                returnUrl: "https://setupguru-217af.firebaseapp.com/success.html?order_id={order_id}" // Optional: Redirect after payment
+            };
+            
+            cashfree.pay(checkoutOptions).then((data) => {
+                if (data.error) {
+                    statusMessage.textContent = `Payment failed: ${data.error.message}`;
+                    statusMessage.classList.add('error');
+                    payBtn.classList.remove('processing');
+                    payBtn.disabled = false;
+                    console.error("Cashfree Payment Error:", data.error);
+                }
+                if (data.paymentDetails) {
+                    // This block is mainly used if you are NOT using returnUrl.
+                    // Since the old logic redirects, we will rely on the returnUrl.
+                    // If you don't use returnUrl, you can handle the success logic here.
+                    console.log("Payment Successful:", data.paymentDetails);
+                    localStorage.setItem('transactionId', data.paymentDetails.paymentId);
                     localStorage.removeItem('appliedCoupon');
                     window.location.href = 'success.html';
-                },
-                "prefill": paymentData.user,
-                "theme": { "color": "#2E1A5F" },
-                "modal": {
-                    "ondismiss": function(){
-                        statusMessage.textContent = 'Payment cancelled. Please try again.';
-                        statusMessage.classList.add('error');
-                        payBtn.classList.remove('processing');
-                        payBtn.disabled = false;
-                    }
                 }
-            };
-
-            const rzp1 = new Razorpay(options);
-            rzp1.on('payment.failed', function (response){
-                statusMessage.textContent = `Payment failed: ${response.error.description}.`;
+                if (data.order && data.order.status === 'PAID') {
+                    console.log("Order Paid!");
+                    localStorage.setItem('transactionId', data.order.paymentId);
+                    localStorage.removeItem('appliedCoupon');
+                    window.location.href = 'success.html';
+                }
+            }).catch(error => {
+                console.error("An exception occurred during payment:", error);
+                statusMessage.textContent = 'An unexpected error occurred. Please try again.';
                 statusMessage.classList.add('error');
                 payBtn.classList.remove('processing');
                 payBtn.disabled = false;
             });
-            rzp1.open();
         });
+        // --- END: CASHFREE INTEGRATION ---
     </script>
 </body>
 </html>
